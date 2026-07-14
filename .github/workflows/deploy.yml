@@ -1,0 +1,74 @@
+name: Build and Deploy to Render
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-and-test:
+    name: Build & Verify Codebase
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Linter (TypeScript Verification)
+        run: npm run lint
+
+      - name: Build Full-Stack Application
+        run: npm run build
+
+      - name: Print Build Success Log
+        run: echo "Full-stack bundle successfully compiled! Output saved to dist/."
+
+  deploy:
+    name: Trigger Full-Stack Hosting
+    needs: build-and-test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render Deployment
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "::warning::RENDER_DEPLOY_HOOK secret is not set. Skipping live deployment trigger. Please add it to your GitHub Repository Secrets."
+            exit 0
+          fi
+          echo "Triggering deployment..."
+          curl -s "$RENDER_DEPLOY_HOOK" > /dev/null
+          echo "Deployment successfully triggered!"
+
+      - name: Publish Deployment Link to Job Summary
+        env:
+          RENDER_APP_URL: ${{ secrets.RENDER_APP_URL }}
+        run: |
+          echo "### 🚀 National Housing Delivery Platform Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Your repository was successfully built, verified, and sent for hosting!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ ! -z "$RENDER_APP_URL" ]; then
+            echo "🔗 **Live Web App Link:** [$RENDER_APP_URL]($RENDER_APP_URL)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🔗 **Live Web App Link:** _Set the RENDER_APP_URL repository secret in GitHub to see your direct live link here!_" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "⚡ _Deployment orchestrated automatically via GitHub Actions and Render Web Services._" >> $GITHUB_STEP_SUMMARY
