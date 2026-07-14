@@ -1,0 +1,835 @@
+import React, { useState } from 'react';
+import { 
+  Project, 
+  Contractor, 
+  CONSTRUCTION_STAGES, 
+  PhotoUpdate 
+} from '../types';
+import { 
+  Plus, 
+  Check, 
+  Clock, 
+  MapPin, 
+  User, 
+  Camera, 
+  ArrowLeft, 
+  DollarSign, 
+  Calendar, 
+  AlertCircle,
+  Building,
+  UploadCloud,
+  FileText,
+  ThumbsUp,
+  ThumbsDown,
+  X
+} from 'lucide-react';
+
+interface ProjectsViewProps {
+  projects: Project[];
+  contractors: Contractor[];
+  selectedProjectId: string | null;
+  onSelectProject: (projectId: string | null) => void;
+  onSetupProject: (projectData: any) => Promise<void>;
+  onUpdateProject: (projectId: string, updateData: any) => Promise<void>;
+  currentUser?: any;
+  onAcceptProject?: (projectId: string) => Promise<void>;
+  onRejectProject?: (projectId: string) => Promise<void>;
+}
+
+export default function ProjectsView({
+  projects,
+  contractors,
+  selectedProjectId,
+  onSelectProject,
+  onSetupProject,
+  onUpdateProject,
+  currentUser,
+  onAcceptProject,
+  onRejectProject
+}: ProjectsViewProps) {
+  const [isSettingUp, setIsSettingUp] = useState(false);
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
+
+  // Form states for new project
+  const [state, setState] = useState('Abuja');
+  const [estateName, setEstateName] = useState('');
+  const [houseType, setHouseType] = useState('3 Bedroom Bungalow');
+  const [houseCount, setHouseCount] = useState('100');
+  const [contractorId, setContractorId] = useState('');
+  const [projectManager, setProjectManager] = useState('');
+  const [budget, setBudget] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [targetCompletionDate, setTargetCompletionDate] = useState('');
+
+  // Form states for progress update & photo evidence
+  const [updatingStages, setUpdatingStages] = useState<{ [key: string]: boolean }>({});
+  const [photoStage, setPhotoStage] = useState('Foundation');
+  const [beforePhoto, setBeforePhoto] = useState('https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=500&q=80');
+  const [afterPhoto, setAfterPhoto] = useState('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=500&q=80');
+  const [gpsName, setGpsName] = useState('FHA Site Sector A, Abuja');
+  const [uploader, setUploader] = useState('');
+  const [simulatedGps, setSimulatedGps] = useState<any>(null);
+  const [isSimulatingCapture, setIsSimulatingCapture] = useState(false);
+
+  const isContractor = currentUser?.role === 'CONTRACTOR';
+  const displayedProjects = isContractor
+    ? projects.filter(p => p.contractorId === currentUser?.contractorId)
+    : projects;
+
+  // Find the selected project object
+  const currentProject = projects.find(p => p.id === selectedProjectId) || null;
+
+  // Initialize updating stages when selecting a project
+  React.useEffect(() => {
+    if (currentProject) {
+      setUpdatingStages({ ...currentProject.stages });
+      setUploader(currentProject.projectManager);
+      // Auto pre-fill photo stage to the next uncompleted stage
+      const nextUncompleted = CONSTRUCTION_STAGES.find(stage => !currentProject.stages[stage]);
+      if (nextUncompleted) {
+        setPhotoStage(nextUncompleted);
+      }
+    }
+  }, [selectedProjectId, currentProject]);
+
+  // Handle Project Creation Setup
+  const handleSubmitSetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!estateName || !contractorId || !budget || !targetCompletionDate) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    const contractor = contractors.find(c => c.id === contractorId);
+    
+    await onSetupProject({
+      state,
+      estateName,
+      houseType,
+      houseCount: Number(houseCount),
+      contractorId,
+      contractorName: contractor?.companyName || "Assigned Contractor",
+      projectManager: projectManager || "Resident Engineer",
+      budget: Number(budget),
+      startDate: startDate || new Date().toISOString().split('T')[0],
+      targetCompletionDate
+    });
+
+    // Reset Form
+    setEstateName('');
+    setProjectManager('');
+    setBudget('');
+    setStartDate('');
+    setTargetCompletionDate('');
+    setIsSettingUp(false);
+  };
+
+  // Simulate Photo & GPS capture
+  const handleSimulateCapture = () => {
+    setIsSimulatingCapture(true);
+    
+    // Choose high-quality construction images based on selected stage
+    let beforeUrl = "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=500&q=80"; // ground/dig
+    let afterUrl = "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=500&q=80"; // brick/concrete
+
+    if (photoStage.toLowerCase().includes("roof")) {
+      beforeUrl = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=500&q=80";
+      afterUrl = "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=500&q=80";
+    } else if (photoStage.toLowerCase().includes("finish") || photoStage.toLowerCase().includes("complete")) {
+      beforeUrl = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=500&q=80";
+      afterUrl = "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=500&q=80";
+    } else if (photoStage.toLowerCase().includes("electrical") || photoStage.toLowerCase().includes("plumbing")) {
+      beforeUrl = "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=500&q=80";
+      afterUrl = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=500&q=80";
+    }
+
+    setTimeout(() => {
+      // Pick simulated GPS near the project state
+      let lat = 9.0765;
+      let lng = 7.3986;
+      let locName = "FHA Gwarinpa Estate, Abuja";
+
+      if (currentProject?.state.toLowerCase() === 'kaduna') {
+        lat = 10.5105; lng = 7.4165; locName = "Kada Hill Estate Sector C, Kaduna";
+      } else if (currentProject?.state.toLowerCase() === 'lagos') {
+        lat = 6.6112; lng = 3.3289; locName = "Isheri Olofin FHA Sector, Lagos";
+      } else if (currentProject?.state.toLowerCase() === 'rivers') {
+        lat = 4.8697; lng = 6.9935; locName = "Rumuokoro Garden Estate, Port Harcourt";
+      } else if (currentProject?.state.toLowerCase() === 'kano') {
+        lat = 11.9964; lng = 8.5167; locName = "Dala Hill Court Sector A, Kano";
+      }
+
+      setBeforePhoto(beforeUrl);
+      setAfterPhoto(afterUrl);
+      setGpsName(locName);
+      setSimulatedGps({
+        lat,
+        lng,
+        accuracy: 3.5, // 3.5 meters
+        locationName: locName
+      });
+      setIsSimulatingCapture(false);
+    }, 800);
+  };
+
+  // Submit stage completion and photo evidence
+  const handleSaveProgress = async () => {
+    if (!currentProject) return;
+
+    const photoUpdate: any = simulatedGps ? {
+      stage: photoStage,
+      beforePhoto,
+      afterPhoto,
+      gps: simulatedGps,
+      uploadedBy: uploader || "Resident Engineer"
+    } : null;
+
+    // Check if stages have actually been checked
+    await onUpdateProject(currentProject.id, {
+      stages: updatingStages,
+      photoUpdate: photoUpdate
+    });
+
+    setSimulatedGps(null);
+    alert("Progress and photo evidence successfully synchronized with the central database!");
+  };
+
+  // Checkbox toggle
+  const handleStageCheckboxToggle = async (stage: string) => {
+    if (!currentProject) return;
+
+    const targetIndex = CONSTRUCTION_STAGES.indexOf(stage);
+    if (targetIndex === -1) return;
+
+    const currentChecked = !!updatingStages[stage];
+    const nextChecked = !currentChecked;
+
+    // Create copy of updating stages and run cascading
+    const updated = { ...updatingStages };
+    if (nextChecked) {
+      // Mark this stage and all preceding stages as true
+      for (let i = 0; i <= targetIndex; i++) {
+        updated[CONSTRUCTION_STAGES[i]] = true;
+      }
+    } else {
+      // Unmark this stage and all succeeding stages as false
+      for (let i = targetIndex; i < CONSTRUCTION_STAGES.length; i++) {
+        updated[CONSTRUCTION_STAGES[i]] = false;
+      }
+    }
+
+    setUpdatingStages(updated);
+
+    // Recalculate progress
+    const checkedCount = CONSTRUCTION_STAGES.filter(s => updated[s] === true).length;
+    const newProgress = Math.round((checkedCount / CONSTRUCTION_STAGES.length) * 100);
+
+    let newStatus = currentProject.status;
+    if (updated["Completed"] === true) {
+      newStatus = "Completed";
+    } else if (newProgress > 0 && currentProject.status === "Completed") {
+      newStatus = "On Schedule";
+    }
+
+    // Instantly save to backend
+    await onUpdateProject(currentProject.id, {
+      stages: updated,
+      status: newStatus
+    });
+  };
+
+  // Formatter for Currency
+  const formatMoney = (amount: number) => {
+    return `₦${amount.toLocaleString()}`;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Title block */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-medium text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+            Projects <span className="text-amber-500">/</span> Administration & Progress
+          </h2>
+          <p className="text-slate-400 text-sm">Deploy new estates, adjust work breakdown structures, and record visual audit logs</p>
+        </div>
+        
+        {!selectedProjectId && !isSettingUp && !isContractor && (
+          <button 
+            onClick={() => {
+              setIsSettingUp(true);
+              if (contractors.length > 0) {
+                // Pre-fill first approved contractor
+                const firstApp = contractors.find(c => c.status === 'approved');
+                if (firstApp) setContractorId(firstApp.id);
+              }
+            }}
+            className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-4 py-2.5 rounded-lg text-sm flex items-center gap-2 transition"
+          >
+            <Plus className="w-4 h-4 text-black" />
+            <span>Setup New Project Estate</span>
+          </button>
+        )}
+      </div>
+
+      {/* CREATE NEW PROJECT SCREEN (Module 2) */}
+      {isSettingUp && (
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-white/10">
+            <button 
+              onClick={() => setIsSettingUp(false)}
+              className="text-slate-400 hover:text-white p-1 rounded hover:bg-white/5 transition"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h3 className="text-lg font-medium text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>Project Registration Scheme</h3>
+              <p className="text-slate-400 text-xs">Establish the contract linkages: State &rarr; Estate &rarr; House Type &rarr; Contractor</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmitSetup} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">State Jurisdiction</label>
+              <select 
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+              >
+                <option value="Abuja" className="bg-[#050505]">Abuja (FCT)</option>
+                <option value="Kaduna" className="bg-[#050505]">Kaduna</option>
+                <option value="Lagos" className="bg-[#050505]">Lagos</option>
+                <option value="Rivers" className="bg-[#050505]">Rivers (Port Harcourt)</option>
+                <option value="Kano" className="bg-[#050505]">Kano</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Estate Scheme Name *</label>
+              <input 
+                type="text" 
+                placeholder="e.g. Kada Hill Estate Phase 2" 
+                value={estateName}
+                onChange={(e) => setEstateName(e.target.value)}
+                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Housing Typology</label>
+              <select 
+                value={houseType}
+                onChange={(e) => setHouseType(e.target.value)}
+                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+              >
+                <option value="2 Bedroom Semi-Detached" className="bg-[#050505]">2 Bedroom Semi-Detached Bungalow</option>
+                <option value="3 Bedroom Bungalow" className="bg-[#050505]">3 Bedroom Bungalow (Standard)</option>
+                <option value="4 Bedroom Detached Duplex" className="bg-[#050505]">4 Bedroom Detached Duplex (Premium)</option>
+                <option value="2 Bedroom Terrace Flat" className="bg-[#050505]">2 Bedroom Terrace Flat</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Housing Units Count</label>
+              <input 
+                type="number" 
+                value={houseCount}
+                onChange={(e) => setHouseCount(e.target.value)}
+                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Assigned Onboarded Contractor *</label>
+              <select 
+                value={contractorId}
+                onChange={(e) => setContractorId(e.target.value)}
+                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+                required
+              >
+                {contractors.filter(c => c.status === 'approved').map(c => (
+                  <option key={c.id} value={c.id} className="bg-[#050505]">{c.companyName}</option>
+                ))}
+                {contractors.filter(c => c.status === 'approved').length === 0 && (
+                  <option value="" className="bg-[#050505]">No approved contractors available!</option>
+                )}
+              </select>
+            </div>
+
+             <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Resident Project Manager / Engr *</label>
+              <input 
+                type="text" 
+                placeholder="e.g. Engineer Musa Bello" 
+                value={projectManager}
+                onChange={(e) => setProjectManager(e.target.value)}
+                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Contract Budget Amount (NGN) *</label>
+              <input 
+                type="number" 
+                placeholder="e.g. 350000000" 
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Start Date</label>
+                <input 
+                  type="date" 
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2 px-3 rounded-lg text-xs outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Target Completion *</label>
+                <input 
+                  type="date" 
+                  value={targetCompletionDate}
+                  onChange={(e) => setTargetCompletionDate(e.target.value)}
+                  className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2 px-3 rounded-lg text-xs outline-none"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="md:col-span-2 flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+              <button 
+                type="button"
+                onClick={() => setIsSettingUp(false)}
+                className="text-slate-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg text-sm transition"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-5 py-2 rounded-lg text-sm transition"
+              >
+                Deploy Project Setup
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* PROJECT LIST SCREEN (DEFAULT) */}
+      {!selectedProjectId && !isSettingUp && (
+        <div className="grid grid-cols-1 gap-4">
+          {displayedProjects.map((p) => (
+            <div 
+              key={p.id}
+              onClick={() => {
+                if (p.assignmentStatus === 'Pending') {
+                  alert("Please accept this contract assignment first to open the project workspace.");
+                  return;
+                }
+                if (p.assignmentStatus === 'Rejected') {
+                  alert("This project assignment has been rejected.");
+                  return;
+                }
+                onSelectProject(p.id);
+              }}
+              className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-amber-500/30 hover:bg-white/[0.08] cursor-pointer transition flex flex-col md:flex-row justify-between items-start md:items-center gap-5"
+            >
+              {/* Left Details */}
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base font-bold text-white group-hover:text-amber-500 transition-colors font-serif" style={{ fontFamily: 'Georgia, serif' }}>{p.estateName}</h3>
+                  
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    p.status === 'Completed' ? 'bg-sky-500/15 text-sky-400 border border-sky-500/30' :
+                    p.status === 'Delayed' ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30' :
+                    p.status === 'Needs Attention' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                    'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                  }`}>
+                    {p.status}
+                  </span>
+
+                  {p.assignmentStatus && (
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      p.assignmentStatus === 'Accepted' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' :
+                      p.assignmentStatus === 'Rejected' ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30' :
+                      'bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse'
+                    }`}>
+                      {p.assignmentStatus === 'Accepted' ? 'Contract Accepted' :
+                       p.assignmentStatus === 'Rejected' ? 'Assignment Rejected' :
+                       'Pending Acceptance'}
+                    </span>
+                  )}
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-400 pt-0.5">
+                  <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-500" /> {p.state}</span>
+                  <span className="flex items-center gap-1"><Building className="w-3.5 h-3.5 text-slate-500" /> {p.houseType} ({p.houseCount} Units)</span>
+                  <span className="flex items-center gap-1"><User className="w-3.5 h-3.5 text-slate-500" /> PM: {p.projectManager}</span>
+                </div>
+
+                {isContractor && p.assignmentStatus === 'Pending' && (
+                  <div className="flex items-center gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
+                    <span className="text-xs text-amber-500 font-bold mr-2">Decision Required:</span>
+                    <button 
+                      onClick={() => onAcceptProject && onAcceptProject(p.id)}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3 rounded text-[10px] flex items-center gap-1 transition shadow-lg shadow-emerald-600/10"
+                    >
+                      <Check className="w-3 h-3" /> Accept Assignment
+                    </button>
+                    <button 
+                      onClick={() => onRejectProject && onRejectProject(p.id)}
+                      className="bg-rose-600 hover:bg-rose-500 text-white font-bold py-1.5 px-3 rounded text-[10px] flex items-center gap-1 transition shadow-lg shadow-rose-600/10"
+                    >
+                      <X className="w-3 h-3" /> Decline
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress Slider */}
+              <div className="w-full md:w-60 space-y-1">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-400">
+                  <span>WBS Progress</span>
+                  <span className="text-white font-bold">{p.progress}%</span>
+                </div>
+                <div className="w-full h-2 bg-black/50 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full transition-all duration-500 ${
+                      p.status === 'Delayed' ? 'bg-rose-500' : p.status === 'Needs Attention' ? 'bg-amber-500' : p.status === 'Completed' ? 'bg-sky-500' : 'bg-amber-500'
+                    }`} 
+                    style={{ width: `${p.progress}%` }} 
+                  />
+                </div>
+              </div>
+
+              {/* Financial Summary */}
+              <div className="text-left md:text-right shrink-0">
+                <div className="text-xs text-slate-500 font-bold uppercase tracking-widest">Contract Budget</div>
+                <div className="text-sm font-bold text-amber-500">{formatMoney(p.budget)}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">Disbursed: {formatMoney(p.spent)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* DETAILED PROJECT WORKSPACE (Module 3 & 4) */}
+      {selectedProjectId && currentProject && !isSettingUp && (
+        <div className="space-y-6">
+          {/* Header Bar */}
+          <div className="bg-white/5 rounded-2xl border border-white/10 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => onSelectProject(null)}
+                className="text-slate-400 hover:text-white p-2 rounded-lg bg-black/40 border border-white/10 hover:border-white/20 transition"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>{currentProject.estateName}</h3>
+                  <span className="text-xs text-slate-500">&bull; PM Workspace</span>
+                </div>
+                <div className="text-xs text-slate-400 flex flex-wrap gap-x-3 gap-y-1 mt-0.5">
+                  <span>Jurisdiction: <strong>{currentProject.state}</strong></span>
+                  <span>&bull;</span>
+                  <span>Typology: <strong>{currentProject.houseType}</strong></span>
+                  <span>&bull;</span>
+                  <span>Contractor: <strong className="text-amber-500">{currentProject.contractorName}</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">WBS Progress:</span>
+              <div className="bg-black/50 border border-white/10 px-3 py-1.5 rounded-lg text-sm font-extrabold text-amber-500">
+                {currentProject.progress}%
+              </div>
+            </div>
+          </div>
+
+          {/* Action Sections Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* 1. Discrete Stages Checkboxes (Module 3) */}
+            <div className="lg:col-span-4 bg-white/5 rounded-2xl border border-white/10 p-5 flex flex-col justify-between">
+              <div>
+                <div className="pb-3 border-b border-white/10 mb-4">
+                  <h4 className="text-sm font-medium text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+                    <Check className="w-4 h-4 text-amber-500" />
+                    <span>WBS Milestone Progress Checklist</span>
+                  </h4>
+                  <p className="text-slate-400 text-[10px] mt-0.5">Check completed segments to automatically calculate percentage.</p>
+                </div>
+
+                <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
+                  {CONSTRUCTION_STAGES.map((stage) => {
+                    const isChecked = !!updatingStages[stage];
+                    return (
+                      <div 
+                        key={stage}
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
+                          isChecked 
+                            ? 'bg-amber-500/5 border-amber-500/20 text-white' 
+                            : 'bg-black/40 border-white/5 text-slate-400 hover:border-white/10'
+                        }`}
+                      >
+                        <label className="flex items-center gap-3 cursor-pointer flex-1">
+                          <input 
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => handleStageCheckboxToggle(stage)}
+                            className="accent-amber-500 w-4 h-4 cursor-pointer"
+                          />
+                          <span>{stage}</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPhotoStage(stage);
+                            // Set coordinates & generate picture simulation immediately
+                            setIsSimulatingCapture(true);
+                            let beforeUrl = "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=500&q=80";
+                            let afterUrl = "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=500&q=80";
+
+                            if (stage.toLowerCase().includes("roof")) {
+                              beforeUrl = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=500&q=80";
+                              afterUrl = "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=500&q=80";
+                            } else if (stage.toLowerCase().includes("finish") || stage.toLowerCase().includes("complete")) {
+                              beforeUrl = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=500&q=80";
+                              afterUrl = "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=500&q=80";
+                            } else if (stage.toLowerCase().includes("electrical") || stage.toLowerCase().includes("plumbing")) {
+                              beforeUrl = "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=500&q=80";
+                              afterUrl = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=500&q=80";
+                            }
+
+                            setTimeout(() => {
+                              let lat = 9.0765; let lng = 7.3986; let locName = "FHA Gwarinpa Estate, Abuja";
+                              if (currentProject?.state.toLowerCase() === 'kaduna') {
+                                lat = 10.5105; lng = 7.4165; locName = "Kada Hill Estate Sector C, Kaduna";
+                              } else if (currentProject?.state.toLowerCase() === 'lagos') {
+                                lat = 6.6112; lng = 3.3289; locName = "Isheri Olofin FHA Sector, Lagos";
+                              } else if (currentProject?.state.toLowerCase() === 'rivers') {
+                                lat = 4.8697; lng = 6.9935; locName = "Rumuokoro Garden Estate, Port Harcourt";
+                              } else if (currentProject?.state.toLowerCase() === 'kano') {
+                                lat = 11.9964; lng = 8.5167; locName = "Dala Hill Court Sector A, Kano";
+                              }
+                              setBeforePhoto(beforeUrl);
+                              setAfterPhoto(afterUrl);
+                              setGpsName(locName);
+                              setSimulatedGps({ lat, lng, accuracy: 2.8, locationName: locName });
+                              setIsSimulatingCapture(false);
+                            }, 400);
+                          }}
+                          title={`Capture visual progress for ${stage}`}
+                          className="p-1 bg-white/5 hover:bg-amber-500 hover:text-black rounded text-slate-400 transition ml-2 flex items-center justify-center"
+                        >
+                          <Camera className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-5 pt-4 border-t border-white/10">
+                <button 
+                  onClick={handleSaveProgress}
+                  className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-2.5 rounded-lg text-xs transition"
+                >
+                  Save WBS Milestone Changes
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Photo & GPS Evidence Upload (Module 4) */}
+            <div className="lg:col-span-8 bg-white/5 rounded-2xl border border-white/10 p-5 flex flex-col justify-between">
+              <div>
+                <div className="pb-3 border-b border-white/10 mb-4 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-medium text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+                      <Camera className="w-4 h-4 text-amber-500" />
+                      <span>On-Site Visual Audit Log (Photo Evidence)</span>
+                    </h4>
+                    <p className="text-slate-400 text-[10px] mt-0.5">Simulate actual site capture (with precise timestamp, GPS, and imagery)</p>
+                  </div>
+                  
+                  <button 
+                    type="button"
+                    onClick={handleSimulateCapture}
+                    disabled={isSimulatingCapture}
+                    className="bg-black/50 hover:bg-white/5 text-amber-500 font-semibold px-3 py-1.5 border border-white/10 hover:border-amber-500/30 rounded-lg text-[10px] flex items-center gap-2 transition disabled:opacity-50"
+                  >
+                    <UploadCloud className="w-3.5 h-3.5 text-amber-500 animate-bounce" />
+                    <span>{isSimulatingCapture ? "Simulating..." : "Simulate Site Capture"}</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Target Construction Stage</label>
+                    <select 
+                      value={photoStage}
+                      onChange={(e) => setPhotoStage(e.target.value)}
+                      className="w-full bg-black/50 text-slate-100 border border-white/10 py-2 px-3 rounded-lg text-xs outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
+                    >
+                      {CONSTRUCTION_STAGES.map(s => (
+                        <option key={s} value={s} className="bg-[#050505]">{s}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Responsible Reporting Party</label>
+                    <input 
+                      type="text" 
+                      value={uploader}
+                      onChange={(e) => setUploader(e.target.value)}
+                      className="w-full bg-black/50 text-slate-100 border border-white/10 py-2 px-3 rounded-lg text-xs outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
+                      placeholder="e.g. Resident Engineer"
+                    />
+                  </div>
+                </div>
+
+                {/* Imagery Preview Box */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-black/40 border border-white/5 rounded-xl p-3">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                      <Camera className="w-3 h-3 text-slate-500" />
+                      <span>Before Photo</span>
+                    </div>
+                    {beforePhoto ? (
+                      <img src={beforePhoto} alt="Before" referrerPolicy="no-referrer" className="w-full h-32 object-cover rounded border border-white/5" />
+                    ) : (
+                      <div className="w-full h-32 bg-[#050505] flex items-center justify-center text-xs text-slate-500">Capture simulation needed</div>
+                    )}
+                  </div>
+
+                  <div className="bg-black/40 border border-white/5 rounded-xl p-3">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                      <Camera className="w-3 h-3 text-amber-500" />
+                      <span>After Photo</span>
+                    </div>
+                    {afterPhoto ? (
+                      <img src={afterPhoto} alt="After" referrerPolicy="no-referrer" className="w-full h-32 object-cover rounded border border-white/5" />
+                    ) : (
+                      <div className="w-full h-32 bg-[#050505] flex items-center justify-center text-xs text-slate-500">Capture simulation needed</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* GPS and Metadata Summary */}
+                {simulatedGps && (
+                  <div className="bg-amber-500/5 border border-amber-500/10 rounded-lg p-3 mt-4 text-[11px] space-y-1 flex items-start gap-3">
+                    <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 w-full text-slate-300">
+                      <div>Location Name: <strong className="text-white">{simulatedGps.locationName}</strong></div>
+                      <div>Precise Coordinates: <strong className="text-white">{simulatedGps.lat.toFixed(5)}, {simulatedGps.lng.toFixed(5)}</strong></div>
+                      <div>Receiver Accuracy: <strong className="text-amber-400">&plusmn; {simulatedGps.accuracy}m (GNSS RTK)</strong></div>
+                      <div>Timestamp: <strong className="text-white">{new Date().toLocaleString()}</strong></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {simulatedGps && (
+                <div className="mt-5 pt-3 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between text-xs gap-3">
+                  <span className="text-emerald-500 font-bold flex items-center gap-1.5">
+                    <Check className="w-4 h-4 text-emerald-500 animate-pulse" /> Capture verified with GPS signature
+                  </span>
+                  
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const photoUpdate = {
+                          stage: photoStage,
+                          beforePhoto: beforePhoto,
+                          afterPhoto: afterPhoto,
+                          gps: simulatedGps,
+                          uploadedBy: uploader || currentUser?.name || "Contractor"
+                        };
+                        try {
+                          await onUpdateProject(currentProject.id, {
+                            photoUpdate: photoUpdate
+                          });
+                          // Reset simulation state
+                          setSimulatedGps(null);
+                          alert("Photo evidence successfully logged to the project's site gallery!");
+                        } catch (err) {
+                          console.error("Error saving photo evidence:", err);
+                        }
+                      }}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-1.5 transition shadow-lg shadow-emerald-600/15"
+                    >
+                      <UploadCloud className="w-4 h-4" />
+                      <span>Upload Standalone Evidence to Gallery</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Photographic Audit History Trail */}
+          <div className="bg-white/5 rounded-2xl border border-white/10 p-5">
+            <h4 className="text-sm font-medium text-white flex items-center gap-2 mb-4 pb-3 border-b border-white/10 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+              <FileText className="w-4 h-4 text-amber-500" />
+              <span>Photographic Site Audit History Trail</span>
+            </h4>
+
+            {currentProject.photoUpdates.length === 0 ? (
+              <div className="text-center py-8 text-xs text-slate-500">
+                No photo evidence uploaded yet for this estate. Select "Simulate Site Capture" above to add logs.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentProject.photoUpdates.map((item, idx) => (
+                  <div key={idx} className="bg-black/40 p-4 border border-white/10 rounded-xl flex flex-col justify-between gap-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="text-xs font-bold text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>{item.stage} Verification</div>
+                        <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                          <span>{item.gps.locationName} &bull; Coordinates: {item.gps.lat.toFixed(4)}, {item.gps.lng.toFixed(4)}</span>
+                        </div>
+                      </div>
+                      <span className="text-[9px] bg-amber-500/10 text-amber-500 border border-amber-500/20 font-bold px-2 py-0.5 rounded">
+                        GPS Verified (&plusmn;{item.gps.accuracy}m)
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Stage Commencement</span>
+                        <img src={item.beforePhoto} alt="Before" referrerPolicy="no-referrer" className="w-full h-24 object-cover rounded border border-white/5" />
+                      </div>
+                      <div>
+                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Stage Delivery Verification</span>
+                        <img src={item.afterPhoto} alt="After" referrerPolicy="no-referrer" className="w-full h-24 object-cover rounded border border-white/5" />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center text-[10px] text-slate-500 border-t border-white/5 pt-2.5">
+                      <div>Reported by: <strong className="text-slate-300">{item.uploadedBy}</strong></div>
+                      <div>Date: <strong className="text-slate-300">{new Date(item.timestamp).toLocaleDateString()}</strong></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
