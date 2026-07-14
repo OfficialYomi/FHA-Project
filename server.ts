@@ -606,7 +606,7 @@ function getGeminiAI() {
       apiKey: key,
       httpOptions: {
         headers: {
-          'User-Agent': 'aistudio-build',
+          'User-Agent': 'fha-platform',
         }
       }
     });
@@ -1379,7 +1379,7 @@ app.post("/api/chat", async (req, res) => {
     const ai = getGeminiAI();
     if (!ai) {
       return res.status(503).json({ 
-        error: "Gemini AI client is not configured on the server. Please add your GEMINI_API_KEY to the Settings > Secrets tab in AI Studio.",
+        error: "Gemini AI client is not configured on the server. Please check your GEMINI_API_KEY environment variable configuration.",
         isConfigError: true
       });
     }

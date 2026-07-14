@@ -42,6 +42,11 @@ jobs:
     needs: build-and-test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    
+    # Registering a native GitHub Environment enables a "View deployment" button on GitHub
+    environment:
+      name: Production
+      url: ${{ secrets.RENDER_APP_URL || 'https://dashboard.render.com' }}
 
     steps:
       - name: Trigger Render Deployment
@@ -64,10 +69,17 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Your repository was successfully built, verified, and sent for hosting!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          
           if [ ! -z "$RENDER_APP_URL" ]; then
             echo "🔗 **Live Web App Link:** [$RENDER_APP_URL]($RENDER_APP_URL)" >> $GITHUB_STEP_SUMMARY
+            echo "💡 _This link has been registered as an active deployment in your GitHub repository! You can now click the **'View deployment'** button directly on your repository homepage or under the Actions tab._" >> $GITHUB_STEP_SUMMARY
           else
             echo "🔗 **Live Web App Link:** _Set the RENDER_APP_URL repository secret in GitHub to see your direct live link here!_" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### ⚙️ How to see your live link directly on GitHub:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Go to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions**." >> $GITHUB_STEP_SUMMARY
+            echo "2. Create a new Repository Secret named \`RENDER_APP_URL\` and paste your live URL as the value." >> $GITHUB_STEP_SUMMARY
+            echo "3. Once set, future action runs will display your custom URL as a clickable **View deployment** button on the GitHub Repository home screen and in this Actions tab!" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
