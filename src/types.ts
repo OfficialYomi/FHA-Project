@@ -130,6 +130,11 @@ export interface RiskAlert {
   category: 'timeline' | 'quality' | 'budget' | 'compliance' | 'activity';
   resolved: boolean;
   logs?: { date: string; action: string }[];
+  actionTaken?: {
+    type: 'query' | 'meeting' | 'withhold' | 'directive';
+    details: string;
+    date: string;
+  };
 }
 
 export type UserRole = 'MD' | 'PM' | 'QS' | 'RE' | 'FD' | 'CT' | 'CONTRACTOR';

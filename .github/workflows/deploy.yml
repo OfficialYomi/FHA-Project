@@ -1,4 +1,4 @@
-name: Build and Deploy to Render
+name: Build and Deploy to GitHub Pages
 
 on:
   push:
@@ -9,6 +9,18 @@ on:
     branches:
       - main
       - master
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build-and-test:
@@ -37,70 +49,39 @@ jobs:
       - name: Run Linter (TypeScript Verification)
         run: npm run lint
 
-      - name: Build Full-Stack Application
+      - name: Build Static Site for GitHub Pages
         run: npm run build
 
-      - name: Print Build Success Log
-        run: echo "Full-stack bundle successfully compiled! Output saved to dist/."
+      - name: Upload Artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
 
   deploy:
-    name: Trigger Full-Stack Hosting
+    name: Deploy to GitHub Pages
     needs: build-and-test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     
     # Registering a native GitHub Environment enables a "View deployment" button on GitHub
     environment:
-      name: Production
-      url: ${{ steps.set-url.outputs.app_url }}
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Set Deployment URL
-        id: set-url
-        env:
-          RENDER_APP_URL_SECRET: ${{ secrets.RENDER_APP_URL }}
-          RENDER_APP_URL_VAR: ${{ vars.RENDER_APP_URL }}
-        run: |
-          URL="https://dashboard.render.com"
-          if [ ! -z "$RENDER_APP_URL_SECRET" ]; then
-            URL="$RENDER_APP_URL_SECRET"
-          elif [ ! -z "$RENDER_APP_URL_VAR" ]; then
-            URL="$RENDER_APP_URL_VAR"
-          fi
-          echo "app_url=$URL" >> $GITHUB_OUTPUT
-
-      - name: Trigger Render Deployment
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-        run: |
-          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
-            echo "::warning::RENDER_DEPLOY_HOOK secret is not set. Skipping live deployment trigger. Please add it to your GitHub Repository Secrets."
-            exit 0
-          fi
-          echo "Triggering deployment..."
-          curl -s "$RENDER_DEPLOY_HOOK" > /dev/null
-          echo "Deployment successfully triggered!"
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Publish Deployment Link to Job Summary
-        env:
-          RENDER_APP_URL: ${{ secrets.RENDER_APP_URL }}
         run: |
           echo "### 🚀 National Housing Delivery Platform Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Your repository was successfully built, verified, and sent for hosting!" >> $GITHUB_STEP_SUMMARY
+          echo "Your repository was successfully built, verified, and hosted on **GitHub Pages**!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
-          if [ ! -z "$RENDER_APP_URL" ]; then
-            echo "🔗 **Live Web App Link:** [$RENDER_APP_URL]($RENDER_APP_URL)" >> $GITHUB_STEP_SUMMARY
-            echo "💡 _This link has been registered as an active deployment in your GitHub repository! You can now click the **'View deployment'** button directly on your repository homepage or under the Actions tab._" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "🔗 **Live Web App Link:** _Set the RENDER_APP_URL repository secret in GitHub to see your direct live link here!_" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "#### ⚙️ How to see your live link directly on GitHub:" >> $GITHUB_STEP_SUMMARY
-            echo "1. Go to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions**." >> $GITHUB_STEP_SUMMARY
-            echo "2. Create a new Repository Secret named \`RENDER_APP_URL\` and paste your live URL as the value." >> $GITHUB_STEP_SUMMARY
-            echo "3. Once set, future action runs will display your custom URL as a clickable **View deployment** button on the GitHub Repository home screen and in this Actions tab!" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "🔗 **Live Web App Link:** [${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }})" >> $GITHUB_STEP_SUMMARY
+          echo "💡 _This link has been registered as an active deployment in your GitHub repository! You can now click the **'View deployment'** button directly on your repository homepage or under the Actions tab._" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "⚡ _Deployment orchestrated automatically via GitHub Actions and Render Web Services._" >> $GITHUB_STEP_SUMMARY
+          echo "⚡ _Deployment orchestrated automatically via GitHub Actions and GitHub Pages._" >> $GITHUB_STEP_SUMMARY
