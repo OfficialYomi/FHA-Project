@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, UserRole } from '../types';
+import { FhaLogo } from './FhaLogo';
 import { 
   Building, 
   Lock, 
@@ -73,13 +74,17 @@ export default function LoginView({ onLogin }: LoginViewProps) {
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
         
         {/* Left column: Branding, Mission, Authority Crest */}
-        <div className="lg:col-span-5 space-y-6 text-center lg:text-left pr-0 lg:pr-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-full text-[10px] font-bold uppercase tracking-widest leading-none mx-auto lg:mx-0">
+        <div className="lg:col-span-5 space-y-6 text-center lg:text-left pr-0 lg:pr-8 flex flex-col items-center lg:items-start">
+          <div className="w-28 h-28 mb-4 flex items-center justify-center bg-white/5 p-2 rounded-2xl border border-white/10 shadow-xl">
+            <FhaLogo size={100} showText={true} />
+          </div>
+
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-widest leading-none mx-auto lg:mx-0">
             <Building className="w-3.5 h-3.5" />
             Federal Republic of Nigeria
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 text-center lg:text-left">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white leading-none font-serif" style={{ fontFamily: 'Georgia, serif' }}>
               FEDERAL HOUSING <br />
               <span className="text-amber-500">AUTHORITY</span>
@@ -89,7 +94,7 @@ export default function LoginView({ onLogin }: LoginViewProps) {
             </p>
           </div>
 
-          <div className="border-l-2 border-amber-500/30 pl-4 space-y-1.5 hidden lg:block">
+          <div className="border-l-2 border-emerald-500/30 pl-4 space-y-1.5 hidden lg:block text-left">
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Platform Purpose</p>
             <p className="text-[11px] text-slate-500 leading-relaxed">
               Real-time synchronization of physical site works (WBS), contractor rating metric scorecards, progress valuation claims, on-site telemetry photo validation, and multi-tier executive approval loops.
@@ -107,7 +112,9 @@ export default function LoginView({ onLogin }: LoginViewProps) {
               </h2>
               <p className="text-[11px] text-slate-400 mt-0.5">Please provide your assigned credential keys.</p>
             </div>
-            <ShieldCheck className="w-8 h-8 text-amber-500" />
+            <div className="w-12 h-12 flex items-center justify-center">
+              <FhaLogo size={44} showText={false} />
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

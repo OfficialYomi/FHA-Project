@@ -24,6 +24,13 @@ import {
   X
 } from 'lucide-react';
 
+const AVAILABLE_TYPOLOGIES = [
+  "2 Bedroom Semi-Detached Bungalow",
+  "3 Bedroom Bungalow (Standard)",
+  "4 Bedroom Detached Duplex (Premium)",
+  "2 Bedroom Terrace Flat"
+];
+
 interface ProjectsViewProps {
   projects: Project[];
   contractors: Contractor[];
@@ -53,8 +60,15 @@ export default function ProjectsView({
   // Form states for new project
   const [state, setState] = useState('Abuja');
   const [estateName, setEstateName] = useState('');
-  const [houseType, setHouseType] = useState('3 Bedroom Bungalow');
-  const [houseCount, setHouseCount] = useState('100');
+  const [enabledTypologies, setEnabledTypologies] = useState<{ [key: string]: boolean }>({
+    '3 Bedroom Bungalow (Standard)': true
+  });
+  const [typologyCounts, setTypologyCounts] = useState<{ [key: string]: number }>({
+    '2 Bedroom Semi-Detached Bungalow': 50,
+    '3 Bedroom Bungalow (Standard)': 100,
+    '4 Bedroom Detached Duplex (Premium)': 50,
+    '2 Bedroom Terrace Flat': 40
+  });
   const [contractorId, setContractorId] = useState('');
   const [projectManager, setProjectManager] = useState('');
   const [budget, setBudget] = useState('');
@@ -79,6 +93,10 @@ export default function ProjectsView({
   // Find the selected project object
   const currentProject = projects.find(p => p.id === selectedProjectId) || null;
 
+  const totalHouseUnits = Object.entries(enabledTypologies)
+    .filter(([_, enabled]) => enabled)
+    .reduce((sum, [type, _]) => sum + (typologyCounts[type] || 0), 0);
+
   // Initialize updating stages when selecting a project
   React.useEffect(() => {
     if (currentProject) {
@@ -100,13 +118,32 @@ export default function ProjectsView({
       return;
     }
 
+    const activeTypologyList = Object.entries(enabledTypologies)
+      .filter(([_, enabled]) => enabled)
+      .map(([type, _]) => ({
+        type,
+        count: typologyCounts[type] || 0
+      }));
+
+    if (activeTypologyList.length === 0) {
+      alert("Please select at least one Housing Typology.");
+      return;
+    }
+
+    // Compute houseCount and formatted houseType
+    const totalHouseCount = activeTypologyList.reduce((sum, item) => sum + item.count, 0);
+    const houseTypeSummary = activeTypologyList
+      .map(item => `${item.count}x ${item.type.replace(/ \(.*?\)/g, '')}`)
+      .join(', ');
+
     const contractor = contractors.find(c => c.id === contractorId);
     
     await onSetupProject({
       state,
       estateName,
-      houseType,
-      houseCount: Number(houseCount),
+      houseType: houseTypeSummary,
+      houseCount: totalHouseCount,
+      typologies: activeTypologyList,
       contractorId,
       contractorName: contractor?.companyName || "Assigned Contractor",
       projectManager: projectManager || "Resident Engineer",
@@ -121,6 +158,15 @@ export default function ProjectsView({
     setBudget('');
     setStartDate('');
     setTargetCompletionDate('');
+    setEnabledTypologies({
+      '3 Bedroom Bungalow (Standard)': true
+    });
+    setTypologyCounts({
+      '2 Bedroom Semi-Detached Bungalow': 50,
+      '3 Bedroom Bungalow (Standard)': 100,
+      '4 Bedroom Detached Duplex (Premium)': 50,
+      '2 Bedroom Terrace Flat': 40
+    });
     setIsSettingUp(false);
   };
 
@@ -316,28 +362,69 @@ export default function ProjectsView({
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Housing Typology</label>
-              <select 
-                value={houseType}
-                onChange={(e) => setHouseType(e.target.value)}
-                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
-              >
-                <option value="2 Bedroom Semi-Detached" className="bg-[#050505]">2 Bedroom Semi-Detached Bungalow</option>
-                <option value="3 Bedroom Bungalow" className="bg-[#050505]">3 Bedroom Bungalow (Standard)</option>
-                <option value="4 Bedroom Detached Duplex" className="bg-[#050505]">4 Bedroom Detached Duplex (Premium)</option>
-                <option value="2 Bedroom Terrace Flat" className="bg-[#050505]">2 Bedroom Terrace Flat</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Housing Units Count</label>
-              <input 
-                type="number" 
-                value={houseCount}
-                onChange={(e) => setHouseCount(e.target.value)}
-                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
-              />
+            <div className="md:col-span-2 bg-white/5 p-4 rounded-xl border border-white/10 space-y-4">
+              <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
+                  Housing Typology & Units Selection
+                </span>
+                <span className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">
+                  Total Units: {totalHouseUnits}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Select one or more housing typologies and enter the corresponding number of units for each.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {AVAILABLE_TYPOLOGIES.map((typology) => {
+                  const isEnabled = enabledTypologies[typology] || false;
+                  const countValue = typologyCounts[typology] || 0;
+                  return (
+                    <div 
+                      key={typology}
+                      className={`p-3.5 rounded-xl border transition-all duration-200 flex items-center justify-between gap-4 ${
+                        isEnabled 
+                          ? 'bg-[#1D7033]/15 border-[#1D7033]/30 shadow-md shadow-[#1D7033]/5' 
+                          : 'bg-black/30 border-white/5 hover:border-white/10'
+                      }`}
+                    >
+                      <label className="flex items-center gap-3 cursor-pointer select-none flex-1">
+                        <input 
+                          type="checkbox"
+                          checked={isEnabled}
+                          onChange={(e) => {
+                            setEnabledTypologies(prev => ({
+                              ...prev,
+                              [typology]: e.target.checked
+                            }));
+                          }}
+                          className="rounded border-white/20 bg-black text-emerald-500 focus:ring-0 focus:ring-offset-0 w-4.5 h-4.5 cursor-pointer accent-[#1D7033]"
+                        />
+                        <span className="text-xs font-semibold text-slate-200">{typology}</span>
+                      </label>
+                      
+                      {isEnabled && (
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Units:</span>
+                          <input 
+                            type="number"
+                            min="1"
+                            value={countValue}
+                            onChange={(e) => {
+                              const val = Math.max(1, parseInt(e.target.value) || 0);
+                              setTypologyCounts(prev => ({
+                                ...prev,
+                                [typology]: val
+                              }));
+                            }}
+                            className="w-16 bg-black text-slate-100 border border-[#1D7033]/40 focus:border-emerald-500 text-center py-1 px-1.5 rounded font-bold text-xs outline-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
@@ -544,6 +631,18 @@ export default function ProjectsView({
                   <span>&bull;</span>
                   <span>Contractor: <strong className="text-amber-500">{currentProject.contractorName}</strong></span>
                 </div>
+                {currentProject.typologies && currentProject.typologies.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2.5">
+                    {currentProject.typologies.map((t, idx) => (
+                      <span 
+                        key={idx} 
+                        className="bg-[#1D7033]/15 border border-[#1D7033]/30 text-emerald-400 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider"
+                      >
+                        {t.count} Units &bull; {t.type}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

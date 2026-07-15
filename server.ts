@@ -192,6 +192,10 @@ let projects: Project[] = [
     state: "Kaduna",
     estateName: "Kada Hill Estate Phase 1",
     houseType: "3 Bedroom Bungalow",
+    typologies: [
+      { type: "3 Bedroom Bungalow", count: 100 },
+      { type: "2 Bedroom Semi-Detached", count: 50 }
+    ],
     contractorId: "c-1",
     contractorName: "ABC Construction Ltd",
     projectManager: "Engineer Musa",
@@ -243,6 +247,10 @@ let projects: Project[] = [
     state: "Abuja",
     estateName: "Gwarinpa Vista Heights",
     houseType: "4 Bedroom Detached Duplex",
+    typologies: [
+      { type: "4 Bedroom Detached Duplex", count: 50 },
+      { type: "3 Bedroom Bungalow", count: 30 }
+    ],
     contractorId: "c-2",
     contractorName: "Dantata & Sawoe",
     projectManager: "Engineer Bello",
@@ -302,6 +310,10 @@ let projects: Project[] = [
     state: "Lagos",
     estateName: "Isheri Olofin Court",
     houseType: "2 Bedroom Semi-Detached",
+    typologies: [
+      { type: "2 Bedroom Semi-Detached", count: 80 },
+      { type: "2 Bedroom Terrace Flat", count: 40 }
+    ],
     contractorId: "c-3",
     contractorName: "Cappa & D'Alberto PLC",
     projectManager: "Engineer Adebayo",
@@ -354,6 +366,10 @@ let projects: Project[] = [
     state: "Rivers",
     estateName: "Rumuokoro Royal Garden",
     houseType: "3 Bedroom Bungalow",
+    typologies: [
+      { type: "3 Bedroom Bungalow", count: 70 },
+      { type: "2 Bedroom Semi-Detached", count: 30 }
+    ],
     contractorId: "c-4",
     contractorName: "Nze Construction Ltd",
     projectManager: "Engineer Amaechi",
@@ -397,6 +413,10 @@ let projects: Project[] = [
     state: "Kano",
     estateName: "Dala Hill Court",
     houseType: "3 Bedroom Bungalow",
+    typologies: [
+      { type: "3 Bedroom Bungalow", count: 40 },
+      { type: "2 Bedroom Terrace Flat", count: 20 }
+    ],
     contractorId: "c-5",
     contractorName: "Kano Builders Trust",
     projectManager: "Engineer Ibrahim",
@@ -721,6 +741,7 @@ app.post("/api/projects/setup", (req, res) => {
     state: data.state,
     estateName: data.estateName,
     houseType: data.houseType,
+    typologies: data.typologies || [],
     contractorId: data.contractorId,
     contractorName: data.contractorName || contractors.find(c => c.id === data.contractorId)?.companyName || "Assigned Contractor",
     projectManager: data.projectManager || "Resident PM",
@@ -762,6 +783,7 @@ app.post("/api/projects", (req, res) => {
     state: data.state,
     estateName: data.estateName,
     houseType: data.houseType,
+    typologies: data.typologies || [],
     contractorId: data.contractorId,
     contractorName: data.contractorName || contractors.find(c => c.id === data.contractorId)?.companyName || "Assigned Contractor",
     projectManager: data.projectManager || "Resident PM",

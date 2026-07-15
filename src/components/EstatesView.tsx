@@ -236,6 +236,18 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
                                   <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">
                                     {p.houseCount || 80} Units Subdivision
                                   </p>
+                                  {p.typologies && p.typologies.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mt-2">
+                                      {p.typologies.map((t, idx) => (
+                                        <span 
+                                          key={idx} 
+                                          className="bg-[#1D7033]/15 border border-[#1D7033]/20 text-emerald-400 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide"
+                                        >
+                                          {t.count}x {t.type.split(' (')[0]}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="text-right">
                                   <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded border ${

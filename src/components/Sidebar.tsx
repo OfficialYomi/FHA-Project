@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Project, User as AppUser } from '../types';
+import { FhaLogo } from './FhaLogo';
 import { 
   LayoutDashboard, 
   HardHat, 
@@ -74,8 +75,8 @@ export default function Sidebar({
       {/* Brand Header */}
       {isCollapsed ? (
         <div className="p-4 border-b border-white/10 flex flex-col items-center gap-4 bg-black/40">
-          <div className="bg-amber-500 text-black p-2 rounded-lg font-bold flex items-center justify-center shadow-lg shadow-amber-500/10" title="FHA MONITOR">
-            <Building className="w-5 h-5" />
+          <div className="w-10 h-10 flex items-center justify-center" title="FEDERAL HOUSING AUTHORITY">
+            <FhaLogo size={36} showText={false} />
           </div>
           <button 
             onClick={() => setIsCollapsed(false)} 
@@ -88,8 +89,8 @@ export default function Sidebar({
       ) : (
         <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/40">
           <div className="flex items-center gap-3">
-            <div className="bg-amber-500 text-black p-2 rounded-lg font-bold flex items-center justify-center shadow-lg shadow-amber-500/10">
-              <Building className="w-6 h-6" />
+            <div className="w-12 h-12 flex items-center justify-center shrink-0">
+              <FhaLogo size={44} showText={false} />
             </div>
             <div>
               <h1 className="text-lg font-medium tracking-tight text-white leading-none font-serif" style={{ fontFamily: 'Georgia, serif' }}>

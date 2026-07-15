@@ -4,11 +4,26 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Official FHA Brand Color Palette */
+  --color-fha-blue: #005082;
+  --color-fha-green: #1D7033;
+  --color-fha-dark: #212529;
+
+  /* Global mapping of amber classes to FHA Blue for primary brand actions */
+  --color-amber-400: #00609c;
+  --color-amber-500: #005082;
+  --color-amber-600: #004068;
+  
+  /* Global mapping of emerald classes to FHA Green for secondary branding */
+  --color-emerald-400: #258f41;
+  --color-emerald-500: #1D7033;
+  --color-emerald-600: #155225;
 }
 
 @layer base {
   body {
-    @apply antialiased text-slate-200 bg-[#050505] font-sans selection:bg-amber-500/20 selection:text-amber-400;
+    @apply antialiased text-slate-200 bg-[#121517] font-sans selection:bg-fha-blue/30 selection:text-white;
   }
 }
 

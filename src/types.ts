@@ -61,6 +61,7 @@ export interface Project {
   lastUpdated: string;
   houseCount: number;
   assignmentStatus?: 'Pending' | 'Accepted' | 'Rejected';
+  typologies?: { type: string; count: number }[];
 }
 
 export type ValuationStage =

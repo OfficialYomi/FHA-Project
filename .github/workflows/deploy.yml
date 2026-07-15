@@ -46,9 +46,23 @@ jobs:
     # Registering a native GitHub Environment enables a "View deployment" button on GitHub
     environment:
       name: Production
-      url: ${{ secrets.RENDER_APP_URL || 'https://dashboard.render.com' }}
+      url: ${{ steps.set-url.outputs.app_url }}
 
     steps:
+      - name: Set Deployment URL
+        id: set-url
+        env:
+          RENDER_APP_URL_SECRET: ${{ secrets.RENDER_APP_URL }}
+          RENDER_APP_URL_VAR: ${{ vars.RENDER_APP_URL }}
+        run: |
+          URL="https://dashboard.render.com"
+          if [ ! -z "$RENDER_APP_URL_SECRET" ]; then
+            URL="$RENDER_APP_URL_SECRET"
+          elif [ ! -z "$RENDER_APP_URL_VAR" ]; then
+            URL="$RENDER_APP_URL_VAR"
+          fi
+          echo "app_url=$URL" >> $GITHUB_OUTPUT
+
       - name: Trigger Render Deployment
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
