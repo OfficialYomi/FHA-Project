@@ -12,8 +12,10 @@ import {
   Sparkles,
   Calendar,
   CheckCircle2,
-  ShieldAlert
+  ShieldAlert,
+  Download
 } from 'lucide-react';
+import pptxgen from 'pptxgenjs';
 
 interface ReportsViewProps {
   projects: Project[];
@@ -55,6 +57,465 @@ export default function ReportsView({
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const downloadPPT = () => {
+    try {
+      const pptx = new pptxgen();
+      pptx.defineLayout({ name: 'FHA_16_9', width: 13.33, height: 7.5 });
+      pptx.layout = 'FHA_16_9';
+
+      // Slide 1: Title Slide
+      {
+        const slide = pptx.addSlide();
+        slide.background = { color: '121517' };
+
+        // Corner grid accent or border line
+        slide.addShape('rect', {
+          x: 0,
+          y: 0,
+          w: '100%',
+          h: 0.15,
+          fill: { color: '1D7033' }
+        });
+
+        // Small badge
+        slide.addText("NATIONAL HOUSING DELIVERY PROGRAMME", {
+          x: 1.5,
+          y: 1.8,
+          w: 10.33,
+          h: 0.4,
+          fontSize: 10,
+          bold: true,
+          color: 'FFFFFF',
+          fill: { color: '1D7033' },
+          align: 'center',
+          fontFace: 'Georgia'
+        });
+
+        // Title
+        slide.addText("FHA NATIONAL BRIEFING & EXECUTIVE COCKPIT SUMMARY", {
+          x: 1.0,
+          y: 2.5,
+          w: 11.33,
+          h: 1.5,
+          fontSize: 28,
+          bold: true,
+          color: 'FFFFFF',
+          align: 'center',
+          fontFace: 'Georgia'
+        });
+
+        // Subtitle
+        slide.addText("Weekly strategic overview of construction progress, financial disbursals, contractor scores, and exceptional risks.", {
+          x: 1.5,
+          y: 4.2,
+          w: 10.33,
+          h: 0.8,
+          fontSize: 14,
+          color: '94A3B8',
+          align: 'center',
+          fontFace: 'Arial'
+        });
+
+        // Footer
+        slide.addText("Office of the Managing Director / CEO  |  Abuja, Nigeria", {
+          x: 1.0,
+          y: 5.8,
+          w: 11.33,
+          h: 0.5,
+          fontSize: 11,
+          color: '64748B',
+          align: 'center',
+          fontFace: 'Arial',
+          bold: true
+        });
+      }
+
+      // Slide 2: Nationwide Status Briefing (Stats)
+      {
+        const slide = pptx.addSlide();
+        slide.background = { color: '121517' };
+
+        // Slide Header
+        slide.addText("NATIONWIDE STATUS BRIEFING", {
+          x: 1.0,
+          y: 0.5,
+          w: 11.33,
+          h: 0.5,
+          fontSize: 22,
+          bold: true,
+          color: 'FFFFFF',
+          fontFace: 'Georgia'
+        });
+        slide.addText("Summary of Housing Outputs & Status Counts", {
+          x: 1.0,
+          y: 1.0,
+          w: 11.33,
+          h: 0.3,
+          fontSize: 12,
+          bold: true,
+          color: 'F59E0B',
+          fontFace: 'Arial'
+        });
+
+        // Grid of 4 cards
+        const cardWidth = 5.2;
+        const cardHeight = 2.0;
+        
+        // Card 1: Total Units
+        slide.addShape('roundRect', {
+          x: 1.0,
+          y: 1.8,
+          w: cardWidth,
+          h: cardHeight,
+          fill: { color: '1E293B' },
+          line: { color: '334155', width: 1 }
+        });
+        slide.addText(`${totalHouses}`, {
+          x: 1.2,
+          y: 2.0,
+          w: cardWidth - 0.4,
+          h: 0.8,
+          fontSize: 36,
+          bold: true,
+          color: 'FFFFFF',
+          align: 'center',
+          fontFace: 'Georgia'
+        });
+        slide.addText("HOUSING UNITS CONTRACTED", {
+          x: 1.2,
+          y: 2.9,
+          w: cardWidth - 0.4,
+          h: 0.4,
+          fontSize: 11,
+          bold: true,
+          color: '94A3B8',
+          align: 'center',
+          fontFace: 'Arial'
+        });
+
+        // Card 2: Completed Units
+        slide.addShape('roundRect', {
+          x: 7.0,
+          y: 1.8,
+          w: cardWidth,
+          h: cardHeight,
+          fill: { color: '1E293B' },
+          line: { color: '334155', width: 1 }
+        });
+        slide.addText(`${completedHouses}`, {
+          x: 7.2,
+          y: 2.0,
+          w: cardWidth - 0.4,
+          h: 0.8,
+          fontSize: 36,
+          bold: true,
+          color: '258F41',
+          align: 'center',
+          fontFace: 'Georgia'
+        });
+        slide.addText("HOUSING UNITS COMPLETED 100%", {
+          x: 7.2,
+          y: 2.9,
+          w: cardWidth - 0.4,
+          h: 0.4,
+          fontSize: 11,
+          bold: true,
+          color: '94A3B8',
+          align: 'center',
+          fontFace: 'Arial'
+        });
+
+        // Card 3: Estates On Track
+        slide.addShape('roundRect', {
+          x: 1.0,
+          y: 4.2,
+          w: cardWidth,
+          h: cardHeight,
+          fill: { color: '1E293B' },
+          line: { color: '334155', width: 1 }
+        });
+        slide.addText(`${onScheduleProjects.length}`, {
+          x: 1.2,
+          y: 4.4,
+          w: cardWidth - 0.4,
+          h: 0.8,
+          fontSize: 36,
+          bold: true,
+          color: 'F59E0B',
+          align: 'center',
+          fontFace: 'Georgia'
+        });
+        slide.addText("ESTATES ON TRACK", {
+          x: 1.2,
+          y: 5.3,
+          w: cardWidth - 0.4,
+          h: 0.4,
+          fontSize: 11,
+          bold: true,
+          color: '94A3B8',
+          align: 'center',
+          fontFace: 'Arial'
+        });
+
+        // Card 4: Delayed Interventions
+        slide.addShape('roundRect', {
+          x: 7.0,
+          y: 4.2,
+          w: cardWidth,
+          h: cardHeight,
+          fill: { color: '1E293B' },
+          line: { color: '334155', width: 1 }
+        });
+        slide.addText(`${delayedProjects.length}`, {
+          x: 7.2,
+          y: 4.4,
+          w: cardWidth - 0.4,
+          h: 0.8,
+          fontSize: 36,
+          bold: true,
+          color: 'EF4444',
+          align: 'center',
+          fontFace: 'Georgia'
+        });
+        slide.addText("DELAYED INTERVENTIONS", {
+          x: 7.2,
+          y: 5.3,
+          w: cardWidth - 0.4,
+          h: 0.4,
+          fontSize: 11,
+          bold: true,
+          color: '94A3B8',
+          align: 'center',
+          fontFace: 'Arial'
+        });
+      }
+
+      // Slide 3: Financial Briefing
+      {
+        const slide = pptx.addSlide();
+        slide.background = { color: '121517' };
+
+        // Slide Header
+        slide.addText("COMMERCIAL & BUDGET DISBURSAL", {
+          x: 1.0,
+          y: 0.5,
+          w: 11.33,
+          h: 0.5,
+          fontSize: 22,
+          bold: true,
+          color: 'FFFFFF',
+          fontFace: 'Georgia'
+        });
+        slide.addText("Consolidated Financial Budget vs Spent", {
+          x: 1.0,
+          y: 1.0,
+          w: 11.33,
+          h: 0.3,
+          fontSize: 12,
+          bold: true,
+          color: 'F59E0B',
+          fontFace: 'Arial'
+        });
+
+        // Left Side: Large Utilization representation
+        slide.addShape('ellipse', {
+          x: 1.5,
+          y: 2.2,
+          w: 3.5,
+          h: 3.5,
+          fill: { color: '1E293B' },
+          line: { color: '1D7033', width: 8 }
+        });
+        slide.addText(`${budgetUtilization}%`, {
+          x: 1.5,
+          y: 3.2,
+          w: 3.5,
+          h: 0.8,
+          fontSize: 40,
+          bold: true,
+          color: 'FFFFFF',
+          align: 'center',
+          fontFace: 'Georgia'
+        });
+        slide.addText("SPENT OUTLAY", {
+          x: 1.5,
+          y: 4.1,
+          w: 3.5,
+          h: 0.4,
+          fontSize: 10,
+          bold: true,
+          color: '94A3B8',
+          align: 'center',
+          fontFace: 'Arial'
+        });
+
+        // Right Side: Details Cards
+        slide.addShape('roundRect', {
+          x: 6.0,
+          y: 2.2,
+          w: 6.0,
+          h: 1.5,
+          fill: { color: '1E293B' },
+          line: { color: '334155', width: 1 }
+        });
+        slide.addText("CONSOLIDATED BUDGET", {
+          x: 6.3,
+          y: 2.4,
+          w: 5.4,
+          h: 0.3,
+          fontSize: 11,
+          bold: true,
+          color: '94A3B8',
+          fontFace: 'Arial'
+        });
+        slide.addText(formatNaira(totalBudget), {
+          x: 6.3,
+          y: 2.8,
+          w: 5.4,
+          h: 0.6,
+          fontSize: 24,
+          bold: true,
+          color: 'FFFFFF',
+          fontFace: 'Georgia'
+        });
+
+        slide.addShape('roundRect', {
+          x: 6.0,
+          y: 4.0,
+          w: 6.0,
+          h: 1.5,
+          fill: { color: '1E293B' },
+          line: { color: '334155', width: 1 }
+        });
+        slide.addText("TOTAL SPENT OUTLAY", {
+          x: 6.3,
+          y: 4.2,
+          w: 5.4,
+          h: 0.3,
+          fontSize: 11,
+          bold: true,
+          color: '94A3B8',
+          fontFace: 'Arial'
+        });
+        slide.addText(formatNaira(totalSpent), {
+          x: 6.3,
+          y: 4.6,
+          w: 5.4,
+          h: 0.6,
+          fontSize: 24,
+          bold: true,
+          color: '258F41',
+          fontFace: 'Georgia'
+        });
+
+        // Executive Memo quote
+        slide.addText('"Financial disbursements are aligned with verified site milestone completions. General retention balances remain held in trust."', {
+          x: 1.5,
+          y: 6.0,
+          w: 10.33,
+          h: 0.6,
+          fontSize: 11,
+          color: '94A3B8',
+          italic: true,
+          align: 'center',
+          fontFace: 'Arial'
+        });
+      }
+
+      // Slide 4: Active Risks & Exception Matrix
+      {
+        const slide = pptx.addSlide();
+        slide.background = { color: '121517' };
+
+        // Slide Header
+        slide.addText("EXCEPTION REPORT & RISK MATRIX", {
+          x: 1.0,
+          y: 0.5,
+          w: 11.33,
+          h: 0.5,
+          fontSize: 22,
+          bold: true,
+          color: 'FFFFFF',
+          fontFace: 'Georgia'
+        });
+        slide.addText("Active Projects Under Management Review", {
+          x: 1.0,
+          y: 1.0,
+          w: 11.33,
+          h: 0.3,
+          fontSize: 12,
+          bold: true,
+          color: 'F59E0B',
+          fontFace: 'Arial'
+        });
+
+        if (activeRisks.length > 0) {
+          activeRisks.slice(0, 2).forEach((risk, index) => {
+            const yOffset = 1.8 + (index * 2.5);
+            
+            slide.addShape('roundRect', {
+              x: 1.0,
+              y: yOffset,
+              w: 11.33,
+              h: 2.2,
+              fill: { color: '1E293B' },
+              line: { color: 'EF4444', width: 1 }
+            });
+
+            slide.addText(`${risk.severity.toUpperCase()} SEVERITY  •  ${risk.projectName.toUpperCase()}`, {
+              x: 1.3,
+              y: yOffset + 0.2,
+              w: 10.73,
+              h: 0.3,
+              fontSize: 11,
+              bold: true,
+              color: 'EF4444',
+              fontFace: 'Arial'
+            });
+
+            slide.addText(risk.title, {
+              x: 1.3,
+              y: yOffset + 0.6,
+              w: 10.73,
+              h: 0.4,
+              fontSize: 16,
+              bold: true,
+              color: 'FFFFFF',
+              fontFace: 'Georgia'
+            });
+
+            slide.addText(risk.details, {
+              x: 1.3,
+              y: yOffset + 1.1,
+              w: 10.73,
+              h: 0.8,
+              fontSize: 12,
+              color: '94A3B8',
+              fontFace: 'Arial'
+            });
+          });
+        } else {
+          slide.addText("No active critical exception flags tracked this period.", {
+            x: 1.0,
+            y: 3.0,
+            w: 11.33,
+            h: 1.0,
+            fontSize: 16,
+            bold: true,
+            color: '94A3B8',
+            align: 'center',
+            fontFace: 'Georgia'
+          });
+        }
+      }
+
+      pptx.writeFile({ fileName: `FHA_Housing_Delivery_Briefing_${new Date().toISOString().split('T')[0]}.pptx` });
+    } catch (error) {
+      console.error("Error generating PPT:", error);
+      alert("Failed to generate PowerPoint file. Please try again.");
+    }
   };
 
   // Custom Slides definitions
@@ -282,24 +743,36 @@ export default function ReportsView({
       {reportFormat === 'ppt' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between bg-white/5 border border-white/10 px-5 py-3 rounded-xl">
-            <span className="text-xs text-slate-400 font-medium">PowerPoint Slide deck preview for board presentation briefings.</span>
+            <span className="text-xs text-slate-400 font-medium font-sans">PowerPoint Slide deck preview for board presentation briefings.</span>
             
-            <div className="flex items-center gap-1.5">
-              <button 
-                onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
-                disabled={activeSlide === 0}
-                className="bg-black/50 hover:bg-white/5 border border-white/10 px-2.5 py-1 rounded-md text-xs font-bold text-white disabled:opacity-50 transition"
+            <div className="flex items-center gap-3">
+              <button
+                onClick={downloadPPT}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-md shadow-emerald-900/10 active:scale-95"
               >
-                &larr; Prev
+                <Download className="w-4 h-4 text-emerald-100" />
+                <span>Download .PPTX File</span>
               </button>
-              <span className="text-xs text-slate-300 font-bold px-2">{activeSlide + 1} / {slides.length}</span>
-              <button 
-                onClick={() => setActiveSlide(prev => Math.min(slides.length - 1, prev + 1))}
-                disabled={activeSlide === slides.length - 1}
-                className="bg-black/50 hover:bg-white/5 border border-white/10 px-2.5 py-1 rounded-md text-xs font-bold text-white disabled:opacity-50 transition"
-              >
-                Next &rarr;
-              </button>
+
+              <div className="h-4 w-px bg-white/10" />
+
+              <div className="flex items-center gap-1.5">
+                <button 
+                  onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
+                  disabled={activeSlide === 0}
+                  className="bg-black/50 hover:bg-white/5 border border-white/10 px-2.5 py-1 rounded-md text-xs font-bold text-white disabled:opacity-50 transition cursor-pointer"
+                >
+                  &larr; Prev
+                </button>
+                <span className="text-xs text-slate-300 font-bold px-2">{activeSlide + 1} / {slides.length}</span>
+                <button 
+                  onClick={() => setActiveSlide(prev => Math.min(slides.length - 1, prev + 1))}
+                  disabled={activeSlide === slides.length - 1}
+                  className="bg-black/50 hover:bg-white/5 border border-white/10 px-2.5 py-1 rounded-md text-xs font-bold text-white disabled:opacity-50 transition cursor-pointer"
+                >
+                  Next &rarr;
+                </button>
+              </div>
             </div>
           </div>
 
