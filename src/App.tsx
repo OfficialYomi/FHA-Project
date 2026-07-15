@@ -109,7 +109,7 @@ export default function App() {
           return { success: true };
         }
       }
-      if (response.status !== 404) {
+      if (response.status === 401 || response.status === 400) {
         const errData = await response.json().catch(() => ({}));
         return { success: false, error: errData.error || 'Invalid credentials' };
       }
@@ -121,6 +121,9 @@ export default function App() {
     const localUsers = fallbackDb.getUsers();
     const matched = localUsers.find(u => u.username.toUpperCase() === username.toUpperCase());
     if (matched) {
+      if (password !== 'password@123') {
+        return { success: false, error: "Invalid password. Sandbox password is 'password@123'." };
+      }
       setCurrentUser(matched);
       localStorage.setItem('nhdp_user', JSON.stringify(matched));
       return { success: true };
