@@ -24,10 +24,38 @@ import {
   Building, 
   ShieldAlert, 
   RefreshCw, 
-  Grid
+  Grid,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 export default function App() {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const cached = localStorage.getItem('nhdp_theme');
+    return (cached as 'light' | 'dark') || 'dark';
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const body = window.document.body;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+      body.classList.add('dark');
+      body.classList.remove('light');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+      body.classList.add('light');
+      body.classList.remove('dark');
+    }
+    localStorage.setItem('nhdp_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const cached = localStorage.getItem('nhdp_user');
     return cached ? JSON.parse(cached) : null;
@@ -440,11 +468,11 @@ export default function App() {
   };
 
   if (!currentUser) {
-    return <LoginView onLogin={handleLogin} />;
+    return <LoginView onLogin={handleLogin} theme={theme} onToggleTheme={toggleTheme} />;
   }
 
   return (
-    <div className="flex h-screen bg-[#050505] font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-50 dark:bg-[#050505] text-slate-800 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-200">
       
       {/* 1. Left Persistent Sidebar Component */}
       <Sidebar 
@@ -463,34 +491,43 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         {/* Top Program Branding Bar */}
-        <header className="h-16 border-b border-white/10 shrink-0 bg-black/40 backdrop-blur-md flex items-center justify-between px-6 z-10 print:hidden">
+        <header className="h-16 border-b border-slate-200 dark:border-white/10 shrink-0 bg-white/80 dark:bg-black/40 backdrop-blur-md flex items-center justify-between px-6 z-10 print:hidden transition-colors duration-200">
           <div className="flex items-center gap-3">
-            <div className="bg-amber-500 text-black p-2 rounded flex items-center justify-center font-bold">
+            <div className="bg-amber-500 text-white p-2 rounded flex items-center justify-center font-bold">
               <span className="text-sm leading-none font-bold">{currentUser.role[0]}</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest leading-none">{currentUser.role} Desk</span>
-                <span className="text-[10px] bg-white/5 text-slate-400 px-1.5 py-0.5 rounded uppercase">{currentUser.name}</span>
+                <span className="text-[10px] bg-slate-200/60 dark:bg-white/5 text-slate-700 dark:text-slate-400 px-1.5 py-0.5 rounded uppercase">{currentUser.name}</span>
               </div>
-              <h1 className="text-base font-medium text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+              <h1 className="text-base font-medium text-slate-850 dark:text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 National Housing Delivery Platform
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Real-time telemetry connection status */}
-            <div className="flex items-center gap-2 bg-white/5 text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-white/10 shadow-md">
+            <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-md">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               <span className="tracking-widest uppercase">SYSTEM SECURE</span>
             </div>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg border border-slate-200 dark:border-white/10 transition cursor-pointer"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#005082]" />}
+            </button>
 
             {/* Quick Synchronize Database button */}
             <button 
               onClick={fetchOverviewData}
               title="Refresh Cockpit Telemetry"
-              className="p-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-lg border border-white/10 transition"
+              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg border border-slate-200 dark:border-white/10 transition cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-amber-500' : ''}`} />
             </button>
@@ -498,7 +535,7 @@ export default function App() {
         </header>
 
         {/* Dynamic Center Workstation with View Routing */}
-        <main className="flex-1 overflow-y-auto bg-black/20 p-6 print:p-0">
+        <main className="flex-1 overflow-y-auto bg-slate-100/50 dark:bg-black/20 p-6 print:p-0 transition-colors duration-200">
           {isLoading && projects.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center gap-3">
               <LoaderIndicator />

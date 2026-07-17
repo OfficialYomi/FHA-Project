@@ -10,14 +10,18 @@ import {
   EyeOff, 
   ShieldCheck, 
   ArrowRight,
-  AlertCircle
+  AlertCircle,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 interface LoginViewProps {
   onLogin: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
 }
 
-export default function LoginView({ onLogin }: LoginViewProps) {
+export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -64,53 +68,76 @@ export default function LoginView({ onLogin }: LoginViewProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans select-none">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#050505] text-slate-800 dark:text-white flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans select-none transition-colors duration-200">
       
+      {/* Floating Theme Toggle */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={onToggleTheme}
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          className="p-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl transition shadow-sm dark:shadow-md cursor-pointer"
+        >
+          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#005082]" />}
+        </button>
+      </div>
+
       {/* Decorative Golden Ambient Gradients */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-amber-500/[0.03] dark:bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-amber-500/[0.03] dark:bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Main Container */}
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
         
         {/* Left column: Branding, Mission, Authority Crest */}
         <div className="lg:col-span-5 space-y-6 text-center lg:text-left pr-0 lg:pr-8 flex flex-col items-center lg:items-start">
-          <div className="w-28 h-28 mb-4 flex items-center justify-center bg-white/5 p-2 rounded-2xl border border-white/10 shadow-xl">
+          <div className="w-28 h-28 mb-4 flex items-center justify-center bg-white dark:bg-white/5 p-2 rounded-2xl border border-slate-200 dark:border-white/10 shadow-lg dark:shadow-xl">
             <FhaLogo size={100} showText={true} />
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-widest leading-none mx-auto lg:mx-0">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-widest leading-none mx-auto lg:mx-0">
             <Building className="w-3.5 h-3.5" />
             Federal Republic of Nigeria
           </div>
 
           <div className="space-y-3 text-center lg:text-left">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white leading-none font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white leading-none font-serif" style={{ fontFamily: 'Georgia, serif' }}>
               FEDERAL HOUSING <br />
               <span className="text-amber-500">AUTHORITY</span>
             </h1>
-            <p className="text-xs text-slate-400 max-w-md mx-auto lg:mx-0 font-medium leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto lg:mx-0 font-medium leading-relaxed">
               National Housing Delivery Programme (NHDP) Executive Monitoring & Multi-Role Operations Portal.
             </p>
           </div>
 
           <div className="border-l-2 border-emerald-500/30 pl-4 space-y-1.5 hidden lg:block text-left">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Platform Purpose</p>
-            <p className="text-[11px] text-slate-500 leading-relaxed">
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Platform Purpose</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-500 leading-relaxed">
               Real-time synchronization of physical site works (WBS), contractor rating metric scorecards, progress valuation claims, on-site telemetry photo validation, and multi-tier executive approval loops.
             </p>
+          </div>
+
+          <div className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">
+            Powered by{' '}
+            <a 
+              href="https://yonahtech.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-amber-500 hover:text-amber-600 dark:text-amber-400 dark:hover:text-amber-300 font-bold hover:underline transition-all"
+            >
+              Yonahtech Limited
+            </a>
           </div>
         </div>
 
         {/* Right column: Login Form & Sandbox accounts */}
-        <div className="lg:col-span-7 bg-black/60 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-2xl relative">
+        <div className="lg:col-span-7 bg-white dark:bg-black/60 border border-slate-200 dark:border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-xl dark:shadow-2xl relative transition-colors duration-200">
           
-          <div className="flex items-center justify-between pb-5 border-b border-white/5 mb-6">
+          <div className="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-white/5 mb-6">
             <div>
-              <h2 className="text-lg font-serif text-white tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
+              <h2 className="text-lg font-serif text-slate-800 dark:text-white tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
                 Secure Portal Access
               </h2>
-              <p className="text-[11px] text-slate-400 mt-0.5">Please provide your assigned credential keys.</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Please provide your assigned credential keys.</p>
             </div>
             <div className="w-12 h-12 flex items-center justify-center">
               <FhaLogo size={44} showText={false} />
@@ -119,7 +146,7 @@ export default function LoginView({ onLogin }: LoginViewProps) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3.5 rounded-xl text-xs flex items-center gap-2 animate-shake">
+              <div className="bg-rose-500/10 border border-rose-300 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 p-3.5 rounded-xl text-xs flex items-center gap-2 animate-shake">
                 <AlertCircle className="w-4.5 h-4.5 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -127,15 +154,15 @@ export default function LoginView({ onLogin }: LoginViewProps) {
 
             {/* Username Input */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Authorized Username</label>
+              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Authorized Username</label>
               <div className="relative">
-                <UserIcon className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+                <UserIcon className="absolute left-3 top-3 w-4 h-4 text-slate-400 dark:text-slate-500" />
                 <input
                   type="text"
                   placeholder="e.g. MD"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  className="w-full bg-black/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition-all shadow-inner font-mono font-bold"
+                  className="w-full bg-slate-50 dark:bg-black/80 border border-slate-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all shadow-inner font-mono font-bold"
                 />
               </div>
             </div>
@@ -143,22 +170,22 @@ export default function LoginView({ onLogin }: LoginViewProps) {
             {/* Password Input */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Passphrase key</label>
-                <span className="text-[9px] text-slate-500">All Sandbox passwords: <code className="text-amber-500/80 font-bold">password@123</code></span>
+                <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Passphrase key</label>
+                <span className="text-[9px] text-slate-500 dark:text-slate-400">All Sandbox passwords: <code className="text-amber-600 dark:text-amber-500/80 font-bold">password@123</code></span>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+                <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400 dark:text-slate-500" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••••••"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-black/80 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition-all shadow-inner font-mono"
+                  className="w-full bg-slate-50 dark:bg-black/80 border border-slate-200 dark:border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all shadow-inner font-mono"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-slate-500 hover:text-white transition"
+                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-900 dark:text-slate-500 dark:hover:text-white transition"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -169,7 +196,7 @@ export default function LoginView({ onLogin }: LoginViewProps) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-black text-xs font-bold rounded-xl transition-all shadow-lg shadow-amber-500/15 flex items-center justify-center gap-2 font-serif"
+              className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-amber-500/15 flex items-center justify-center gap-2 font-serif cursor-pointer"
             >
               <span>{isSubmitting ? 'Verifying Credentials...' : 'Establish Secure Connection'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -177,10 +204,10 @@ export default function LoginView({ onLogin }: LoginViewProps) {
           </form>
 
           {/* QUICK SANDBOX ACCOUNTS PANELS */}
-          <div className="mt-8 pt-6 border-t border-white/5 space-y-3">
+          <div className="mt-8 pt-6 border-t border-slate-100 dark:border-white/5 space-y-3">
             <div className="flex items-center gap-1.5">
               <Key className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Quick Select Authorization Role (Tap to Auto-fill)</span>
+              <span className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Quick Select Authorization Role (Tap to Auto-fill)</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -189,10 +216,10 @@ export default function LoginView({ onLogin }: LoginViewProps) {
                   key={acc.label}
                   type="button"
                   onClick={() => handleSandboxClick(acc.label)}
-                  className={`p-2 rounded-xl border text-left transition-all ${
+                  className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
                     username.toUpperCase() === acc.label 
-                      ? 'bg-amber-500/10 border-amber-500 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.1)]' 
-                      : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:border-white/20 hover:text-white'
+                      ? 'bg-amber-550/10 dark:bg-amber-500/10 border-amber-500 text-amber-600 dark:text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.1)]' 
+                      : 'bg-slate-50 dark:bg-white/5 border-slate-150 dark:border-white/5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <div className="text-[10px] font-bold truncate">{acc.label}</div>
@@ -206,7 +233,7 @@ export default function LoginView({ onLogin }: LoginViewProps) {
       </div>
       
       {/* Footer copyright */}
-      <footer className="absolute bottom-4 left-0 right-0 text-center text-[10px] text-slate-600 font-bold uppercase tracking-widest pointer-events-none z-10">
+      <footer className="absolute bottom-4 left-0 right-0 text-center text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-widest pointer-events-none z-10">
         © 2026 Federal Housing Authority Nigeria. Sandbox Environment.
       </footer>
     </div>
