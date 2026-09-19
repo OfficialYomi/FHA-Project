@@ -42,7 +42,7 @@ export default function Sidebar({
   onSelectProject,
   currentUser,
   onLogout,
-  theme = 'dark'
+  theme = 'light'
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   

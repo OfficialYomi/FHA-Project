@@ -31,8 +31,11 @@ import {
 
 export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const cached = localStorage.getItem('nhdp_theme');
-    return (cached as 'light' | 'dark') || 'dark';
+    const explicit = localStorage.getItem('nhdp_theme_mode');
+    if (explicit === 'dark' || explicit === 'light') {
+      return explicit;
+    }
+    return 'light';
   });
 
   useEffect(() => {
@@ -49,6 +52,7 @@ export default function App() {
       body.classList.add('light');
       body.classList.remove('dark');
     }
+    localStorage.setItem('nhdp_theme_mode', theme);
     localStorage.setItem('nhdp_theme', theme);
   }, [theme]);
 
@@ -485,6 +489,7 @@ export default function App() {
         onSelectProject={handleSidebarProjectSelect}
         currentUser={currentUser}
         onLogout={handleLogout}
+        theme={theme}
       />
 
       {/* 2. Main Executive Command Cockpit (Right Frame) */}
