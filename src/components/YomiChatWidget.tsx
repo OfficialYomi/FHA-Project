@@ -49,64 +49,13 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Jurisdiction descriptions per role
-  const getRoleJurisdictionInfo = (role: string) => {
-    switch (role) {
-      case 'MD':
-        return {
-          title: 'Managing Director & CEO',
-          badge: 'Unrestricted Nationwide Jurisdiction',
-          desc: 'Authorized to query everything across all projects, finances, contractors, alerts, and ministerial briefings.',
-          color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
-        };
-      case 'PM':
-        return {
-          title: 'Project Manager',
-          badge: 'Operations & Milestone Jurisdiction',
-          desc: 'Authorized for project timelines, WBS stages, site milestones, delays, and contractor performance.',
-          color: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30'
-        };
-      case 'QS':
-        return {
-          title: 'Quantity Surveyor',
-          badge: 'Valuation & Financial Jurisdiction',
-          desc: 'Authorized for valuations, interim payment certificates, BOQ stage costing, and certified amounts.',
-          color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30'
-        };
-      case 'RE':
-        return {
-          title: 'Resident Engineer',
-          badge: 'Tactical On-Site Scope (Kaduna & Abuja)',
-          desc: 'Authorized for on-site physical stages, inspection photos, GPS logs, and quality compliance for assigned sites.',
-          color: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/30'
-        };
-      case 'FD':
-      case 'CT':
-        return {
-          title: role === 'FD' ? 'Finance Director' : 'Treasury Head',
-          badge: 'Disbursement & Treasury Jurisdiction',
-          desc: 'Authorized for allocations, project expenditures, released payments, and CBN RTGS remittances.',
-          color: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30'
-        };
-      default:
-        return {
-          title: 'Project Official',
-          badge: 'Authorized Project Scope',
-          desc: 'Authorized for tactical project monitoring within designated assignment.',
-          color: 'bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-500/30'
-        };
-    }
-  };
-
-  const jurisdiction = getRoleJurisdictionInfo(currentUser.role);
-
-  // Initialize initial greeting tailored to role
+  // Initialize initial greeting
   useEffect(() => {
     if (messages.length === 0) {
       const initialGreeting: Message = {
         id: 'init-msg',
         role: 'assistant',
-        content: `Greetings, **${currentUser.name}**.\n\nI am **Yomi**, your Executive AI Assistant for the Renewed Hope Housing Delivery Programme.\n\n🔒 **Your Jurisdiction**: \`${jurisdiction.badge}\`\n${jurisdiction.desc}\n\nI search our live project records to answer your **tactical** and **financial** questions in natural language. I exclusively answer questions concerning active housing projects. What would you like to inspect?`,
+        content: "I am Yomi, your executive AI Assistant for the FHA National Housing Delivery Platform.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages([initialGreeting]);
@@ -227,7 +176,7 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
     const initialGreeting: Message = {
       id: `init-${Date.now()}`,
       role: 'assistant',
-      content: `Conversation refreshed for **${currentUser.name}**.\n\n🔒 **Your Scope**: \`${jurisdiction.badge}\`\n\nAsk any tactical or financial question regarding our live housing projects.`,
+      content: "I am Yomi, your executive AI Assistant for the FHA National Housing Delivery Platform.",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages([initialGreeting]);
@@ -357,7 +306,7 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 28 }}
-              className="w-[430px] max-w-[calc(100vw-2rem)] h-[620px] max-h-[calc(100vh-5rem)] bg-white dark:bg-[#0c0f12] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 backdrop-blur-xl"
+              className="w-[430px] max-w-[calc(100vw-2rem)] h-[620px] max-h-[calc(100vh-5rem)] bg-white dark:bg-[#0c0f12] border border-slate-300 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 backdrop-blur-xl"
             >
               {/* Header Bar */}
               <div className="p-3.5 bg-gradient-to-r from-emerald-700 via-emerald-800 to-teal-900 text-white flex items-center justify-between border-b border-emerald-600/40 shrink-0">
@@ -380,8 +329,8 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                         LIVE DB
                       </span>
                     </div>
-                    <p className="text-[10px] text-emerald-200/90 tracking-tight truncate max-w-[200px]">
-                      {jurisdiction.title} ({currentUser.role})
+                    <p className="text-[10px] text-emerald-100 tracking-tight truncate max-w-[220px]">
+                      Executive AI Assistant
                     </p>
                   </div>
                 </div>
@@ -390,33 +339,33 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                   <button
                     onClick={handleResetChat}
                     title="Clear Conversation"
-                    className="p-1.5 text-emerald-200 hover:text-white hover:bg-white/10 rounded-lg transition"
+                    className="p-1.5 text-emerald-200 hover:text-white hover:bg-white/10 rounded-lg transition cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setIsOpen(false)}
                     title="Minimize Yomi"
-                    className="p-1.5 text-emerald-200 hover:text-white hover:bg-white/10 rounded-lg transition"
+                    className="p-1.5 text-emerald-200 hover:text-white hover:bg-white/10 rounded-lg transition cursor-pointer"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setIsOpen(false)}
                     title="Close Yomi"
-                    className="p-1.5 text-emerald-200 hover:text-white hover:bg-white/10 rounded-lg transition"
+                    className="p-1.5 text-emerald-200 hover:text-white hover:bg-white/10 rounded-lg transition cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              {/* Jurisdiction & Project Scope Subheader */}
-              <div className="px-3.5 py-2 bg-slate-50 dark:bg-black/40 border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-2 shrink-0 text-xs">
+              {/* Project Scope Subheader */}
+              <div className="px-3.5 py-2 bg-slate-50 dark:bg-black/40 border-b border-slate-300 dark:border-white/10 flex items-center justify-between gap-2 shrink-0 text-xs">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
-                    {jurisdiction.badge}
+                  <Bot className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span className="text-[11px] font-medium text-slate-700 dark:text-slate-300 truncate">
+                    FHA National Housing Delivery Platform
                   </span>
                 </div>
 
@@ -426,9 +375,9 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                   <select
                     value={selectedProjectId}
                     onChange={(e) => setSelectedProjectId(e.target.value)}
-                    className="bg-white dark:bg-[#15191e] border border-slate-300 dark:border-white/15 text-[11px] rounded px-1.5 py-0.5 text-slate-700 dark:text-slate-200 font-medium outline-none focus:border-emerald-500 cursor-pointer"
+                    className="bg-white dark:bg-[#15191e] border border-slate-300 dark:border-white/15 text-[11px] rounded px-1.5 py-0.5 text-slate-800 dark:text-slate-200 font-medium outline-none focus:border-emerald-500 cursor-pointer"
                   >
-                    <option value="ALL">All Authorized Projects</option>
+                    <option value="ALL">All Active Projects</option>
                     {availableProjects.map(p => (
                       <option key={p.id} value={p.id}>
                         {p.estateName} ({p.state})
@@ -439,7 +388,7 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
               </div>
 
               {/* Chat Message Stream */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-100/40 dark:bg-black/20">
+              <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-50/70 dark:bg-black/20">
                 {messages.map((msg) => {
                   const isUser = msg.role === 'user';
                   return (
@@ -463,7 +412,7 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                         className={`p-3 rounded-2xl relative group ${
                           isUser
                             ? 'bg-amber-600 text-white rounded-tr-none shadow'
-                            : 'bg-white dark:bg-[#12171c] border border-slate-200 dark:border-white/10 rounded-tl-none shadow-sm'
+                            : 'bg-white dark:bg-[#12171c] border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-100 rounded-tl-none shadow-sm'
                         }`}
                       >
                         {/* Content */}
@@ -474,22 +423,22 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                         )}
 
                         {/* Message metadata & actions */}
-                        <div className="flex items-center justify-between gap-3 mt-2 pt-1 border-t border-black/5 dark:border-white/5 text-[9px] opacity-75">
-                          <span className={isUser ? 'text-amber-100' : 'text-slate-600 dark:text-slate-300'}>
+                        <div className="flex items-center justify-between gap-3 mt-2 pt-1 border-t border-slate-200 dark:border-white/5 text-[9px] opacity-80">
+                          <span className={isUser ? 'text-amber-100' : 'text-slate-500 dark:text-slate-400'}>
                             {msg.timestamp}
                           </span>
                           {!isUser && (
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1 rounded font-mono">
+                              <span className="text-[8px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-1 rounded font-mono font-semibold">
                                 LIVE PROJECT
                               </span>
                               <button
                                 onClick={() => handleCopy(msg.id, msg.content)}
-                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
+                                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer"
                                 title="Copy response"
                               >
                                 {copiedId === msg.id ? (
-                                  <Check className="w-3 h-3 text-emerald-500" />
+                                  <Check className="w-3 h-3 text-emerald-600" />
                                 ) : (
                                   <Copy className="w-3 h-3" />
                                 )}
@@ -508,9 +457,9 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                     <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
                       <Bot className="w-3.5 h-3.5 animate-pulse" />
                     </div>
-                    <div className="p-3 bg-white dark:bg-[#12171c] border border-slate-200 dark:border-white/10 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
+                    <div className="p-3 bg-white dark:bg-[#12171c] border border-slate-300 dark:border-white/10 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                      <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                      <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
                         Yomi is auditing live project telemetry...
                       </span>
                     </div>
@@ -521,10 +470,10 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
               </div>
 
               {/* Suggestions Pills (Role-Tailored) */}
-              <div className="px-3 py-2 bg-slate-50 dark:bg-[#0c0f12] border-t border-slate-200 dark:border-white/10 shrink-0">
+              <div className="px-3 py-2 bg-slate-50 dark:bg-[#0c0f12] border-t border-slate-300 dark:border-white/10 shrink-0">
                 <div className="text-[10px] text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                  <span>Tactical Inquiries for {currentUser.role}</span>
+                  <span>Tactical Inquiries</span>
                 </div>
                 <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
                   {getSuggestions().map((s, idx) => (
@@ -532,7 +481,7 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                       key={idx}
                       onClick={() => handleSend(s.query)}
                       disabled={isLoading}
-                      className="shrink-0 bg-white dark:bg-[#161c22] hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-700 rounded-full px-2.5 py-1 text-[11px] font-medium transition disabled:opacity-50"
+                      className="shrink-0 bg-white dark:bg-[#161c22] hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-300 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-700 rounded-full px-2.5 py-1 text-[11px] font-medium transition disabled:opacity-50 cursor-pointer shadow-xs"
                     >
                       {s.label}
                     </button>
@@ -541,7 +490,7 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
               </div>
 
               {/* Input Footer */}
-              <div className="p-3 bg-white dark:bg-[#0a0c0e] border-t border-slate-200 dark:border-white/10 shrink-0">
+              <div className="p-3 bg-white dark:bg-[#0a0c0e] border-t border-slate-300 dark:border-white/10 shrink-0">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -556,22 +505,22 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                     onChange={(e) => setInput(e.target.value)}
                     disabled={isLoading}
                     placeholder="Ask tactical progress or financial status..."
-                    className="flex-1 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 focus:border-emerald-500 py-2.5 px-3 rounded-xl text-xs text-slate-900 dark:text-white outline-none placeholder:text-slate-600 dark:placeholder:text-slate-300 transition"
+                    className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-300 dark:border-white/10 focus:border-emerald-500 py-2.5 px-3 rounded-xl text-xs text-slate-900 dark:text-white outline-none placeholder:text-slate-500 dark:placeholder:text-slate-400 transition"
                   />
                   <button
                     type="submit"
                     disabled={isLoading || !input.trim()}
-                    className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 dark:disabled:bg-white/10 disabled:text-slate-600 text-white font-medium p-2.5 rounded-xl transition shrink-0 flex items-center justify-center cursor-pointer shadow-sm"
+                    className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 dark:disabled:bg-white/10 disabled:text-slate-500 text-white font-medium p-2.5 rounded-xl transition shrink-0 flex items-center justify-center cursor-pointer shadow-sm"
                     title="Send message to Yomi"
                   >
                     <Send className="w-4 h-4" />
                   </button>
                 </form>
 
-                <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-300 px-1">
+                <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 px-1">
                   <span>Yomi strictly analyzes internal project data.</span>
                   <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                    Role-Enforced
+                    Live Telemetry
                   </span>
                 </div>
               </div>

@@ -61,7 +61,7 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `Welcome, **${currentUser?.name || 'Executive'}**.\n\nI am **Yomi**, the Executive AI Assistant for the Federal Housing Authority (FHA) Housing Delivery Programme.\n\n🔒 **Authorized Scope**: \`${jurisdictionDesc}\`\n\nI search our live project database to answer your tactical and financial queries. I exclusively answer questions concerning active housing projects. How can I assist you?`,
+      content: "I am Yomi, your executive AI Assistant for the FHA National Housing Delivery Platform.",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -246,24 +246,19 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
           </p>
         </div>
 
-        {/* Role Jurisdiction Chip */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800/50">
-          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <div className="text-left">
-            <span className="block text-[10px] uppercase font-bold tracking-wider text-emerald-700 dark:text-emerald-300">
-              {roleTitle} ({role})
-            </span>
-            <span className="block text-[11px] text-slate-600 dark:text-slate-400">
-              {jurisdictionDesc}
-            </span>
-          </div>
+        {/* Simple Role Badge */}
+        <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10">
+          <Bot className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+            {roleTitle} ({role})
+          </span>
         </div>
       </div>
 
       {/* Chat Workspace Container */}
-      <div className="flex-1 min-h-0 bg-white dark:bg-[#090b0e] border border-slate-200 dark:border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-sm">
+      <div className="flex-1 min-h-0 bg-white dark:bg-[#090b0e] border border-slate-300 dark:border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-sm">
         {/* Messages Feed */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/50 dark:bg-black/20">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/70 dark:bg-black/20">
           {messages.map((m, idx) => {
             const isUser = m.role === 'user';
             return (
@@ -284,7 +279,7 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
                 <div className={`p-4 rounded-2xl text-xs leading-relaxed relative group ${
                   isUser 
                     ? 'bg-amber-600 text-white rounded-tr-none shadow-md' 
-                    : 'bg-white dark:bg-[#12171c] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 rounded-tl-none shadow-sm'
+                    : 'bg-white dark:bg-[#12171c] border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 rounded-tl-none shadow-sm'
                 }`}>
                   {isUser ? (
                     <div className="whitespace-pre-wrap">{m.content}</div>
@@ -292,22 +287,22 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
                     <div>{renderFormattedContent(m.content)}</div>
                   )}
 
-                  <div className="flex items-center justify-between gap-3 mt-2 pt-1.5 border-t border-black/5 dark:border-white/5 text-[9px] opacity-75">
-                    <span className={isUser ? 'text-amber-100' : 'text-slate-400'}>
+                  <div className="flex items-center justify-between gap-3 mt-2 pt-1.5 border-t border-slate-200 dark:border-white/5 text-[9px] opacity-75">
+                    <span className={isUser ? 'text-amber-100' : 'text-slate-500 dark:text-slate-400'}>
                       {m.timestamp}
                     </span>
                     {!isUser && (
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1 rounded font-mono font-semibold">
+                        <span className="text-[8px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded font-mono font-semibold">
                           LIVE PROJECT DB
                         </span>
                         <button
                           onClick={() => handleCopy(idx, m.content)}
-                          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
+                          className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer"
                           title="Copy response"
                         >
                           {copiedIdx === idx ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-500" />
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
                           ) : (
                             <Copy className="w-3.5 h-3.5" />
                           )}
@@ -326,9 +321,9 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
               <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
                 <Loader2 className="w-4 h-4 animate-spin text-white" />
               </div>
-              <div className="p-3 bg-white dark:bg-[#12171c] border border-slate-200 dark:border-white/10 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
+              <div className="p-3 bg-white dark:bg-[#12171c] border border-slate-300 dark:border-white/10 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                <span className="text-xs text-slate-500 font-medium">Yomi is auditing live project telemetry...</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Yomi is auditing live project telemetry...</span>
               </div>
             </div>
           )}
@@ -337,10 +332,10 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
         </div>
 
         {/* Suggested Queries */}
-        <div className="p-3.5 bg-slate-50 dark:bg-[#07090b] border-t border-slate-200 dark:border-white/10 shrink-0 space-y-2">
-          <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Frequent Queries for {roleTitle}</span>
+        <div className="p-3.5 bg-slate-50 dark:bg-[#07090b] border-t border-slate-300 dark:border-white/10 shrink-0 space-y-2">
+          <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>Frequent Queries</span>
           </div>
 
           <div className="flex flex-wrap gap-1.5">
@@ -349,7 +344,7 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
                 key={idx}
                 onClick={() => handleSend(prompt)}
                 disabled={isLoading}
-                className="bg-white dark:bg-[#14191f] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-700 rounded-lg px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 text-left cursor-pointer"
+                className="bg-white dark:bg-[#14191f] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-800 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-300 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-700 rounded-lg px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 text-left cursor-pointer shadow-xs"
               >
                 {prompt}
               </button>
@@ -358,7 +353,7 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
         </div>
 
         {/* Input Form */}
-        <div className="p-4 bg-white dark:bg-[#0c0f12] border-t border-slate-200 dark:border-white/10 shrink-0">
+        <div className="p-4 bg-white dark:bg-[#0c0f12] border-t border-slate-300 dark:border-white/10 shrink-0">
           <form 
             onSubmit={(e) => {
               e.preventDefault();
@@ -372,20 +367,20 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
               onChange={(e) => setInput(e.target.value)}
               disabled={isLoading}
               placeholder="Ask Yomi any tactical or financial question about active housing projects..."
-              className="flex-1 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 focus:border-emerald-500 py-3 px-4 rounded-xl text-xs text-slate-900 dark:text-white outline-none placeholder:text-slate-400"
+              className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-300 dark:border-white/10 focus:border-emerald-500 py-3 px-4 rounded-xl text-xs text-slate-900 dark:text-white outline-none placeholder:text-slate-500"
             />
             
             <button 
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 dark:disabled:bg-white/5 disabled:text-slate-400 text-white font-semibold px-5 py-3 rounded-xl transition shrink-0 flex items-center gap-2 cursor-pointer shadow-sm"
+              className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 dark:disabled:bg-white/5 disabled:text-slate-500 text-white font-semibold px-5 py-3 rounded-xl transition shrink-0 flex items-center gap-2 cursor-pointer shadow-sm"
             >
               <span>Ask Yomi</span>
               <Send className="w-4 h-4" />
             </button>
           </form>
 
-          <div className="mt-2 text-center text-[11px] text-slate-400">
+          <div className="mt-2 text-center text-[11px] text-slate-500 dark:text-slate-400">
             Yomi answers exclusively from active project records. Non-project queries are strictly declined.
           </div>
         </div>

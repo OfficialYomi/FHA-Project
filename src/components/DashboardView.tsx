@@ -211,10 +211,10 @@ export default function DashboardView({
   // Active status color helpers
   const getStatusColor = (status: Project['status']) => {
     switch (status) {
-      case 'On Schedule': return 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30';
-      case 'Needs Attention': return 'bg-amber-500/15 text-amber-400 border border-amber-500/30';
-      case 'Delayed': return 'bg-rose-500/15 text-rose-400 border border-rose-500/30';
-      case 'Completed': return 'bg-sky-500/15 text-sky-400 border border-sky-500/30';
+      case 'On Schedule': return 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30';
+      case 'Needs Attention': return 'bg-amber-500/15 text-amber-800 dark:text-amber-400 border border-amber-500/30';
+      case 'Delayed': return 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30';
+      case 'Completed': return 'bg-sky-500/15 text-sky-700 dark:text-sky-400 border border-sky-500/30';
     }
   };
 
@@ -270,13 +270,13 @@ export default function DashboardView({
           <div className="flex items-center justify-between border-b border-amber-500/20 dark:border-white/5 pb-2">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-              <h3 className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest">
+              <h3 className="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-widest">
                 Action Required: Pending Approvals Queue ({pendingQueue.length})
               </h3>
             </div>
             <button 
               onClick={() => onNavigateToTab('valuations')}
-              className="text-[10px] text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 font-bold uppercase tracking-wider transition"
+              className="text-[10px] text-slate-700 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-400 font-bold uppercase tracking-wider transition cursor-pointer"
             >
               Open Full Valuations Workspace &rarr;
             </button>
@@ -288,7 +288,7 @@ export default function DashboardView({
               return (
                 <div 
                   key={v.id} 
-                  className="bg-white dark:bg-black/50 border border-slate-200 dark:border-white/5 hover:border-amber-500/40 rounded-xl p-4 transition space-y-3 flex flex-col justify-between shadow-sm"
+                  className="bg-white dark:bg-black/50 border border-slate-300 dark:border-white/10 hover:border-amber-500/60 rounded-xl p-4 transition space-y-3 flex flex-col justify-between shadow-xs"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
@@ -296,25 +296,25 @@ export default function DashboardView({
                         <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">{v.estateName}</h4>
                         <p className="text-[10px] text-slate-600 dark:text-slate-400">{v.houseType}</p>
                       </div>
-                      <span className="text-[9px] bg-amber-500/15 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase">
+                      <span className="text-[9px] bg-amber-500/15 text-amber-800 dark:text-amber-400 px-1.5 py-0.5 rounded font-mono font-bold uppercase border border-amber-500/30">
                         {v.invoiceNumber}
                       </span>
                     </div>
 
-                    <div className="mt-2 text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                    <div className="mt-2 text-xs text-slate-700 dark:text-slate-300 space-y-1">
                       <div>Contractor: <strong className="text-slate-900 dark:text-slate-100">{v.contractorName}</strong></div>
-                      <div>Requested Sum: <strong className="text-amber-600 dark:text-amber-400">{formatNaira(v.amountRequested)}</strong></div>
+                      <div>Requested Sum: <strong className="text-amber-700 dark:text-amber-400">{formatNaira(v.amountRequested)}</strong></div>
                       {v.amountCertified && v.amountCertified !== v.amountRequested && (
-                        <div>Certified Amount: <strong className="text-emerald-600 dark:text-emerald-400">{formatNaira(v.amountCertified)}</strong></div>
+                        <div>Certified Amount: <strong className="text-emerald-700 dark:text-emerald-400">{formatNaira(v.amountCertified)}</strong></div>
                       )}
                     </div>
                   </div>
 
-                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
+                  <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-white/10">
                     {/* Optional certification amount input for QS/PM */}
                     {showAmountInput && (
                       <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Certify Amount (₦)</label>
+                        <label className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Certify Amount (₦)</label>
                         <input 
                           type="number"
                           placeholder={`Default: ${v.amountRequested}`}
@@ -327,7 +327,7 @@ export default function DashboardView({
 
                     {/* Comments */}
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Approval Audit Remarks</label>
+                      <label className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Approval Audit Remarks</label>
                       <input 
                         type="text"
                         placeholder="e.g., Works inspected and certified in order."
@@ -341,14 +341,14 @@ export default function DashboardView({
                     <div className="flex gap-2 pt-1.5">
                       <button
                         onClick={() => handleQuickApprove(v.id, 'rejected')}
-                        className="flex-1 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1"
+                        className="flex-1 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-700 dark:text-rose-400 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
                       >
                         <X className="w-3.5 h-3.5" />
                         Decline & Query
                       </button>
                       <button
                         onClick={() => handleQuickApprove(v.id, 'approved')}
-                        className="flex-1 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1"
+                        className="flex-1 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
                       >
                         <Check className="w-3.5 h-3.5" />
                         Authorize Approval
@@ -364,55 +364,55 @@ export default function DashboardView({
 
       {/* KPI Metrics Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-between transition-colors">
+        <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-300 dark:border-white/10 shadow-xs flex items-center justify-between transition-colors">
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">Total Deliveries</span>
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-widest">Total Deliveries</span>
             <div className="text-3xl font-light text-slate-900 dark:text-white mt-1">
               {displayedProjects.reduce((s, p) => s + p.houseCount, 0)} <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Houses</span>
             </div>
             <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-1">{totalProjects} Estates Nationwide</div>
           </div>
-          <div className="bg-amber-500/10 dark:bg-white/5 border border-amber-500/20 dark:border-white/10 p-2.5 rounded-lg text-amber-600 dark:text-amber-500">
+          <div className="bg-amber-500/10 dark:bg-white/5 border border-amber-500/30 dark:border-white/10 p-2.5 rounded-lg text-amber-700 dark:text-amber-500">
             <Building className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-between transition-colors">
+        <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-300 dark:border-white/10 shadow-xs flex items-center justify-between transition-colors">
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">Budget Spent</span>
-            <div className="text-3xl font-light text-amber-600 dark:text-amber-400 mt-1">{formatNaira(totalSpent)}</div>
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-widest">Budget Spent</span>
+            <div className="text-3xl font-light text-amber-700 dark:text-amber-400 mt-1">{formatNaira(totalSpent)}</div>
             <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-1">Allocated: {formatNaira(totalBudget)} ({Math.round((totalSpent / totalBudget) * 100)}%)</div>
           </div>
-          <div className="bg-amber-500/10 dark:bg-white/5 border border-amber-500/20 dark:border-white/10 p-2.5 rounded-lg text-amber-600 dark:text-amber-500">
+          <div className="bg-amber-500/10 dark:bg-white/5 border border-amber-500/30 dark:border-white/10 p-2.5 rounded-lg text-amber-700 dark:text-amber-500">
             <TrendingUp className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-between transition-colors">
+        <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-300 dark:border-white/10 shadow-xs flex items-center justify-between transition-colors">
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">Delivery Status</span>
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-widest">Delivery Status</span>
             <div className="text-3xl font-light text-slate-900 dark:text-white mt-1 flex items-baseline gap-1.5">
               <span>{onSchedule + completed}</span>
-              <span className="text-xs text-amber-600 dark:text-amber-400 font-bold">On Track</span>
+              <span className="text-xs text-amber-700 dark:text-amber-400 font-bold">On Track</span>
             </div>
             <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-1">
-              <span className="text-rose-600 dark:text-rose-400 font-semibold">{delayed} Delayed</span> &bull; <span className="text-amber-600 dark:text-amber-400 font-semibold">{needsAttention} Attention</span>
+              <span className="text-rose-700 dark:text-rose-400 font-semibold">{delayed} Delayed</span> &bull; <span className="text-amber-700 dark:text-amber-400 font-semibold">{needsAttention} Attention</span>
             </div>
           </div>
-          <div className="bg-amber-500/10 dark:bg-white/5 border border-amber-500/20 dark:border-white/10 p-2.5 rounded-lg text-amber-600 dark:text-amber-500">
+          <div className="bg-amber-500/10 dark:bg-white/5 border border-amber-500/30 dark:border-white/10 p-2.5 rounded-lg text-amber-700 dark:text-amber-500">
             <Calendar className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-between border-l-amber-500 transition-colors">
+        <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-300 dark:border-white/10 shadow-xs flex items-center justify-between border-l-4 border-l-amber-500 transition-colors">
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest font-sans">Payments & Audits</span>
+            <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-widest font-sans">Payments & Audits</span>
             <div className="text-3xl font-light text-slate-900 dark:text-white mt-1">
               {pendingValuations} <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Pending</span>
             </div>
             <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-1">{activeContractors} Contractors Engaged</div>
           </div>
-          <div className="bg-amber-500/10 dark:bg-white/5 border border-amber-500/20 dark:border-white/10 p-2.5 rounded-lg text-amber-600 dark:text-amber-500">
+          <div className="bg-amber-500/10 dark:bg-white/5 border border-amber-500/30 dark:border-white/10 p-2.5 rounded-lg text-amber-700 dark:text-amber-500">
             <ShieldCheck className="w-5 h-5" />
           </div>
         </div>
@@ -421,22 +421,22 @@ export default function DashboardView({
       {/* Main Core Dashboard Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         
-        {/* Map & State Drilldown Card - Stays Constant in Dark Mode */}
-        <div className="xl:col-span-2 bg-[#090d16] border border-slate-800 rounded-2xl p-6 flex flex-col justify-between min-h-[550px] shadow-2xl text-white">
+        {/* Map & State Drilldown Card - Clean White Mode with Dark Mode Support */}
+        <div className="xl:col-span-2 bg-white dark:bg-[#090d16] border border-slate-300 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between min-h-[550px] shadow-xs dark:shadow-2xl text-slate-900 dark:text-white transition-colors">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-medium text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
-                  <MapPin className="w-4 h-4 text-amber-400" />
+                <h3 className="text-base font-medium text-slate-900 dark:text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+                  <MapPin className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <span>National Delivery Map</span>
                 </h3>
-                <p className="text-slate-400 text-xs">Geographically authentic map of Nigeria. Click any highlighted state to filter estates.</p>
+                <p className="text-slate-600 dark:text-slate-400 text-xs">Geographically authentic map of Nigeria. Click any highlighted state to filter estates.</p>
               </div>
               
               {selectedState && (
                 <button 
                   onClick={() => setSelectedState(null)}
-                  className="text-xs text-slate-300 hover:text-white px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 transition"
+                  className="text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition cursor-pointer"
                 >
                   Clear Filter ({selectedState})
                 </button>
@@ -452,13 +452,13 @@ export default function DashboardView({
             />
           </div>
 
-          {/* Drilldown Section - Estates Scorecard (Constantly in Dark Mode) */}
-          <div className="mt-6 border-t border-slate-800 pt-5">
+          {/* Drilldown Section - Estates Scorecard */}
+          <div className="mt-6 border-t border-slate-200 dark:border-slate-800 pt-5">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-medium text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+              <h4 className="text-sm font-medium text-slate-900 dark:text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 {selectedState ? `${selectedState} State Estates Scorecard` : "All Estates Scorecard (Nationwide)"}
               </h4>
-              <span className="text-[10px] text-slate-400 font-mono">
+              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono font-semibold">
                 {stateProjects.length} Active Schemes
               </span>
             </div>
@@ -468,14 +468,14 @@ export default function DashboardView({
                 <div 
                   key={p.id}
                   onClick={() => onSelectProject(p.id)}
-                  className="bg-[#0d1322] p-4 rounded-xl border border-slate-700/80 hover:border-amber-500/50 hover:bg-[#11192d] cursor-pointer transition-all flex flex-col justify-between gap-3 group text-white shadow-lg"
+                  className="bg-slate-50 dark:bg-[#0d1322] p-4 rounded-xl border border-slate-300 dark:border-slate-700/80 hover:border-amber-500/60 hover:bg-slate-100 dark:hover:bg-[#11192d] cursor-pointer transition-all flex flex-col justify-between gap-3 group text-slate-900 dark:text-white shadow-xs dark:shadow-lg"
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="text-xs font-bold text-white group-hover:text-amber-400 transition-colors font-serif">{p.estateName}</div>
-                      <div className="text-[10px] text-slate-300 font-medium flex items-center gap-1 mt-0.5">
+                      <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors font-serif">{p.estateName}</div>
+                      <div className="text-[10px] text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1 mt-0.5">
                         <MapPin className="w-3 h-3 text-amber-500" />
-                        <span>{p.state} &bull; <strong className="text-white">{p.houseCount} Houses</strong></span>
+                        <span>{p.state} &bull; <strong className="text-slate-900 dark:text-white">{p.houseCount} Houses</strong></span>
                       </div>
                     </div>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${getStatusColor(p.status)}`}>
@@ -485,11 +485,11 @@ export default function DashboardView({
 
                   {/* Progress bar */}
                   <div>
-                    <div className="flex items-center justify-between text-[10px] text-slate-300 mb-1">
+                    <div className="flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-300 mb-1">
                       <span>Delivery Completion</span>
-                      <span className="font-bold text-white">{p.progress}%</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{p.progress}%</span>
                     </div>
-                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
+                    <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-300 dark:border-slate-700/50">
                       <div 
                         className={`h-full transition-all duration-500 ${
                           p.status === 'Delayed' ? 'bg-rose-500' : p.status === 'Needs Attention' ? 'bg-amber-500' : p.status === 'Completed' ? 'bg-sky-500' : 'bg-emerald-500'
@@ -500,10 +500,10 @@ export default function DashboardView({
                   </div>
 
                   {/* Interactive Milestones */}
-                  <div className="space-y-1.5 border-t border-slate-800 pt-2" onClick={(e) => e.stopPropagation()}>
-                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider flex items-center justify-between">
+                  <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-800 pt-2" onClick={(e) => e.stopPropagation()}>
+                    <div className="text-[9px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider flex items-center justify-between">
                       <span>WBS Click-to-Update (Live)</span>
-                      <span className="text-amber-400 text-[8px] animate-pulse">● Interactive</span>
+                      <span className="text-amber-600 dark:text-amber-400 text-[8px] animate-pulse">● Interactive</span>
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {["Excavation", "Foundation", "Roofing", "Finishes", "Completed"].map((stage) => {
@@ -512,10 +512,10 @@ export default function DashboardView({
                           <button
                             key={`${p.id}-${stage}`}
                             onClick={(e) => handleToggleStage(p, stage, e)}
-                            className={`px-1.5 py-0.5 text-[8px] font-bold rounded border transition-all ${
+                            className={`px-1.5 py-0.5 text-[8px] font-bold rounded border transition-all cursor-pointer ${
                               isChecked
-                                ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 hover:bg-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.1)]'
-                                : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white'
+                                ? 'bg-amber-500/20 border-amber-500/60 text-amber-800 dark:text-amber-300 hover:bg-amber-500/30'
+                                : 'bg-white dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-400 hover:text-slate-900 dark:hover:text-white'
                             }`}
                             title={`Mark up to ${stage} completed`}
                           >
@@ -526,9 +526,9 @@ export default function DashboardView({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-slate-800 pt-2.5 text-[10px] text-slate-400">
-                    <div className="truncate max-w-[140px]">Contr: <span className="font-semibold text-slate-200">{p.contractorName}</span></div>
-                    <div className="flex items-center gap-1 text-slate-300 group-hover:text-amber-400">
+                  <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-2.5 text-[10px] text-slate-600 dark:text-slate-400">
+                    <div className="truncate max-w-[140px]">Contr: <span className="font-semibold text-slate-800 dark:text-slate-200">{p.contractorName}</span></div>
+                    <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 font-medium">
                       <span>Update PM</span>
                       <ExternalLink className="w-3 h-3" />
                     </div>
@@ -538,31 +538,31 @@ export default function DashboardView({
             </div>
           </div>
 
-          {/* MD and PM specific: Estates Directory Portfolio Overview Widget - Stays Constant in Dark Mode */}
+          {/* MD and PM specific: Estates Directory Portfolio Overview Widget */}
           {(userRole === 'MD' || userRole === 'PM') && (
-            <div className="mt-8 border-t border-slate-800 pt-6">
+            <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
-                    <Building className="w-4 h-4 text-amber-400" />
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+                    <Building className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     <span>Estate Portfolio Directory Overview</span>
                   </h4>
-                  <p className="text-slate-400 text-[10px] mt-0.5">National portfolio grouped by estate developments and consolidated key performance metrics</p>
+                  <p className="text-slate-600 dark:text-slate-400 text-[10px] mt-0.5">National portfolio grouped by estate developments and consolidated key performance metrics</p>
                 </div>
                 <button
                   onClick={() => onNavigateToTab('estates')}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 rounded-lg px-2.5 py-1.5 text-[10px] font-bold flex items-center gap-1.5 transition"
+                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-[10px] font-bold flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <span>Open Directory Tab</span>
                   <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
 
-              <div className="bg-[#0c121e] border border-slate-700/80 rounded-xl overflow-hidden shadow-xl text-slate-200">
+              <div className="bg-white dark:bg-[#0c121e] border border-slate-300 dark:border-slate-700/80 rounded-xl overflow-hidden shadow-xs dark:shadow-xl text-slate-800 dark:text-slate-200">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-800 bg-[#060911] text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                      <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#060911] text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                         <th className="py-2.5 px-4">Estate Name</th>
                         <th className="py-2.5 px-4">State</th>
                         <th className="py-2.5 px-4 text-center">Contracts</th>
@@ -572,37 +572,37 @@ export default function DashboardView({
                         <th className="py-2.5 px-4 text-center">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800 text-xs text-slate-200">
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-xs text-slate-700 dark:text-slate-200">
                       {dashboardEstates.map((est) => (
                         <tr 
                           key={est.name} 
                           onClick={() => onNavigateToTab('estates')}
-                          className="hover:bg-slate-800/50 cursor-pointer transition"
+                          className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition"
                         >
-                          <td className="py-3 px-4 font-bold text-white font-serif">{est.name}</td>
-                          <td className="py-3 px-4 text-slate-300">{est.state}</td>
-                          <td className="py-3 px-4 text-center text-white font-bold">{est.projectsCount}</td>
-                          <td className="py-3 px-4 text-center text-white font-semibold">{est.totalHouses} Units</td>
+                          <td className="py-3 px-4 font-bold text-slate-900 dark:text-white font-serif">{est.name}</td>
+                          <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{est.state}</td>
+                          <td className="py-3 px-4 text-center text-slate-900 dark:text-white font-bold">{est.projectsCount}</td>
+                          <td className="py-3 px-4 text-center text-slate-900 dark:text-white font-semibold">{est.totalHouses} Units</td>
                           <td className="py-3 px-4 min-w-[120px]">
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-white text-[10px] w-8">{est.avgProgress}%</span>
-                              <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden max-w-[80px]">
+                              <span className="font-bold text-slate-900 dark:text-white text-[10px] w-8">{est.avgProgress}%</span>
+                              <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden max-w-[80px]">
                                 <div 
                                   className={`h-full ${
                                     est.status === 'Delayed' ? 'bg-rose-500' : est.status === 'Needs Attention' ? 'bg-amber-500' : est.status === 'Completed' ? 'bg-sky-500' : 'bg-emerald-500'
                                   }`} 
-                                  style={{ width: `${est.avgProgress}%` }}
+                                  style={{ width: `${est.avgProgress}%` }} 
                                 />
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4 text-right font-bold text-amber-400 text-[11px] font-mono">{formatNaira(est.totalBudget)}</td>
+                          <td className="py-3 px-4 text-right font-bold text-amber-700 dark:text-amber-400 text-[11px] font-mono">{formatNaira(est.totalBudget)}</td>
                           <td className="py-3 px-4 text-center">
                             <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-bold ${
-                              est.status === 'Completed' ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40' :
-                              est.status === 'Delayed' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' :
-                              est.status === 'Needs Attention' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' :
-                              'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              est.status === 'Completed' ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/40' :
+                              est.status === 'Delayed' ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/40' :
+                              est.status === 'Needs Attention' ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40' :
+                              'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40'
                             }`}>
                               {est.status}
                             </span>
@@ -621,7 +621,7 @@ export default function DashboardView({
         <div className="space-y-6">
           
           {/* Recent Site Evidence Stream */}
-          <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-col h-[280px] shadow-sm transition-colors">
+          <div className="bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl p-5 flex flex-col h-[280px] shadow-xs transition-colors">
             <h3 className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2 mb-3 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
               <Camera className="w-4 h-4 text-amber-600 dark:text-amber-500" />
               <span>Real-Time Site Photo Stream</span>
@@ -637,18 +637,18 @@ export default function DashboardView({
                 {recentPhotos.map((photo, idx) => (
                   <div 
                     key={idx}
-                    className="flex items-center gap-3 bg-slate-50 dark:bg-black/45 p-2 rounded-lg border border-slate-200 dark:border-white/10 cursor-pointer hover:border-slate-300 dark:hover:border-white/20 transition"
+                    className="flex items-center gap-3 bg-slate-50 dark:bg-black/45 p-2 rounded-lg border border-slate-300 dark:border-white/10 cursor-pointer hover:border-slate-400 dark:hover:border-white/20 transition"
                     onClick={() => onSelectProject(photo.project.id)}
                   >
                     <img 
                       src={photo.afterPhoto} 
                       alt={photo.stage} 
                       referrerPolicy="no-referrer"
-                      className="w-12 h-12 rounded object-cover border border-slate-200 dark:border-white/10 shrink-0" 
+                      className="w-12 h-12 rounded object-cover border border-slate-300 dark:border-white/10 shrink-0" 
                     />
                     <div className="overflow-hidden">
                       <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{photo.project.estateName}</div>
-                      <div className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">{photo.stage} Completed</div>
+                      <div className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">{photo.stage} Completed</div>
                       <div className="text-[9px] text-slate-600 dark:text-slate-400 flex items-center gap-1 mt-0.5">
                         <Clock className="w-2.5 h-2.5 text-slate-500" />
                         <span>{new Date(photo.timestamp).toLocaleDateString()} &bull; {photo.uploadedBy}</span>
@@ -661,13 +661,13 @@ export default function DashboardView({
           </div>
 
           {/* Core Risk & Alerts Sidebar Widget */}
-          <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-col h-[246px] shadow-sm transition-colors">
+          <div className="bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl p-5 flex flex-col h-[246px] shadow-xs transition-colors">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 <AlertTriangle className="w-4 h-4 text-rose-500 dark:text-rose-400" />
                 <span>Strategic Risk Track</span>
               </h3>
-              <span className="bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 font-bold px-2 py-0.5 rounded text-[10px]">
+              <span className="bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 font-bold px-2 py-0.5 rounded text-[10px]">
                 {activeAlerts.length} Active
               </span>
             </div>
@@ -684,13 +684,13 @@ export default function DashboardView({
                     key={alert.id}
                     className={`p-3 rounded-lg border text-xs cursor-pointer transition ${
                       alert.severity === 'high' 
-                        ? 'bg-rose-500/5 border-rose-500/20 hover:bg-rose-500/10' 
-                        : 'bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10'
+                        ? 'bg-rose-500/5 border-rose-500/30 hover:bg-rose-500/10' 
+                        : 'bg-amber-500/5 border-amber-500/30 hover:bg-amber-500/10'
                     }`}
                     onClick={() => onNavigateToTab('alerts')}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className={`font-bold uppercase text-[9px] ${alert.severity === 'high' ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                      <span className={`font-bold uppercase text-[9px] ${alert.severity === 'high' ? 'text-rose-700 dark:text-rose-400' : 'text-amber-700 dark:text-amber-400'}`}>
                         {alert.severity} Priority &bull; {alert.category}
                       </span>
                       <span className="text-[9px] text-slate-500 dark:text-slate-400">{alert.dateCreated}</span>
@@ -703,7 +703,7 @@ export default function DashboardView({
                 {activeAlerts.length > 3 && (
                   <button 
                     onClick={() => onNavigateToTab('alerts')}
-                    className="w-full text-center py-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-black rounded-md border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/5 transition"
+                    className="w-full text-center py-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-black rounded-md border border-slate-300 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/5 transition cursor-pointer"
                   >
                     View All Exception Alerts (+{activeAlerts.length - 3} more)
                   </button>

@@ -74,16 +74,16 @@ export default function NigeriaMap({
   const activeHoverStats = activeHoverNode ? getStateStats(activeHoverNode.name) : null;
 
   return (
-    <div className="relative w-full h-[360px] bg-[#050811] rounded-xl border border-slate-800 overflow-hidden flex items-center justify-center select-none shadow-inner">
+    <div className="relative w-full h-[360px] bg-slate-50 dark:bg-[#050811] rounded-xl border border-slate-300 dark:border-slate-800 overflow-hidden flex items-center justify-center select-none shadow-sm dark:shadow-inner">
       
       {/* Background Cartographic Coordinate Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0000000a_1px,transparent_1px),linear-gradient(to_bottom,#0000000a_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
       
       {/* Lat/Long Coordinate Reticles */}
-      <div className="absolute top-2 left-3 text-[9px] font-mono text-slate-600 tracking-wider pointer-events-none">
+      <div className="absolute top-2 left-3 text-[9px] font-mono text-slate-500 dark:text-slate-500 tracking-wider pointer-events-none">
         NIGERIA // 09°04&apos;N 07°29&apos;E // WGS84
       </div>
-      <div className="absolute top-2 right-3 text-[9px] font-mono text-amber-500/70 tracking-wider pointer-events-none flex items-center gap-1">
+      <div className="absolute top-2 right-3 text-[9px] font-mono text-amber-600 dark:text-amber-500/70 tracking-wider pointer-events-none flex items-center gap-1 font-semibold">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
         FEDERAL CARTOGRAPHIC TELEMETRY
       </div>
@@ -94,20 +94,27 @@ export default function NigeriaMap({
         className="w-full max-w-[490px] h-full z-10 transition-transform duration-300"
       >
         <defs>
-          {/* Subtle regional zone gradients */}
-          <linearGradient id="nigeriaLandmassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          {/* Light landmass gradient */}
+          <linearGradient id="nigeriaLandmassGradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="50%" stopColor="#f8fafc" />
+            <stop offset="100%" stopColor="#e2e8f0" />
+          </linearGradient>
+
+          {/* Dark regional zone gradients */}
+          <linearGradient id="nigeriaLandmassGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#0c1527" />
             <stop offset="50%" stopColor="#0a101f" />
             <stop offset="100%" stopColor="#060c18" />
           </linearGradient>
 
           <linearGradient id="riverGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#0284c7" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="#0284c7" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.9" />
           </linearGradient>
 
           <filter id="mapGlow" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#005082" floodOpacity="0.4" />
+            <feDropShadow dx="0" dy="1" stdDeviation="3" floodColor="#005082" floodOpacity="0.25" />
           </filter>
         </defs>
 
@@ -140,24 +147,22 @@ export default function NigeriaMap({
             C 54,302 58,315 65,320
             Z
           "
-          fill="url(#nigeriaLandmassGrad)"
-          stroke="#1e293b"
-          strokeWidth="2.5"
+          className="fill-[url(#nigeriaLandmassGradLight)] dark:fill-[url(#nigeriaLandmassGradDark)] stroke-slate-400 dark:stroke-slate-700 transition-colors duration-300"
+          strokeWidth="2"
           filter="url(#mapGlow)"
-          className="transition-colors duration-300"
         />
 
         {/* 2. SUBTLE GEOPOLITICAL ZONE INTERNAL BOUNDARIES */}
         {/* North-West / North-East separator */}
-        <path d="M 340,82 C 330,130 320,165 310,195" fill="none" stroke="#1e293b" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+        <path d="M 340,82 C 330,130 320,165 310,195" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
         {/* Northern / Middle-Belt separator */}
-        <path d="M 80,175 C 150,180 230,185 310,195 C 370,198 420,210 435,210" fill="none" stroke="#1e293b" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+        <path d="M 80,175 C 150,180 230,185 310,195 C 370,198 420,210 435,210" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
         {/* Middle-Belt / Southern separator */}
-        <path d="M 80,235 C 140,245 190,260 270,270 C 330,275 365,268 385,260" fill="none" stroke="#1e293b" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+        <path d="M 80,235 C 140,245 190,260 270,270 C 330,275 365,268 385,260" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
         {/* South-West / South-South separator */}
-        <path d="M 145,332 C 160,300 175,275 190,260" fill="none" stroke="#1e293b" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+        <path d="M 145,332 C 160,300 175,275 190,260" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
         {/* South-East / South-South separator */}
-        <path d="M 270,270 C 265,300 258,335 255,366" fill="none" stroke="#1e293b" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+        <path d="M 270,270 C 265,300 258,335 255,366" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
 
         {/* 3. FAMOUS RIVERS NIGER & BENUE (Y-SHAPED CONFLUENCE AT LOKOJA) */}
         {/* River Niger entering from Kebbi/Niger state through Jebba to Lokoja */}
@@ -189,18 +194,18 @@ export default function NigeriaMap({
         <path d="M 222,335 C 235,350 245,360 255,366" fill="none" stroke="#0284c7" strokeWidth="1.2" opacity="0.7" />
 
         {/* Lokoja Confluence Marker */}
-        <circle cx="215" cy="255" r="2.5" fill="#38bdf8" opacity="0.8" />
-        <text x="215" y="247" textAnchor="middle" className="fill-sky-400/70 text-[7px] font-mono pointer-events-none uppercase">
+        <circle cx="215" cy="255" r="3" fill="#0284c7" className="dark:fill-[#38bdf8]" />
+        <text x="215" y="247" textAnchor="middle" className="fill-sky-700 dark:fill-sky-400/80 text-[7.5px] font-mono pointer-events-none uppercase font-bold">
           Lokoja Confluence
         </text>
 
         {/* 4. GEOPOLITICAL ZONE LABELS (Subtle Watermarks) */}
-        <text x="220" y="115" textAnchor="middle" className="fill-slate-700/50 font-bold text-[9px] uppercase tracking-widest pointer-events-none font-mono">North-West</text>
-        <text x="400" y="130" textAnchor="middle" className="fill-slate-700/50 font-bold text-[9px] uppercase tracking-widest pointer-events-none font-mono">North-East</text>
-        <text x="240" y="200" textAnchor="middle" className="fill-slate-700/50 font-bold text-[9px] uppercase tracking-widest pointer-events-none font-mono">North-Central</text>
-        <text x="115" y="275" textAnchor="middle" className="fill-slate-700/50 font-bold text-[8px] uppercase tracking-widest pointer-events-none font-mono">South-West</text>
-        <text x="305" y="295" textAnchor="middle" className="fill-slate-700/50 font-bold text-[8px] uppercase tracking-widest pointer-events-none font-mono">South-East</text>
-        <text x="205" y="325" textAnchor="middle" className="fill-slate-700/50 font-bold text-[8px] uppercase tracking-widest pointer-events-none font-mono">South-South</text>
+        <text x="220" y="115" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[9px] uppercase tracking-widest pointer-events-none font-mono">North-West</text>
+        <text x="400" y="130" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[9px] uppercase tracking-widest pointer-events-none font-mono">North-East</text>
+        <text x="240" y="200" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[9px] uppercase tracking-widest pointer-events-none font-mono">North-Central</text>
+        <text x="115" y="275" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[8px] uppercase tracking-widest pointer-events-none font-mono">South-West</text>
+        <text x="305" y="295" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[8px] uppercase tracking-widest pointer-events-none font-mono">South-East</text>
+        <text x="205" y="325" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[8px] uppercase tracking-widest pointer-events-none font-mono">South-South</text>
 
         {/* 5. INTERACTIVE HOUSING STATE HUBS */}
         {HOUSING_STATES.map((node) => {
@@ -210,8 +215,8 @@ export default function NigeriaMap({
           const hasProjects = stats.count > 0;
 
           // Determine status fill color
-          let statusCircleColor = 'fill-slate-700 stroke-slate-500';
-          let pulseColor = 'stroke-slate-500/20';
+          let statusCircleColor = 'fill-slate-400 stroke-slate-300 dark:fill-slate-700 dark:stroke-slate-500';
+          let pulseColor = 'stroke-slate-400/30 dark:stroke-slate-500/20';
 
           if (hasProjects) {
             if (stats.status === 'Delayed') {
@@ -224,7 +229,7 @@ export default function NigeriaMap({
               statusCircleColor = 'fill-sky-500 stroke-sky-300';
               pulseColor = 'stroke-sky-500/40';
             } else {
-              statusCircleColor = 'fill-emerald-500 stroke-emerald-300';
+              statusCircleColor = 'fill-emerald-600 dark:fill-emerald-500 stroke-emerald-300';
               pulseColor = 'stroke-emerald-500/40';
             }
           }
@@ -243,7 +248,7 @@ export default function NigeriaMap({
                   cx={node.cx} 
                   cy={node.cy} 
                   r="26" 
-                  className="fill-amber-500/15 stroke-amber-400 stroke-2 animate-pulse" 
+                  className="fill-amber-500/20 stroke-amber-500 stroke-2 animate-pulse" 
                 />
               )}
 
@@ -263,7 +268,7 @@ export default function NigeriaMap({
                 cx={node.cx} 
                 cy={node.cy} 
                 r={node.id === 'abuja' ? 14 : 12} 
-                className={`${statusCircleColor} stroke-2 transition-all duration-300 drop-shadow-md group-hover:scale-125 group-hover:brightness-125`}
+                className={`${statusCircleColor} stroke-2 transition-all duration-300 drop-shadow-md group-hover:scale-125 group-hover:brightness-110`}
                 style={{ transformOrigin: `${node.cx}px ${node.cy}px` }}
               />
 
@@ -282,12 +287,12 @@ export default function NigeriaMap({
                 textAnchor={node.align} 
                 className={`font-bold text-[10px] uppercase tracking-wider pointer-events-none transition-colors duration-200 ${
                   isSelected 
-                    ? 'fill-amber-400 font-extrabold text-[11px]' 
+                    ? 'fill-amber-600 dark:fill-amber-400 font-extrabold text-[11px]' 
                     : isHovered 
-                    ? 'fill-white' 
+                    ? 'fill-slate-900 dark:fill-white font-extrabold' 
                     : hasProjects 
-                    ? 'fill-slate-200' 
-                    : 'fill-slate-500'
+                    ? 'fill-slate-900 dark:fill-slate-200 font-bold' 
+                    : 'fill-slate-500 dark:fill-slate-500'
                 }`}
               >
                 {node.name} {node.id === 'abuja' && '(FCT)'}
@@ -299,7 +304,7 @@ export default function NigeriaMap({
                   x={node.cx}
                   y={node.cy + 3}
                   textAnchor="middle"
-                  className="fill-black font-extrabold text-[8px] pointer-events-none font-mono"
+                  className="fill-white font-extrabold text-[8px] pointer-events-none font-mono"
                 >
                   {stats.count}
                 </text>
@@ -311,48 +316,48 @@ export default function NigeriaMap({
 
       {/* Floating Hover Telemetry Card */}
       {activeHoverNode && activeHoverStats && (
-        <div className="absolute top-4 left-4 bg-[#0a0f1d]/95 backdrop-blur-md border border-slate-700/80 p-3 rounded-xl shadow-2xl z-30 pointer-events-none text-xs space-y-1.5 min-w-[200px] animate-in fade-in zoom-in-95 duration-150">
-          <div className="flex items-center justify-between border-b border-slate-700/50 pb-1.5">
+        <div className="absolute top-4 left-4 bg-white/95 dark:bg-[#0a0f1d]/95 backdrop-blur-md border border-slate-300 dark:border-slate-700/80 p-3 rounded-xl shadow-xl z-30 pointer-events-none text-xs space-y-1.5 min-w-[200px] animate-in fade-in zoom-in-95 duration-150 text-slate-800 dark:text-slate-100">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/50 pb-1.5">
             <div className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-amber-400" />
-              <strong className="text-white text-sm font-serif">{activeHoverNode.name} {activeHoverNode.id === 'abuja' ? '(FCT)' : 'State'}</strong>
+              <MapPin className="w-3.5 h-3.5 text-amber-500" />
+              <strong className="text-slate-900 dark:text-white text-sm font-serif">{activeHoverNode.name} {activeHoverNode.id === 'abuja' ? '(FCT)' : 'State'}</strong>
             </div>
-            <span className="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono font-bold">
+            <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-mono font-bold border border-slate-200 dark:border-slate-700">
               {activeHoverNode.zone}
             </span>
           </div>
 
           {activeHoverStats.count > 0 ? (
             <div className="space-y-1 text-[11px]">
-              <div className="flex justify-between text-slate-300">
+              <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span>Active Schemes:</span>
-                <strong className="text-white font-bold">{activeHoverStats.count} Estates</strong>
+                <strong className="text-slate-900 dark:text-white font-bold">{activeHoverStats.count} Estates</strong>
               </div>
-              <div className="flex justify-between text-slate-300">
+              <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span>Total Houses:</span>
-                <strong className="text-white font-bold">{activeHoverStats.houses} Units</strong>
+                <strong className="text-slate-900 dark:text-white font-bold">{activeHoverStats.houses} Units</strong>
               </div>
-              <div className="flex justify-between text-slate-300">
+              <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span>Avg Delivery Pace:</span>
-                <strong className="text-amber-400 font-bold">{activeHoverStats.progress}%</strong>
+                <strong className="text-amber-600 dark:text-amber-400 font-bold">{activeHoverStats.progress}%</strong>
               </div>
-              <div className="flex justify-between text-slate-300">
+              <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span>Delivery Status:</span>
                 <span className={`font-bold px-1.5 py-0.2 rounded text-[9px] uppercase ${
-                  activeHoverStats.status === 'Completed' ? 'bg-sky-500/20 text-sky-300' :
-                  activeHoverStats.status === 'Delayed' ? 'bg-rose-500/20 text-rose-300' :
-                  activeHoverStats.status === 'Needs Attention' ? 'bg-amber-500/20 text-amber-300' :
-                  'bg-emerald-500/20 text-emerald-300'
+                  activeHoverStats.status === 'Completed' ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-500/20' :
+                  activeHoverStats.status === 'Delayed' ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20' :
+                  activeHoverStats.status === 'Needs Attention' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20' :
+                  'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
                 }`}>
                   {activeHoverStats.status}
                 </span>
               </div>
-              <div className="pt-1 border-t border-slate-800 text-[9px] text-slate-400 italic">
+              <div className="pt-1 border-t border-slate-200 dark:border-slate-800 text-[9px] text-slate-500 dark:text-slate-400 italic">
                 Click state node to filter delivery schemes below
               </div>
             </div>
           ) : (
-            <div className="text-[10px] text-slate-400 pt-1">
+            <div className="text-[10px] text-slate-500 pt-1">
               No active FHA schemes currently allocated in this state node.
             </div>
           )}
@@ -360,23 +365,23 @@ export default function NigeriaMap({
       )}
 
       {/* Map Legend Overlay */}
-      <div className="absolute bottom-3 left-3 bg-[#080d1a]/95 border border-slate-800/80 p-2.5 rounded-lg text-xs space-y-1 z-20 shadow-xl backdrop-blur-sm pointer-events-auto">
-        <div className="font-semibold text-[9px] text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-          <Info className="w-3 h-3 text-amber-400" />
+      <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-[#080d1a]/95 border border-slate-300 dark:border-slate-800/80 p-2.5 rounded-lg text-xs space-y-1 z-20 shadow-md backdrop-blur-sm pointer-events-auto">
+        <div className="font-semibold text-[9px] text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+          <Info className="w-3 h-3 text-amber-500" />
           <span>National Delivery Status</span>
         </div>
         <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-500" /> <span className="text-slate-300 text-[10px]">Completed</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /> <span className="text-slate-300 text-[10px]">On Schedule</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /> <span className="text-slate-300 text-[10px]">Needs Attention</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-rose-500" /> <span className="text-slate-300 text-[10px]">Delayed / Behind</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-500" /> <span className="text-slate-700 dark:text-slate-300 text-[10px]">Completed</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-500" /> <span className="text-slate-700 dark:text-slate-300 text-[10px]">On Schedule</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /> <span className="text-slate-700 dark:text-slate-300 text-[10px]">Needs Attention</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-rose-500" /> <span className="text-slate-700 dark:text-slate-300 text-[10px]">Delayed / Behind</span></div>
         </div>
       </div>
 
       {/* Rivers & Confluence Tag Overlay */}
-      <div className="absolute bottom-3 right-3 bg-[#080d1a]/90 border border-slate-800/80 px-2.5 py-1.5 rounded-lg text-[9px] text-slate-400 space-y-0.5 pointer-events-none hidden sm:block">
-        <div className="flex items-center gap-1.5 text-sky-400 font-mono">
-          <span className="w-2 h-0.5 bg-sky-400 inline-block"></span>
+      <div className="absolute bottom-3 right-3 bg-white/90 dark:bg-[#080d1a]/90 border border-slate-300 dark:border-slate-800/80 px-2.5 py-1.5 rounded-lg text-[9px] text-slate-600 dark:text-slate-400 space-y-0.5 pointer-events-none hidden sm:block shadow-sm">
+        <div className="flex items-center gap-1.5 text-sky-700 dark:text-sky-400 font-mono font-bold">
+          <span className="w-2 h-0.5 bg-sky-500 inline-block"></span>
           <span>River Niger & River Benue</span>
         </div>
         <div className="text-[8px] text-slate-500">6 Geopolitical Zones Demarcation</div>

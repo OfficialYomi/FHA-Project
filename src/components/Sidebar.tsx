@@ -72,24 +72,24 @@ export default function Sidebar({
   return (
     <aside 
       id="main-sidebar" 
-      className={`${isCollapsed ? 'w-20' : 'w-80'} bg-slate-50 dark:bg-[#050505] border-r border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100 flex flex-col shrink-0 h-screen sticky top-0 overflow-hidden transition-all duration-300 ease-in-out print:hidden`}
+      className={`${isCollapsed ? 'w-20' : 'w-80'} bg-white dark:bg-[#050505] border-r border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-100 flex flex-col shrink-0 h-screen sticky top-0 overflow-hidden transition-all duration-300 ease-in-out print:hidden`}
     >
       {/* Brand Header */}
       {isCollapsed ? (
-        <div className="p-4 border-b border-slate-200 dark:border-white/10 flex flex-col items-center gap-4 bg-slate-100/50 dark:bg-black/40">
+        <div className="p-4 border-b border-slate-300 dark:border-white/10 flex flex-col items-center gap-4 bg-slate-50 dark:bg-black/40">
           <div className="w-10 h-10 flex items-center justify-center" title="FEDERAL HOUSING AUTHORITY">
             <FhaLogo size={36} showText={false} />
           </div>
           <button 
             onClick={() => setIsCollapsed(false)} 
-            className="p-1.5 hover:bg-slate-200 dark:hover:bg-white/10 text-amber-500 hover:text-amber-400 rounded-lg transition"
+            className="p-1.5 hover:bg-slate-200 dark:hover:bg-white/10 text-amber-500 hover:text-amber-400 rounded-lg transition cursor-pointer"
             title="Expand Sidebar"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       ) : (
-        <div className="p-6 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-100/50 dark:bg-black/40">
+        <div className="p-6 border-b border-slate-300 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-black/40">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 flex items-center justify-center shrink-0">
               <FhaLogo size={44} showText={false} />
@@ -98,12 +98,12 @@ export default function Sidebar({
               <h1 className="text-lg font-medium tracking-tight text-slate-900 dark:text-white leading-none font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 FHA MONITOR
               </h1>
-              <p className="text-[10px] text-amber-500 font-bold uppercase tracking-widest mt-1">Project Cockpit</p>
+              <p className="text-[10px] text-amber-600 dark:text-amber-500 font-bold uppercase tracking-widest mt-1">Project Cockpit</p>
             </div>
           </div>
           <button 
             onClick={() => setIsCollapsed(true)} 
-            className="p-1.5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition"
+            className="p-1.5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition cursor-pointer"
             title="Collapse Sidebar"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -130,14 +130,14 @@ export default function Sidebar({
                 title={isCollapsed ? item.name : undefined}
                 className={`w-full flex items-center ${isCollapsed ? 'justify-center px-1' : 'justify-between px-3'} py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'
+                    ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
                     : item.highlight
-                    ? 'bg-slate-100 dark:bg-white/5 text-amber-500 dark:text-amber-400 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10'
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100'
+                    ? 'bg-amber-500/10 dark:bg-white/5 text-amber-700 dark:text-amber-400 border border-amber-500/30 dark:border-white/10 hover:bg-amber-500/15 dark:hover:bg-white/10'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100'
                 }`}
               >
                 <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} relative w-full`}>
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.highlight ? 'text-amber-500 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.highlight ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'}`} />
                   {!isCollapsed && <span className="truncate">{item.name}</span>}
                   
                   {isCollapsed && item.count !== undefined && item.count > 0 && (
@@ -152,10 +152,10 @@ export default function Sidebar({
                     item.urgent 
                       ? isActive 
                         ? 'bg-white/20 text-white font-extrabold'
-                        : 'bg-rose-500/15 text-rose-500 dark:text-rose-400 border border-rose-500/20' 
+                        : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30' 
                       : isActive
                         ? 'bg-white/20 text-white font-extrabold'
-                        : 'bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/20'
+                        : 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30'
                   }`}>
                     {item.count}
                   </span>
@@ -177,7 +177,7 @@ export default function Sidebar({
                 <button
                   key={p.id}
                   onClick={() => onSelectProject(p.id)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-md text-[11px] font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition group text-left cursor-pointer"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-md text-[11px] font-medium text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition group text-left cursor-pointer"
                 >
                   <div className="flex items-center gap-2 truncate">
                     <div className={`w-1.5 h-1.5 rounded-full ${
@@ -194,7 +194,7 @@ export default function Sidebar({
       </div>
 
       {/* User Footer Profile */}
-      <div className="p-4 border-t border-slate-200 dark:border-white/10 bg-slate-100/50 dark:bg-black/40">
+      <div className="p-4 border-t border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-black/40">
         {isCollapsed ? (
           <div className="flex flex-col items-center gap-4">
             <div 
@@ -212,7 +212,7 @@ export default function Sidebar({
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-between gap-2 p-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5">
+          <div className="flex items-center justify-between gap-2 p-2 bg-white dark:bg-white/5 rounded-xl border border-slate-300 dark:border-white/10">
             <div className="flex items-center gap-2.5 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-[0_0_10px_rgba(0,80,130,0.2)]">
                 {currentUser?.role || 'MD'}
@@ -226,7 +226,7 @@ export default function Sidebar({
             <button 
               onClick={onLogout}
               title="Log Out"
-              className="p-1.5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg transition shrink-0 cursor-pointer"
+              className="p-1.5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg transition shrink-0 cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
             </button>

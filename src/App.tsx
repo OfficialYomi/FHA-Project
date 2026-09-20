@@ -512,17 +512,17 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden print:overflow-visible print:h-auto print:w-full print:block">
         
         {/* Top Program Branding Bar */}
-        <header className="h-16 border-b border-slate-200 dark:border-white/10 shrink-0 bg-white/80 dark:bg-black/40 backdrop-blur-md flex items-center justify-between px-6 z-10 print:hidden transition-colors duration-200">
+        <header className="h-16 border-b border-slate-300 dark:border-white/10 shrink-0 bg-white dark:bg-black/40 flex items-center justify-between px-6 z-10 print:hidden transition-colors duration-200">
           <div className="flex items-center gap-3">
             <div className="bg-amber-500 text-white p-2 rounded flex items-center justify-center font-bold">
               <span className="text-sm leading-none font-bold">{currentUser.role[0]}</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest leading-none">{currentUser.role} Desk</span>
-                <span className="text-[10px] bg-slate-200/60 dark:bg-white/5 text-slate-700 dark:text-slate-400 px-1.5 py-0.5 rounded uppercase">{currentUser.name}</span>
+                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest leading-none">{currentUser.role} Desk</span>
+                <span className="text-[10px] bg-slate-100 dark:bg-white/5 text-slate-800 dark:text-slate-400 border border-slate-300 dark:border-white/10 px-1.5 py-0.5 rounded font-semibold uppercase">{currentUser.name}</span>
               </div>
-              <h1 className="text-base font-medium text-slate-850 dark:text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+              <h1 className="text-base font-semibold text-slate-900 dark:text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 National Housing Delivery Platform
               </h1>
             </div>
@@ -530,8 +530,8 @@ export default function App() {
 
           <div className="flex items-center gap-3">
             {/* Real-time telemetry connection status */}
-            <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-md">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/10 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span className="tracking-widest uppercase">SYSTEM SECURE</span>
             </div>
 
@@ -539,7 +539,7 @@ export default function App() {
             <button
               onClick={toggleTheme}
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg border border-slate-200 dark:border-white/10 transition cursor-pointer"
+              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg border border-slate-300 dark:border-white/10 transition cursor-pointer"
             >
               {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#005082]" />}
             </button>
@@ -548,7 +548,7 @@ export default function App() {
             <button 
               onClick={fetchOverviewData}
               title="Refresh Cockpit Telemetry"
-              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg border border-slate-200 dark:border-white/10 transition cursor-pointer"
+              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg border border-slate-300 dark:border-white/10 transition cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-amber-500' : ''}`} />
             </button>
