@@ -109,13 +109,13 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
   return (
     <div className="space-y-6">
       {/* View Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-white/10 pb-5">
         <div>
-          <div className="text-amber-500 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Estate Schemes & Typologies</div>
-          <h2 className="text-2xl font-serif text-white tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
+          <div className="text-amber-600 dark:text-amber-500 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Estate Schemes & Typologies</div>
+          <h2 className="text-2xl font-serif text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
             National Housing Estate Directory
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
             Comprehensive register of all FHA estates grouped by state, housing typology, and developer models.
           </p>
         </div>
@@ -129,7 +129,7 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
               className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition ${
                 selectedState === state
                   ? 'bg-amber-500 text-black border-amber-500 shadow-md shadow-amber-500/15'
-                  : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                  : 'bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               {state}
@@ -138,12 +138,12 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
         </div>
       </div>
 
-      {/* Estates List */}
+      {/* Estates List - Constant Premium Dark Mode Cards with Razor-Sharp Contrast */}
       <div className="space-y-4">
         {filteredEstates.length === 0 ? (
-          <div className="text-center py-12 border border-dashed border-white/10 rounded-2xl bg-black/20">
-            <Building className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-            <p className="text-sm font-semibold text-slate-400">No estates found in {selectedState}</p>
+          <div className="text-center py-12 border border-dashed border-slate-300 dark:border-white/10 rounded-2xl bg-slate-50 dark:bg-black/20">
+            <Building className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto mb-2" />
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">No estates found in {selectedState}</p>
           </div>
         ) : (
           filteredEstates.map(estate => {
@@ -151,8 +151,8 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
             return (
               <div 
                 key={estate.name}
-                className={`border rounded-2xl transition bg-black/40 overflow-hidden ${
-                  isExpanded ? 'border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.05)]' : 'border-white/10 hover:border-white/20'
+                className={`border rounded-2xl transition bg-[#090e1a] text-white overflow-hidden shadow-xl ${
+                  isExpanded ? 'border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'border-slate-800 hover:border-slate-700'
                 }`}
               >
                 {/* Header card summary click trigger */}
@@ -161,7 +161,7 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
                   className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer select-none"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 shadow-sm">
                       <Building className="w-6 h-6" />
                     </div>
                     <div>
@@ -169,26 +169,26 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
                         <h3 className="text-lg font-serif text-white tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
                           {estate.name}
                         </h3>
-                        <div className="flex items-center gap-1 text-[11px] text-slate-500 bg-white/5 px-2 py-0.5 rounded border border-white/5">
-                          <MapPin className="w-3 h-3 text-amber-500/80" />
+                        <div className="flex items-center gap-1 text-[11px] text-slate-200 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 font-medium">
+                          <MapPin className="w-3 h-3 text-amber-400" />
                           <span>{estate.state} State</span>
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap items-center gap-y-1 gap-x-4 mt-2 text-xs text-slate-400">
+                      <div className="flex flex-wrap items-center gap-y-1 gap-x-4 mt-2 text-xs text-slate-300">
                         <span className="flex items-center gap-1">
-                          <Home className="w-3.5 h-3.5 text-slate-500" />
-                          <strong>{estate.totalHouses}</strong> Houses Planned
+                          <Home className="w-3.5 h-3.5 text-amber-400" />
+                          <strong className="text-white font-bold">{estate.totalHouses}</strong> Houses Planned
                         </span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-700 hidden sm:inline" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-600 hidden sm:inline" />
                         <span className="flex items-center gap-1">
-                          <Layers className="w-3.5 h-3.5 text-slate-500" />
-                          <strong>{estate.projects.length}</strong> Typology Schemes
+                          <Layers className="w-3.5 h-3.5 text-amber-400" />
+                          <strong className="text-white font-bold">{estate.projects.length}</strong> Typology Schemes
                         </span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-700 hidden sm:inline" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-600 hidden sm:inline" />
                         <span className="flex items-center gap-1">
-                          <Activity className="w-3.5 h-3.5 text-slate-500" />
-                          Avg Progress: <strong>{estate.avgProgress}%</strong>
+                          <Activity className="w-3.5 h-3.5 text-amber-400" />
+                          Avg Progress: <strong className="text-white font-bold">{estate.avgProgress}%</strong>
                         </span>
                       </div>
                     </div>
@@ -197,15 +197,15 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
                   {/* Financials & Action status */}
                   <div className="flex items-center gap-6 justify-between md:justify-end">
                     <div className="text-right hidden sm:block">
-                      <div className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Financial outlay</div>
-                      <div className="text-sm font-semibold text-slate-200">₦{(estate.totalBudget / 1e6).toFixed(1)}M Budget</div>
-                      <div className="text-[11px] text-slate-400">₦{(estate.totalSpent / 1e6).toFixed(1)}M Spent</div>
+                      <div className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Financial outlay</div>
+                      <div className="text-sm font-bold text-amber-400 font-mono">₦{(estate.totalBudget / 1e6).toFixed(1)}M Budget</div>
+                      <div className="text-[11px] text-slate-300">₦{(estate.totalSpent / 1e6).toFixed(1)}M Spent</div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       {getStatusBadge(estate.status)}
-                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-slate-400">
-                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                      <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 text-slate-300">
+                        {isExpanded ? <ChevronDown className="w-4 h-4 text-white" /> : <ChevronRight className="w-4 h-4 text-white" />}
                       </div>
                     </div>
                   </div>
@@ -213,9 +213,9 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
 
                 {/* Expanded typologies breakdown */}
                 {isExpanded && (
-                  <div className="border-t border-white/5 bg-black/20 p-5 space-y-4">
-                    <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-amber-500" />
+                  <div className="border-t border-slate-800 bg-[#060a12] p-5 space-y-4">
+                    <div className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-amber-400" />
                       Housing Typology Allocation Groups
                     </div>
 
@@ -225,15 +225,15 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
                         return (
                           <div 
                             key={p.id}
-                            className="bg-black/30 border border-white/5 rounded-xl p-4 hover:border-white/10 transition group flex flex-col justify-between"
+                            className="bg-[#0f172a] border border-slate-700/80 rounded-xl p-4 hover:border-amber-500/40 transition group flex flex-col justify-between shadow-md"
                           >
                             <div>
                               <div className="flex items-start justify-between gap-2 mb-2">
                                 <div>
-                                  <h4 className="text-sm font-bold text-slate-200 group-hover:text-amber-400 transition">
+                                  <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition font-serif">
                                     {p.houseType}
                                   </h4>
-                                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">
+                                  <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-widest mt-0.5">
                                     {p.houseCount || 80} Units Subdivision
                                   </p>
                                   {p.typologies && p.typologies.length > 0 && (
@@ -241,7 +241,7 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
                                       {p.typologies.map((t, idx) => (
                                         <span 
                                           key={idx} 
-                                          className="bg-[#1D7033]/15 border border-[#1D7033]/20 text-emerald-400 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide"
+                                          className="bg-[#1D7033]/30 border border-[#1D7033]/50 text-emerald-300 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide"
                                         >
                                           {t.count}x {t.type.split(' (')[0]}
                                         </span>
@@ -251,9 +251,9 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
                                 </div>
                                 <div className="text-right">
                                   <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded border ${
-                                    p.status === 'Completed' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
-                                    p.status === 'Delayed' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
-                                    'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                                    p.status === 'Completed' ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' :
+                                    p.status === 'Delayed' ? 'bg-rose-500/20 border-rose-500/40 text-rose-300' :
+                                    'bg-amber-500/20 border-amber-500/40 text-amber-300'
                                   }`}>
                                     {p.status}
                                   </span>
@@ -263,29 +263,29 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
                               {/* Progress bar */}
                               <div className="space-y-1 mt-3">
                                 <div className="flex items-center justify-between text-[11px]">
-                                  <span className="text-slate-400">Construction Work Progress</span>
-                                  <span className="font-mono font-bold text-amber-500">{p.progress}%</span>
+                                  <span className="text-slate-300">Construction Work Progress</span>
+                                  <span className="font-mono font-bold text-amber-400">{p.progress}%</span>
                                 </div>
-                                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
                                   <div 
                                     className={`h-full rounded-full transition-all duration-500 ${
                                       p.status === 'Completed' ? 'bg-emerald-500' :
                                       p.status === 'Delayed' ? 'bg-rose-500' :
                                       'bg-amber-500'
-                                    }`}
-                                    style={{ width: `${p.progress}%` }}
+                                    }`} 
+                                    style={{ width: `${p.progress}%` }} 
                                   />
                                 </div>
                               </div>
 
                               {/* Contractor Details */}
-                              <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-slate-400">
+                              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300">
                                 <span className="flex items-center gap-1">
-                                  <User className="w-3 h-3 text-slate-500" />
-                                  <span>Contr: <strong>{p.contractorName}</strong></span>
+                                  <User className="w-3 h-3 text-slate-400" />
+                                  <span>Contr: <strong className="text-white">{p.contractorName}</strong></span>
                                 </span>
                                 {contractor && (
-                                  <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.2 rounded font-bold">
+                                  <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.2 rounded font-bold">
                                     Rating: {contractor.rating || 'N/A'}★
                                   </span>
                                 )}
@@ -293,10 +293,10 @@ export default function EstatesView({ projects, contractors, onSelectProject }: 
                             </div>
 
                             {/* View complete project workspace button */}
-                            <div className="mt-4 pt-3 border-t border-white/5 flex justify-end">
+                            <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
                               <button
                                 onClick={() => onSelectProject(p.id)}
-                                className="text-[10px] font-bold uppercase tracking-wider text-amber-500 hover:text-amber-400 flex items-center gap-1 transition"
+                                className="text-[10px] font-bold uppercase tracking-wider text-amber-400 hover:text-amber-300 flex items-center gap-1 transition"
                               >
                                 Enter Project Workspace
                                 <ChevronRight className="w-3.5 h-3.5" />

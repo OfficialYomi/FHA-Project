@@ -491,7 +491,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-[#050505] text-slate-800 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-200">
+    <div className="flex h-screen print:h-auto print:overflow-visible bg-slate-50 dark:bg-[#050505] text-slate-800 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-200">
       
       {/* 1. Left Persistent Sidebar Component */}
       <Sidebar 
@@ -508,7 +508,7 @@ export default function App() {
       />
 
       {/* 2. Main Executive Command Cockpit (Right Frame) */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden print:overflow-visible print:h-auto print:w-full print:block">
         
         {/* Top Program Branding Bar */}
         <header className="h-16 border-b border-slate-200 dark:border-white/10 shrink-0 bg-white/80 dark:bg-black/40 backdrop-blur-md flex items-center justify-between px-6 z-10 print:hidden transition-colors duration-200">
@@ -555,7 +555,7 @@ export default function App() {
         </header>
 
         {/* Dynamic Center Workstation with View Routing */}
-        <main className="flex-1 overflow-y-auto bg-slate-100/50 dark:bg-black/20 p-6 print:p-0 transition-colors duration-200">
+        <main className="flex-1 overflow-y-auto print:overflow-visible print:h-auto print:bg-white print:m-0 print:p-0 bg-slate-100/50 dark:bg-black/20 p-6 transition-colors duration-200">
           {isLoading && projects.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center gap-3">
               <LoaderIndicator />

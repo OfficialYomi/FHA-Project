@@ -543,23 +543,23 @@ export default function ReportsView({
   ];
 
   return (
-    <div className="space-y-6 print:p-0">
+    <div className="space-y-6 print:p-0 print:m-0">
       {/* Tab select bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-4 print:hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-white/10 pb-4 print:hidden">
         <div>
-          <h2 className="text-2xl font-medium text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+          <h2 className="text-2xl font-medium text-slate-900 dark:text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
             Weekly Progress Briefing Desk <span className="text-amber-500">/</span> Cockpit
           </h2>
-          <p className="text-slate-400 text-sm">Review weekly FHA briefing packages automatically generated for the MD/CEO</p>
+          <p className="text-slate-600 dark:text-slate-400 text-sm">Review weekly FHA briefing packages automatically generated for the MD/CEO</p>
         </div>
 
         <div className="flex items-center gap-2">
           <button 
             onClick={() => setReportFormat('pdf')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
               reportFormat === 'pdf' 
-                ? 'bg-amber-500 text-black' 
-                : 'bg-black/50 border border-white/10 text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-amber-500 text-black shadow-sm' 
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-black/50 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <FileText className="w-4 h-4" />
@@ -568,10 +568,10 @@ export default function ReportsView({
           
           <button 
             onClick={() => setReportFormat('ppt')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
               reportFormat === 'ppt' 
-                ? 'bg-amber-500 text-black' 
-                : 'bg-black/50 border border-white/10 text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-amber-500 text-black shadow-sm' 
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-black/50 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Tv className="w-4 h-4" />
@@ -582,53 +582,53 @@ export default function ReportsView({
 
       {/* PDF HIGH FIDELITY REPORT PREVIEW */}
       {reportFormat === 'pdf' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between bg-white/5 border border-white/10 px-5 py-3 rounded-xl print:hidden">
-            <span className="text-xs text-slate-400 font-medium">This is a pixel-perfect print simulation of the weekly executive PDF summary.</span>
+        <div className="space-y-4 print:space-y-6">
+          <div className="flex items-center justify-between bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-3 rounded-xl print:hidden">
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Multi-page print-ready executive summary. Includes complete housing portfolio, financial outlay, and exception matrix.</span>
             <button 
               onClick={handlePrint}
-              className="bg-black/50 hover:bg-white/5 border border-white/10 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition"
+              className="bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 py-2 rounded-lg text-xs flex items-center gap-2 transition shadow-sm cursor-pointer"
             >
-              <Printer className="w-4 h-4 text-amber-500" />
-              <span>Print / Save PDF</span>
+              <Printer className="w-4 h-4 text-black" />
+              <span>Download / Print Full PDF</span>
             </button>
           </div>
 
           {/* Letter styled layout */}
-          <div className="bg-[#050505] border border-white/10 text-slate-200 p-8 rounded-2xl max-w-4xl mx-auto shadow-2xl space-y-6 print:bg-white print:text-slate-900 print:border-none print:shadow-none print:p-0">
+          <div className="bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 p-8 sm:p-10 rounded-2xl max-w-4xl mx-auto shadow-xl space-y-6 print:bg-white print:text-slate-950 print:border-none print:shadow-none print:p-0 print:max-w-none print:w-full print:m-0 print:space-y-8">
             
             {/* Report Header */}
-            <div className="flex justify-between items-start border-b border-white/10 print:border-slate-300 pb-5">
+            <div className="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 print:border-slate-400 pb-5">
               <div className="space-y-1.5">
-                <div className="text-[10px] text-amber-500 font-bold uppercase tracking-widest bg-amber-500/10 print:bg-amber-100 print:text-amber-800 px-2.5 py-0.5 rounded border border-amber-500/20 w-max">
+                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-widest bg-amber-100 dark:bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-300 dark:border-amber-500/20 w-max">
                   FHA STRICTLY CONFIDENTIAL
                 </div>
-                <h1 className="text-xl font-medium text-white print:text-slate-900 font-serif" style={{ fontFamily: 'Georgia, serif' }}>FEDERAL HOUSING AUTHORITY OF NIGERIA</h1>
-                <p className="text-xs text-slate-400 print:text-slate-600 font-medium">Office of the Managing Director / Chief Executive Officer</p>
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white print:text-black font-serif" style={{ fontFamily: 'Georgia, serif' }}>FEDERAL HOUSING AUTHORITY OF NIGERIA</h1>
+                <p className="text-xs text-slate-600 dark:text-slate-400 print:text-slate-700 font-medium">Office of the Managing Director / Chief Executive Officer</p>
               </div>
 
               <div className="text-right text-xs">
-                <div className="font-bold text-white print:text-slate-900 uppercase tracking-wide">Weekly Delivery Summary</div>
-                <div className="text-slate-400 print:text-slate-500 mt-1">Date: {new Date().toLocaleDateString('en-NG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                <div className="text-[10px] text-amber-500 font-semibold mt-0.5">Report Reference: FHA-REP-W34</div>
+                <div className="font-bold text-slate-900 dark:text-white print:text-black uppercase tracking-wide">Weekly Delivery Summary</div>
+                <div className="text-slate-600 dark:text-slate-400 print:text-slate-700 mt-1">Date: {new Date().toLocaleDateString('en-NG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                <div className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-0.5">Report Reference: FHA-REP-W34</div>
               </div>
             </div>
 
             {/* Executive Memorandum Header */}
-            <div className="grid grid-cols-2 gap-4 bg-black/40 print:bg-slate-100 p-4 rounded-xl border border-white/5 print:border-slate-200 text-xs text-slate-300 print:text-slate-800">
+            <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-black/40 print:bg-slate-100 p-4 rounded-xl border border-slate-200 dark:border-white/5 print:border-slate-300 text-xs text-slate-700 dark:text-slate-300 print:text-slate-900">
               <div className="space-y-1">
-                <div>TO: <strong className="text-white print:text-slate-900">Managing Director & CEO, FHA</strong></div>
-                <div>FROM: <strong className="text-white print:text-slate-900">Directorate of Housing Delivery & PM</strong></div>
+                <div>TO: <strong className="text-slate-900 dark:text-white print:text-black">Managing Director & CEO, FHA</strong></div>
+                <div>FROM: <strong className="text-slate-900 dark:text-white print:text-black">Directorate of Housing Delivery & PM</strong></div>
               </div>
               <div className="space-y-1">
-                <div>SUBJECT: <strong className="text-white print:text-slate-900">Weekly Housing Delivery Briefing</strong></div>
-                <div>CLASSIFICATION: <strong className="text-amber-500 print:text-rose-700 font-bold uppercase tracking-wider">Priority Exec Action Needed</strong></div>
+                <div>SUBJECT: <strong className="text-slate-900 dark:text-white print:text-black">Weekly Housing Delivery Briefing</strong></div>
+                <div>CLASSIFICATION: <strong className="text-rose-700 dark:text-rose-400 font-bold uppercase tracking-wider">Priority Exec Action Needed</strong></div>
               </div>
             </div>
 
-            {/* memorandum Body */}
-            <div className="space-y-4 text-xs leading-relaxed text-slate-300 print:text-slate-800">
-              <h3 className="text-sm font-bold text-white print:text-slate-900 border-b border-white/5 print:border-slate-200 pb-1 flex items-center gap-1.5 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+            {/* Memorandum Body */}
+            <div className="space-y-4 text-xs leading-relaxed text-slate-700 dark:text-slate-300 print:text-slate-900 report-page-block">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-white/5 print:border-slate-300 pb-1 flex items-center gap-1.5 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 <Sparkles className="w-4 h-4 text-amber-500" />
                 <span>1. Strategic Executive Summary</span>
               </h3>
@@ -641,82 +641,88 @@ export default function ReportsView({
             </div>
 
             {/* KPIs Grid in PDF */}
-            <div className="grid grid-cols-4 gap-3 text-center">
-              <div className="bg-black/40 p-2.5 rounded-lg border border-white/5 print:border-slate-200 print:bg-slate-50">
-                <div className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Total Housing Units</div>
-                <div className="text-base font-extrabold text-white print:text-slate-900 mt-1">{totalHouses}</div>
+            <div className="grid grid-cols-4 gap-3 text-center report-page-block">
+              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-200 dark:border-white/5 print:border-slate-300 print:bg-slate-50">
+                <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Total Housing Units</div>
+                <div className="text-base font-extrabold text-slate-900 dark:text-white print:text-black mt-1 font-mono">{totalHouses}</div>
               </div>
-              <div className="bg-black/40 p-2.5 rounded-lg border border-white/5 print:border-slate-200 print:bg-slate-50">
-                <div className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Units Completed</div>
-                <div className="text-base font-extrabold text-amber-500 print:text-emerald-700 mt-1">{completedHouses}</div>
+              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-200 dark:border-white/5 print:border-slate-300 print:bg-slate-50">
+                <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Units Completed</div>
+                <div className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 print:text-emerald-700 mt-1 font-mono">{completedHouses}</div>
               </div>
-              <div className="bg-black/40 p-2.5 rounded-lg border border-white/5 print:border-slate-200 print:bg-slate-50">
-                <div className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Capital Spent</div>
-                <div className="text-base font-extrabold text-white print:text-slate-900 mt-1">{formatNaira(totalSpent)}</div>
+              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-200 dark:border-white/5 print:border-slate-300 print:bg-slate-50">
+                <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Capital Spent</div>
+                <div className="text-base font-extrabold text-slate-900 dark:text-white print:text-black mt-1 font-mono">{formatNaira(totalSpent)}</div>
               </div>
-              <div className="bg-black/40 p-2.5 rounded-lg border border-white/5 print:border-slate-200 print:bg-slate-50">
-                <div className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Under Construction</div>
-                <div className="text-base font-extrabold text-amber-500/70 print:text-amber-700 mt-1">{inProgressHouses}</div>
+              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-200 dark:border-white/5 print:border-slate-300 print:bg-slate-50">
+                <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Under Construction</div>
+                <div className="text-base font-extrabold text-amber-600 dark:text-amber-400 print:text-amber-700 mt-1 font-mono">{inProgressHouses}</div>
               </div>
             </div>
 
             {/* Estates Inventory table */}
-            <div className="space-y-2.5">
-              <h3 className="text-sm font-bold text-white print:text-slate-900 border-b border-white/5 print:border-slate-200 pb-1 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+            <div className="space-y-2.5 report-page-block">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-white/5 print:border-slate-300 pb-1 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 2. Housing Estates Status Audit
               </h3>
               
-              <table className="w-full text-left text-2xs border-collapse">
-                <thead>
-                  <tr className="bg-black/40 text-slate-400 font-bold border-b border-white/10 print:bg-slate-100 print:text-slate-700 print:border-slate-300 uppercase tracking-widest text-[9px]">
-                    <th className="p-2">Estate Name</th>
-                    <th className="p-2">State</th>
-                    <th className="p-2">Typology</th>
-                    <th className="p-2 text-right">Units</th>
-                    <th className="p-2 text-right">Progress</th>
-                    <th className="p-2">Contractor</th>
-                    <th className="p-2">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5 print:divide-slate-200">
-                  {projects.map(p => (
-                    <tr key={p.id} className="text-slate-300 print:text-slate-800 hover:bg-white/5 transition-colors">
-                      <td className="p-2 font-bold text-white">{p.estateName}</td>
-                      <td className="p-2">{p.state}</td>
-                      <td className="p-2">{p.houseType}</td>
-                      <td className="p-2 text-right font-medium">{p.houseCount}</td>
-                      <td className="p-2 text-right font-bold text-amber-500 print:text-emerald-700">{p.progress}%</td>
-                      <td className="p-2 truncate max-w-[120px]">{p.contractorName}</td>
-                      <td className="p-2">
-                        <span className="font-extrabold uppercase text-[10px] text-amber-500">{p.status}</span>
-                      </td>
+              <div className="overflow-x-auto print:overflow-visible">
+                <table className="w-full text-left text-2xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100 dark:bg-black/40 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-300 dark:border-white/10 print:bg-slate-100 print:text-slate-900 print:border-slate-300 uppercase tracking-widest text-[9px]">
+                      <th className="p-2">Estate Name</th>
+                      <th className="p-2">State</th>
+                      <th className="p-2">Typology</th>
+                      <th className="p-2 text-right">Units</th>
+                      <th className="p-2 text-right">Progress</th>
+                      <th className="p-2">Contractor</th>
+                      <th className="p-2">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-white/5 print:divide-slate-200">
+                    {projects.map(p => (
+                      <tr key={p.id} className="text-slate-700 dark:text-slate-300 print:text-slate-900 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                        <td className="p-2 font-bold text-slate-900 dark:text-white print:text-black">{p.estateName}</td>
+                        <td className="p-2">{p.state}</td>
+                        <td className="p-2">{p.houseType}</td>
+                        <td className="p-2 text-right font-mono font-medium">{p.houseCount}</td>
+                        <td className="p-2 text-right font-mono font-bold text-amber-600 dark:text-amber-400 print:text-emerald-700">{p.progress}%</td>
+                        <td className="p-2 truncate max-w-[120px]">{p.contractorName}</td>
+                        <td className="p-2">
+                          <span className={`font-extrabold uppercase text-[10px] px-1.5 py-0.5 rounded ${
+                            p.status === 'Completed' ? 'text-emerald-700 dark:text-emerald-400' :
+                            p.status === 'Delayed' ? 'text-rose-700 dark:text-rose-400' :
+                            'text-amber-700 dark:text-amber-400'
+                          }`}>{p.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Strategic Risks & Interventions Matrix */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold text-white print:text-slate-900 border-b border-white/5 print:border-slate-200 pb-1 flex items-center gap-1.5 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+            <div className="space-y-3 report-page-block">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-white/5 print:border-slate-300 pb-1 flex items-center gap-1.5 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 <AlertTriangle className="w-4 h-4 text-amber-500" />
                 <span>3. Critical Exception & Risk Matrix</span>
               </h3>
 
               <div className="space-y-2">
                 {activeRisks.map(risk => (
-                  <div key={risk.id} className="p-3 rounded-lg bg-black/40 border border-white/5 print:bg-slate-50 print:border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-3 text-2xs">
-                    <div className="md:col-span-1 border-r border-white/10 print:border-slate-200 pr-2">
-                      <div className="font-extrabold text-amber-500 print:text-rose-700 uppercase tracking-wider">{risk.severity} Severity</div>
-                      <div className="text-[10px] text-slate-500 mt-1">Project: {risk.projectName}</div>
+                  <div key={risk.id} className="p-3 rounded-lg bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/5 print:bg-slate-50 print:border-slate-300 grid grid-cols-1 md:grid-cols-4 gap-3 text-2xs">
+                    <div className="md:col-span-1 border-r border-slate-200 dark:border-white/10 print:border-slate-300 pr-2">
+                      <div className="font-extrabold text-rose-700 dark:text-rose-400 uppercase tracking-wider">{risk.severity} Severity</div>
+                      <div className="text-[10px] text-slate-500 mt-1 font-medium">Project: {risk.projectName}</div>
                     </div>
                     <div className="md:col-span-2">
-                      <div className="font-bold text-white print:text-slate-900">{risk.title}</div>
-                      <p className="text-slate-400 print:text-slate-600 mt-1">{risk.details}</p>
+                      <div className="font-bold text-slate-900 dark:text-white print:text-black">{risk.title}</div>
+                      <p className="text-slate-600 dark:text-slate-400 print:text-slate-700 mt-1">{risk.details}</p>
                     </div>
                     <div className="md:col-span-1 flex flex-col justify-between">
-                      <div className="text-[10px] text-slate-400">Target Mitigation:</div>
-                      <div className="font-bold text-amber-500 print:text-emerald-700 mt-1">Executive Inquiry Formulated</div>
+                      <div className="text-[10px] text-slate-500">Target Mitigation:</div>
+                      <div className="font-bold text-emerald-700 dark:text-emerald-400 print:text-emerald-700 mt-1">Executive Inquiry Formulated</div>
                     </div>
                   </div>
                 ))}
@@ -724,13 +730,13 @@ export default function ReportsView({
             </div>
 
             {/* Signatures Footer */}
-            <div className="grid grid-cols-2 gap-12 pt-12 text-center text-2xs border-t border-white/10 print:border-slate-300">
-              <div className="space-y-1 border-t border-white/5 print:border-slate-300 pt-2 max-w-[200px] mx-auto">
-                <div className="font-bold text-slate-300 print:text-slate-800">Director of Project Delivery</div>
+            <div className="grid grid-cols-2 gap-12 pt-10 text-center text-2xs border-t border-slate-200 dark:border-white/10 print:border-slate-300 report-page-block">
+              <div className="space-y-1 border-t border-slate-300 dark:border-white/10 print:border-slate-400 pt-2 max-w-[200px] mx-auto">
+                <div className="font-bold text-slate-800 dark:text-slate-200 print:text-black">Director of Project Delivery</div>
                 <div className="text-[10px] text-slate-500">Federal Housing Authority, Abuja</div>
               </div>
-              <div className="space-y-1 border-t border-white/5 print:border-slate-300 pt-2 max-w-[200px] mx-auto">
-                <div className="font-bold text-slate-300 print:text-slate-800">Managing Director & CEO</div>
+              <div className="space-y-1 border-t border-slate-300 dark:border-white/10 print:border-slate-400 pt-2 max-w-[200px] mx-auto">
+                <div className="font-bold text-slate-800 dark:text-slate-200 print:text-black">Managing Director & CEO</div>
                 <div className="text-[10px] text-slate-500">Executive Endorsement Seal</div>
               </div>
             </div>
@@ -741,9 +747,9 @@ export default function ReportsView({
 
       {/* POWERPOINT 16:9 PRESENTATION BRIEF SLIDESHOW PREVIEW */}
       {reportFormat === 'ppt' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between bg-white/5 border border-white/10 px-5 py-3 rounded-xl">
-            <span className="text-xs text-slate-400 font-medium font-sans">PowerPoint Slide deck preview for board presentation briefings.</span>
+        <div className="space-y-4 print:hidden">
+          <div className="flex items-center justify-between bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-3 rounded-xl">
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium font-sans">PowerPoint Slide deck preview for board presentation briefings.</span>
             
             <div className="flex items-center gap-3">
               <button

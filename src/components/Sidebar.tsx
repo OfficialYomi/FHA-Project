@@ -72,7 +72,7 @@ export default function Sidebar({
   return (
     <aside 
       id="main-sidebar" 
-      className={`${isCollapsed ? 'w-20' : 'w-80'} bg-slate-50 dark:bg-[#050505] border-r border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100 flex flex-col shrink-0 h-screen sticky top-0 overflow-hidden transition-all duration-300 ease-in-out`}
+      className={`${isCollapsed ? 'w-20' : 'w-80'} bg-slate-50 dark:bg-[#050505] border-r border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100 flex flex-col shrink-0 h-screen sticky top-0 overflow-hidden transition-all duration-300 ease-in-out print:hidden`}
     >
       {/* Brand Header */}
       {isCollapsed ? (

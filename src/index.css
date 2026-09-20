@@ -53,14 +53,59 @@
 
 /* Interactive print-friendly styles */
 @media print {
-  body {
-    background: white !important;
-    color: black !important;
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
   }
-  .print\:hidden {
+
+  html, body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #root, 
+  .h-screen,
+  main,
+  div {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .print\:hidden,
+  aside,
+  header,
+  #main-sidebar {
     display: none !important;
+    visibility: hidden !important;
   }
+
   .print\:p-0 {
     padding: 0 !important;
+  }
+
+  .print\:overflow-visible {
+    overflow: visible !important;
+  }
+
+  /* Ensure page breaks don't tear tables or cards abruptly */
+  table, tr, td, th {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  h1, h2, h3, h4 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .report-page-block {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }
