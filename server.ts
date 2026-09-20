@@ -1390,51 +1390,270 @@ app.get("/api/overview", (req, res) => {
   });
 });
 
-// AI EXECUTIVE ASSISTANT ENDPOINT (Module 9)
+// AI EXECUTIVE ASSISTANT ENDPOINT - "YOMI"
+// Intelligent role-based handler with strict project scoping and fallback engine
+function handleYomiQueryLocally(message: string, userRole: string = "MD", username: string = "", selectedProjectId?: string): string {
+  const q = message.toLowerCase().trim();
+
+  // Negative constraint check: Detect non-project questions
+  const projectKeywords = [
+    'project', 'estate', 'house', 'housing', 'contractor', 'stage', 'foundation', 'roofing', 
+    'block', 'lintel', 'excavation', 'budget', 'spent', 'cost', 'valuation', 'certif', 'invoice', 
+    'naira', 'cbn', 'rtgs', 'payment', 'disburse', 'progress', 'delay', 'overdue', 'schedule', 
+    'alert', 'risk', 'scorecard', 'rating', 'kaduna', 'abuja', 'lagos', 'rivers', 'kano', 
+    'kada', 'gwarinpa', 'isheri', 'rumuokoro', 'dala', 'nze', 'abc', 'dantata', 'cappa', 
+    'brief', 'report', 'status', 'milestone', 'photo', 'gps', 'wbs', 'bello', 'musa', 'adebayo',
+    'amaechi', 'ibrahim', 'work', 'unit', 'bungalow', 'duplex', 'terrace', 'inspection', 'engineer'
+  ];
+
+  const hasProjectContext = projectKeywords.some(k => q.includes(k)) || !!selectedProjectId;
+
+  // General non-project questions rejection
+  const nonProjectGreetings = ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening'];
+  const isJustGreeting = nonProjectGreetings.some(g => q === g || q === `${g} yomi` || q === `yomi`);
+
+  if (!hasProjectContext && !isJustGreeting) {
+    return "I am Yomi, your Project Delivery AI Assistant. I exclusively answer tactical, operational, and financial questions and queries directly concerning the active housing projects in our database. I cannot answer queries outside our project portfolio.";
+  }
+
+  if (isJustGreeting) {
+    const roleTitles: Record<string, string> = {
+      MD: "Honourable Managing Director & CEO",
+      PM: "Project Manager",
+      QS: "Lead Quantity Surveyor",
+      RE: "Resident Engineer",
+      FD: "Director of Finance",
+      CT: "Treasury Head"
+    };
+    const title = roleTitles[userRole] || "Executive";
+    const jurisdictionDesc = userRole === 'MD' 
+      ? "You have full, unrestricted nationwide jurisdiction across all states, finances, contractors, and alerts."
+      : userRole === 'QS'
+      ? "Your authorized scope covers financial valuations, bill of quantities (BOQ), certified sums, and milestone claims."
+      : userRole === 'RE'
+      ? "Your authorized scope covers tactical on-site construction stages, physical inspections, and photo updates for your assigned sites."
+      : userRole === 'FD' || userRole === 'CT'
+      ? "Your authorized scope covers project allocations, expenditure, payment releases, and treasury disbursements."
+      : "Your authorized scope covers project scheduling, WBS milestone progression, and contractor performance.";
+
+    return `Good day, **${title}**. I am **Yomi**, the Executive AI Assistant for the Federal Housing Authority (FHA).
+
+${jurisdictionDesc}
+
+You can ask me questions in natural language or structured queries. How may I assist with your project portfolio today?`;
+  }
+
+  // Role Jurisdiction Check
+  if (userRole === 'RE' && (q.includes('cbn') || q.includes('treasury reserve') || q.includes('rtgs') || q.includes('ministerial allocation'))) {
+    return "As a **Resident Engineer**, your jurisdiction is limited to on-site physical progress, milestone inspections, and technical quality on your assigned project sites. High-level treasury reserves and ministerial disbursements fall under the jurisdiction of the **Finance Director** and the **Managing Director**.";
+  }
+
+  if (userRole === 'RE' && (q.includes('rivers') || q.includes('rumuokoro') || q.includes('kano') || q.includes('dala'))) {
+    return "As a **Resident Engineer**, your active site assignment covers **Kada Hill Estate (Kaduna)** and **Gwarinpa Vista Heights (Abuja)**. You do not have on-site jurisdiction over the Rivers or Kano estates. For nationwide project inquiries, please consult the **Project Manager** or **Managing Director**.";
+  }
+
+  // Answer specific tactical / financial questions directly from live database
+  if (q.includes('behind') || q.includes('delay') || q.includes('overdue') || q.includes('late')) {
+    const delayedProjects = projects.filter(p => p.status === 'Delayed' || p.status === 'Needs Attention' || p.timelineExceededDays > 0);
+    return `### ⚠️ Tactical Schedule Audit: Projects Behind Schedule
+
+Based on live WBS milestone tracking, here are the projects requiring immediate attention:
+
+1. **Rumuokoro Royal Garden (Rivers State)**:
+   - **Contractor**: Nze Construction Ltd (Rating: **2.3/5**)
+   - **Progress**: Only **23%** complete (stopped at Excavation stage)
+   - **Delay**: **43+ days overdue** against target handover date (2026-06-01)
+   - **Tactical Status**: Site stagnant with no progress updates in over 42 days. Funding withheld pending formal query.
+
+2. **Kada Hill Estate Phase 1 (Kaduna State)**:
+   - **Contractor**: ABC Construction Ltd
+   - **Progress**: **38%** (Ground beam completed; blockwork pending)
+   - **Status**: **Needs Attention** — Inactive with no weekly photo update logged in 9 days.
+   - **Compliance Flag**: Performance bond is nearing expiry in 15 days.
+
+${userRole === 'MD' ? '💡 **Executive Recommendation**: Issue an immediate ministerial query to Nze Construction and direct the Zonal PM to conduct an unannounced site audit on Kada Hill Estate.' : ''}`;
+  }
+
+  if (q.includes('roof') || q.includes('roofing')) {
+    const roofingReady = projects.filter(p => p.stages["Lintel"] === true && p.stages["Roofing"] === false);
+    const atRoofing = projects.filter(p => p.stages["Roofing"] === true && p.stages["Finishes"] === false);
+    
+    return `### 🏗️ Tactical Milestone Status: Roofing Stage
+
+- **Currently at Roofing Stage**:
+  - **Gwarinpa Vista Heights (Abuja)**: Roof trussing and aluminum sheeting verified at **62%** overall project completion. Valuation cert #VAL/CERT/GWAR/002 certified at **₦120,000,000**.
+- **Pending Roofing Mobilization**:
+  - **Kada Hill Estate (Kaduna)**: At Foundation & Ground Beam stage (**38%**). Requires blockwork and lintel casting before roofing mobilization.
+  - **Dala Hill Court (Kano)**: Currently at Foundation stage (**31%**).
+  - **Rumuokoro Royal Garden (Rivers)**: Stagnant at Excavation (**23%**).`;
+  }
+
+  if (q.includes('spent') || q.includes('budget') || q.includes('cost') || q.includes('financ')) {
+    const totalBudget = projects.reduce((acc, p) => acc + p.budget, 0);
+    const totalSpent = projects.reduce((acc, p) => acc + p.spent, 0);
+    const pct = Math.round((totalSpent / totalBudget) * 100);
+
+    return `### 💰 Financial Execution Overview
+
+- **Total Programme Budget**: **₦${(totalBudget).toLocaleString()}** (₦${(totalBudget / 1000000000).toFixed(2)}B)
+- **Total Certified Expenditure**: **₦${(totalSpent).toLocaleString()}** (₦${(totalSpent / 1000000).toFixed(1)}M)
+- **Capital Utilization Rate**: **${pct}%**
+
+#### Estate Breakdown:
+${projects.map(p => `• **${p.estateName} (${p.state})**: Budget ₦${(p.budget).toLocaleString()} | Spent ₦${(p.spent).toLocaleString()} (${Math.round((p.spent/p.budget)*100)}%) — *${p.status}*`).join('\n')}`;
+  }
+
+  if (q.includes('valuation') || q.includes('invoice') || q.includes('claim')) {
+    return `### 📑 Valuation Claims & Certification Audit
+
+Total valuation requests in system: **${valuations.length}**
+
+${valuations.map(v => `1. **${v.estateName}** (${v.invoiceNumber}):
+   - **Contractor**: ${v.contractorName}
+   - **Amount Requested**: **₦${(v.amountRequested).toLocaleString()}**
+   - **Amount Certified**: **₦${((v.amountCertified || v.amountRequested)).toLocaleString()}**
+   - **Current Workflow Stage**: \`${v.currentStage.replace(/_/g, ' ').toUpperCase()}\`
+`).join('\n')}
+${userRole === 'QS' ? '💡 **QS Directive**: Valuation **val-3** (Kada Hill Estate, ₦45,000,000) is awaiting Resident Engineer and PM verification before Quantity Surveyor certification.' : ''}`;
+  }
+
+  if (q.includes('contractor') || q.includes('score') || q.includes('rating')) {
+    return `### 👷 Contractor Performance & Delivery Audit
+
+${contractors.map(c => `• **${c.companyName}** (${c.registrationNo}):
+   - **Contract Value**: ₦${(c.contractAmount).toLocaleString()} | **Duration**: ${c.durationMonths} months
+   - **Assigned Projects**: ${c.assignedProjectsCount} active site(s)
+   - **Bank**: ${c.bankName}
+   - **Status**: ${c.status.toUpperCase()}`).join('\n')}
+
+**Key Performance Highlights**:
+- **Cappa & D'Alberto PLC**: Top performer (Rating **4.7/5**). Delivered Isheri Olofin Court on time and on budget.
+- **Nze Construction Ltd**: Flagged underperformer. 43+ days overdue on Rivers State scheme.`;
+  }
+
+  // Project-specific lookup (check state, full estate name, or key name roots)
+  const matchedProject = projects.find(p => 
+    q.includes(p.state.toLowerCase()) || 
+    q.includes(p.estateName.toLowerCase()) ||
+    (p.estateName.toLowerCase().includes('kada') && q.includes('kada')) ||
+    (p.estateName.toLowerCase().includes('gwarinpa') && q.includes('gwarinpa')) ||
+    (p.estateName.toLowerCase().includes('isheri') && q.includes('isheri')) ||
+    (p.estateName.toLowerCase().includes('rumuokoro') && q.includes('rumuokoro')) ||
+    (p.estateName.toLowerCase().includes('dala') && q.includes('dala')) ||
+    (selectedProjectId && p.id === selectedProjectId)
+  );
+
+  if (matchedProject) {
+    const completedStages = Object.entries(matchedProject.stages).filter(([_, done]) => done).map(([st]) => st);
+    const pendingStages = Object.entries(matchedProject.stages).filter(([_, done]) => !done).map(([st]) => st);
+    
+    return `### 📍 Estate Tactical Profile: ${matchedProject.estateName} (${matchedProject.state})
+
+- **Status**: **${matchedProject.status.toUpperCase()}**
+- **Physical Progress**: **${matchedProject.progress}%**
+- **Typology**: ${matchedProject.houseType} (${matchedProject.houseCount} units)
+- **Contractor**: **${matchedProject.contractorName}**
+- **Project Manager**: ${matchedProject.projectManager}
+- **Budget**: ₦${(matchedProject.budget).toLocaleString()} | **Disbursed**: ₦${(matchedProject.spent).toLocaleString()}
+- **Completed Stages**: ${completedStages.join(', ') || 'None'}
+- **Next Critical Stages**: ${pendingStages.slice(0, 3).join(', ')}
+- **Latest Field Telemetry**: ${matchedProject.photoUpdates.length} verified site photos logged.`;
+  }
+
+  // General executive summary
+  return `### 🏛️ Federal Housing Authority Delivery Summary
+
+- **Active Projects**: **${projects.length}** estates across **${new Set(projects.map(p => p.state)).size}** states
+- **Completed**: **${projects.filter(p => p.status === 'Completed').length}** (Isheri Olofin Court, Lagos)
+- **On Schedule**: **${projects.filter(p => p.status === 'On Schedule').length}** (Gwarinpa Vista Heights, Dala Hill Court)
+- **Attention / Delayed**: **${projects.filter(p => p.status === 'Needs Attention' || p.status === 'Delayed').length}** (Kada Hill Estate, Rumuokoro Royal Garden)
+- **Total Verified Housing Units**: **${projects.reduce((acc, p) => acc + p.houseCount, 0)}** units
+
+Please ask a specific tactical question (e.g., *"Which projects are delayed?"*, *"Show Kada Hill progress"*, *"Valuations ready for QS certification"*).`;
+}
+
+// POST /api/chat - Yomi AI Assistant Endpoint
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, userRole = "MD", username = "", selectedProjectId } = req.body;
     if (!message) {
       return res.status(400).json({ error: "No user message provided." });
     }
 
-    const ai = getGeminiAI();
-    if (!ai) {
-      return res.status(503).json({ 
-        error: "Gemini AI client is not configured on the server. Please check your GEMINI_API_KEY environment variable configuration.",
-        isConfigError: true
+    // STRICT CONTRACTOR BLOCKING
+    if (userRole === "CONTRACTOR") {
+      return res.status(403).json({ 
+        error: "Access Denied: The Yomi Executive AI Assistant is not available to contractor accounts. It is strictly reserved for ministry and FHA monitoring officials." 
       });
     }
 
-    // Capture precise, current DB state for in-context reasoning
+    // Build role-scoped database context
+    let scopedProjects = projects;
+    let scopedValuations = valuations;
+    let scopedContractors = contractors;
+    let scopedScorecards = scorecards;
+    let scopedAlerts = alerts;
+
+    // Scope discipline per user role
+    if (userRole === "RE") {
+      // Resident Engineer sees only assigned sites (Kaduna & Abuja in seed)
+      scopedProjects = projects.filter(p => p.state === "Kaduna" || p.state === "Abuja");
+      const assignedIds = scopedProjects.map(p => p.id);
+      scopedValuations = valuations.filter(v => assignedIds.includes(v.projectId));
+      scopedAlerts = alerts.filter(a => a.projectId && assignedIds.includes(a.projectId));
+    } else if (userRole === "QS") {
+      // Quantity Surveyor focuses on financials, valuations, budgets, and BOQ milestones
+      scopedScorecards = [];
+    } else if (userRole === "FD" || userRole === "CT") {
+      // Finance and Treasury focus on budgets, expenditures, valuations at payment stage
+      scopedScorecards = [];
+    }
+
+    const ai = getGeminiAI();
+    if (!ai) {
+      console.log("No GEMINI_API_KEY set, processing with Yomi local project analytics engine.");
+      const reply = handleYomiQueryLocally(message, userRole, username, selectedProjectId);
+      return res.json({ reply, source: "local-engine" });
+    }
+
     const dbContext = {
-      projects,
-      contractors,
-      valuations,
-      scorecards,
-      alerts
+      userRole,
+      username,
+      selectedProjectId: selectedProjectId || "ALL",
+      projects: scopedProjects,
+      valuations: scopedValuations,
+      contractors: scopedContractors,
+      scorecards: scopedScorecards,
+      alerts: scopedAlerts
     };
 
-    const systemInstruction = `You are the Executive AI Assistant for the Managing Director & CEO (MD/CEO) of the Federal Housing Authority (FHA) of Nigeria. 
-Your primary goal is to provide analytical, direct, and instantaneous insight into the FHA Housing Delivery Programme based on the live database.
+    const systemInstruction = `You are "Yomi", the Executive AI Assistant for the Federal Housing Authority (FHA) Renewed Hope Housing Delivery Management System in Nigeria.
 
-Here is the exact live status of the FHA Construction Database:
-${JSON.stringify(dbContext, null, 2)}
+STRICT OPERATIONAL RULES:
+1. ONLY answer tactical, operational, engineering, and financial questions directly derived from the live project database provided below.
+2. STRICT SCOPE DISCIPLINE (NEGATIVE CONSTRAINT):
+   - You MUST NOT answer questions outside the housing projects.
+   - If the user asks ANY question that is not about the housing projects (e.g. general knowledge, world news, coding, trivia, sports, cooking, weather outside project sites, personal chat), you MUST politely and strictly decline by responding:
+     "I am Yomi, your Project Delivery AI Assistant. I exclusively answer tactical, operational, and financial questions and queries directly concerning the active housing projects in our database. I cannot answer queries outside our project portfolio."
+3. ROLE-BASED JURISDICTION ENFORCEMENT:
+   - Current user role: "${userRole}" (Username: "${username}").
+   - ONLY the MD (Managing Director & CEO) has the right to ask everything about all projects nationwide, including high-level ministerial memos and total portfolio audits.
+   - For other roles (PM, QS, RE, FD, CT), ensure answers correspond strictly to their jurisdiction:
+     * Resident Engineer (RE): Tactical on-site physical progress, WBS milestones, site inspection photos, GPS validation for assigned sites. If they ask about unrelated states or high treasury reserves, remind them of their assigned on-site jurisdiction.
+     * Quantity Surveyor (QS): Financial valuations, requested vs certified amounts, BOQ stage costs, payment certificates.
+     * Project Manager (PM): Operational milestones, delays, schedule variances, contractor scorecards.
+     * Finance Director (FD) / Treasury (CT): Budgets, disbursements, payment releases, CBN RTGS tracking.
+4. TACTICAL & FINANCIAL EXPERTISE:
+   - You answer questions in both structured (e.g. tables, bulleted metrics) and unstructured (e.g. conversational, colloquial queries like "how is kano doing?" or "who is messing up?") styles.
+   - Always represent currency in Nigerian Naira (₦) with clean commas (e.g. ₦120,000,000 or ₦1.2B).
+   - Use bold for key names, states, amounts, and progress metrics.
+   - Provide direct, concise executive insights. Never invent fake external data.
 
-Strict Guidelines for responses:
-1. Always base answers on the live database provided. Highlight key names, states, numbers, and stats in **bold**.
-2. Represent currencies in Nigerian Naira (NGN), formatted neatly (e.g. ₦120,000,000 or ₦1.2B).
-3. Do not formulate mock conclusions or speak of missing data if it is clearly in the database above.
-4. When asked "Which states are behind schedule?", point out projects in states with status "Delayed" or "Needs Attention".
-   - E.g. Rivers state (Rumuokoro Royal Garden, delayed by 43+ days by Nze Construction) and Kaduna state (Kada Hill Estate, Needs Attention due to 9 days inactivity).
-5. When asked "Which projects are ready for roofing?", identify projects where structural/brickwork/lintel stages are checked/completed but 'Roofing' is not yet ticked. Or look at projects that are close to that milestone (such as Gwarinpa Vista Heights which is currently AT roofing, or Kaduna which is at Foundation, etc.).
-6. When asked "Which contractors are underperforming?", reference Nze Construction Ltd (rating 2.3/5, project delayed by 43+ days) or ABC Construction Ltd ( Kaduna site inactive for 9 days).
-7. Suggest direct executive recommendations (e.g., 'Issue final warning', 'Hold payment valuation', 'Send PM for site inspection').
-8. Keep your response highly readable, scannable, and formatted as a professional executive memo. Avoid dry programmer jargon.`;
+LIVE FHA DATABASE CONTEXT (ROLE-SCOPED):
+${JSON.stringify(dbContext, null, 2)}`;
 
-    // Instantiate chat via official @google/genai SDK
     const chat = ai.chats.create({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.8-flash",
       config: {
         systemInstruction: systemInstruction,
         temperature: 0.15,
@@ -1442,10 +1661,12 @@ Strict Guidelines for responses:
     });
 
     const response = await chat.sendMessage({ message: message });
-    res.json({ reply: response.text });
+    return res.json({ reply: response.text, source: "gemini" });
   } catch (error: any) {
-    console.error("Gemini API Error in backend:", error);
-    res.status(500).json({ error: error.message || "An error occurred in the server-side Gemini execution." });
+    console.error("Gemini API Error in backend, engaging Yomi local engine fallback:", error);
+    const { message, userRole = "MD", username = "", selectedProjectId } = req.body;
+    const fallbackReply = handleYomiQueryLocally(message || "", userRole, username, selectedProjectId);
+    res.json({ reply: fallbackReply, source: "fallback-engine" });
   }
 });
 

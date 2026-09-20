@@ -55,7 +55,7 @@ export default function Sidebar({
     { id: 'valuations', name: 'Valuation & Payments', icon: CreditCard, count: pendingValuationsCount, roles: ['MD', 'PM', 'QS', 'RE', 'FD', 'CT', 'CONTRACTOR'] },
     { id: 'scorecards', name: 'Performance Scorecards', icon: Award, roles: ['MD', 'PM'] },
     { id: 'reports', name: 'Weekly Progress Reports', icon: FileSpreadsheet, roles: ['MD', 'PM', 'QS', 'RE', 'FD', 'CT'] },
-    { id: 'assistant', name: 'Executive AI Assistant', icon: MessageSquare, highlight: true, roles: ['MD'] },
+    { id: 'assistant', name: 'Executive AI (Yomi)', icon: MessageSquare, highlight: true, roles: ['MD', 'PM', 'QS', 'RE', 'FD', 'CT'] },
     { id: 'alerts', name: 'Risk & Exception Alerts', icon: AlertTriangle, count: pendingAlertsCount, urgent: true, roles: ['MD', 'PM'] },
     { id: 'users', name: 'Manage Users', icon: Users, roles: ['MD', 'PM'] },
   ];

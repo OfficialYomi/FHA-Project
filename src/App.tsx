@@ -8,6 +8,7 @@ import ScorecardsView from './components/ScorecardsView';
 import ReportsView from './components/ReportsView';
 import RiskAlertsView from './components/RiskAlertsView';
 import AiAssistantView from './components/AiAssistantView';
+import YomiChatWidget from './components/YomiChatWidget';
 import EstatesView from './components/EstatesView';
 import UsersView from './components/UsersView';
 import LoginView from './components/LoginView';
@@ -652,11 +653,20 @@ export default function App() {
               )}
 
               {activeTab === 'assistant' && (
-                <AiAssistantView />
+                <AiAssistantView 
+                  currentUser={currentUser}
+                  projects={projects}
+                />
               )}
             </div>
           )}
         </main>
+
+        {/* Floating Expandable Executive AI Assistant: "Yomi" (Bottom-Right, Role-Scoped, Excludes Contractors) */}
+        <YomiChatWidget 
+          currentUser={currentUser} 
+          projects={projects} 
+        />
 
       </div>
     </div>
