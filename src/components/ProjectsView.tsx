@@ -448,7 +448,7 @@ export default function ProjectsView({
               <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Resident Project Manager / Engr *</label>
               <input 
                 type="text" 
-                placeholder="e.g. Engineer Musa Bello" 
+                placeholder="e.g. Engr. Ahmed Abdul" 
                 value={projectManager}
                 onChange={(e) => setProjectManager(e.target.value)}
                 className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"

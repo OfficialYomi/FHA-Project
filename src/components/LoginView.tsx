@@ -31,9 +31,9 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
   // Quick sandbox accounts helper
   const sandboxAccounts = [
     { label: 'MD', desc: 'Managing Director & CEO', name: 'Arc. Joseph Enene' },
-    { label: 'PM', desc: 'Project Manager', name: 'Engr. Musa Bello' },
+    { label: 'PM', desc: 'Project Manager', name: 'Ahmed Abdul' },
     { label: 'QS', desc: 'Quantity Surveyor', name: 'Surv. C. Okafor' },
-    { label: 'RE', desc: 'Resident Engineer', name: 'Engr. Fatima Yusuf' },
+    { label: 'RE', desc: 'Resident Engineer', name: 'Adebisi Olamide' },
     { label: 'FD', desc: 'Finance Director', name: 'Mr. Aliyu Ibrahim' },
     { label: 'CT', desc: 'Central Treasury', name: 'Mrs. Ngozi Ezenwa' },
     { label: 'CONTRACTOR', desc: 'Contractor Rep', name: 'ABC Construction' }

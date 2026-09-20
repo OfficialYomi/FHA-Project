@@ -62,7 +62,22 @@ export default function App() {
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const cached = localStorage.getItem('nhdp_user');
-    return cached ? JSON.parse(cached) : null;
+    if (!cached) return null;
+    try {
+      const user = JSON.parse(cached);
+      if (user.role === 'PM' && (!user.name.includes('Ahmed Abdul'))) {
+        user.name = "Ahmed Abdul (PM)";
+        user.email = "a.abdul@fha.gov.ng";
+        localStorage.setItem('nhdp_user', JSON.stringify(user));
+      } else if (user.role === 'RE' && (!user.name.includes('Adebisi Olamide'))) {
+        user.name = "Adebisi Olamide (RE)";
+        user.email = "a.olamide@fha.gov.ng";
+        localStorage.setItem('nhdp_user', JSON.stringify(user));
+      }
+      return user;
+    } catch {
+      return null;
+    }
   });
   const [users, setUsers] = useState<User[]>([]);
   const [activeTab, setActiveTab] = useState('dashboard');

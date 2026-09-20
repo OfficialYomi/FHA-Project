@@ -26,9 +26,9 @@ app.use(express.json({ limit: "20mb" }));
 // IN-MEMORY DATABASE SEED DATA
 let users: User[] = [
   { name: "Hon. Oyetunde Oladimeji Ojo (MD)", username: "MD", role: "MD", email: "O.Ojo@fha.gov.ng" },
-  { name: "Sikemi Yomi-Adeyanju (PM)", username: "PM", role: "PM", email: "s.yomi@fha.gov.ng" },
+  { name: "Ahmed Abdul (PM)", username: "PM", role: "PM", email: "a.abdul@fha.gov.ng" },
   { name: "Surv. Chukwuemeka Okafor (QS)", username: "QS", role: "QS", email: "c.okafor@fha.gov.ng" },
-  { name: "Zainab Zubairu (RE)", username: "RE", role: "RE", email: "z.zubairu@fha.gov.ng" },
+  { name: "Adebisi Olamide (RE)", username: "RE", role: "RE", email: "a.olamide@fha.gov.ng" },
   { name: "Mr. Aliyu Ibrahim (Finance Dir)", username: "FD", role: "FD", email: "aliyu.ibrahim@fha.gov.ng" },
   { name: "Mrs. Ngozi Ezenwa (Treasury Head)", username: "CT", role: "CT", email: "ngozi.ezenwa@fha.gov.ng" },
   { name: "ABC Contractor Representative", username: "CONTRACTOR", role: "CONTRACTOR", contractorId: "c-1", email: "contact@abcconstruction.ng" }
@@ -479,8 +479,8 @@ let valuations: ValuationRequest[] = [
     certificateNumber: "VAL/CERT/GWAR/002",
     history: [
       { stage: "request_valuation", date: "2026-07-01", actor: "Dantata & Sawoe", status: "approved", comments: "Submitted progress evaluation request up to Roofing stage." },
-      { stage: "resident_engineer_verify", date: "2026-07-03", actor: "Resident Engineer Bello", status: "approved", comments: "Verified on-site completion of roof trussing and sheeting. Works are structurally sound." },
-      { stage: "project_manager_approve", date: "2026-07-05", actor: "PM Bello", status: "approved", comments: "Project schedule matches and milestones have been checked." }
+      { stage: "resident_engineer_verify", date: "2026-07-03", actor: "Resident Engineer Adebisi", status: "approved", comments: "Verified on-site completion of roof trussing and sheeting. Works are structurally sound." },
+      { stage: "project_manager_approve", date: "2026-07-05", actor: "PM Ahmed Abdul", status: "approved", comments: "Project schedule matches and milestones have been checked." }
     ]
   },
   {
