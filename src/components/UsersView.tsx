@@ -76,19 +76,19 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
   const getRoleBadgeColor = (r: UserRole) => {
     switch (r) {
       case 'MD':
-        return 'bg-amber-500/10 border border-amber-500/30 text-amber-400';
+        return 'bg-amber-100 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 text-amber-900 dark:text-amber-400';
       case 'PM':
-        return 'bg-blue-500/10 border border-blue-500/30 text-blue-400';
+        return 'bg-blue-100 dark:bg-blue-500/10 border border-blue-300 dark:border-blue-500/30 text-blue-900 dark:text-blue-400';
       case 'QS':
-        return 'bg-purple-500/10 border border-purple-500/30 text-purple-400';
+        return 'bg-purple-100 dark:bg-purple-500/10 border border-purple-300 dark:border-purple-500/30 text-purple-900 dark:text-purple-400';
       case 'RE':
-        return 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400';
+        return 'bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-400';
       case 'FD':
-        return 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-400';
+        return 'bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-300 dark:border-indigo-500/30 text-indigo-900 dark:text-indigo-400';
       case 'CT':
-        return 'bg-pink-500/10 border border-pink-500/30 text-pink-400';
+        return 'bg-pink-100 dark:bg-pink-500/10 border border-pink-300 dark:border-pink-500/30 text-pink-900 dark:text-pink-400';
       default:
-        return 'bg-slate-500/10 border border-slate-500/30 text-slate-400';
+        return 'bg-slate-100 dark:bg-slate-500/10 border border-slate-300 dark:border-slate-500/30 text-slate-800 dark:text-slate-400';
     }
   };
 
@@ -108,20 +108,20 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-300 dark:border-white/10 pb-5">
         <div>
-          <div className="text-amber-500 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Access & Identity Management</div>
-          <h2 className="text-2xl font-serif text-white tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
+          <div className="text-amber-600 dark:text-amber-500 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Access & Identity Management</div>
+          <h2 className="text-2xl font-serif font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
             System Users Directory
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
             Configure system authorization, register personnel accounts, and assign oversight roles for the National Housing Program.
           </p>
         </div>
 
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold rounded-lg transition self-start md:self-auto shadow-lg shadow-amber-500/10"
+          className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold rounded-xl transition self-start md:self-auto shadow-sm cursor-pointer"
         >
           <UserPlus className="w-4 h-4" />
           {showAddForm ? 'Hide Registration Panel' : 'Register New Staff User'}
@@ -130,14 +130,14 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
 
       {/* Form Area */}
       {showAddForm && (
-        <form onSubmit={handleSubmit} className="bg-black/40 border border-amber-500/20 rounded-2xl p-6 max-w-xl space-y-4 shadow-[0_0_20px_rgba(245,158,11,0.03)] animate-fade-in">
-          <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900/60 border border-slate-300 dark:border-amber-500/20 rounded-2xl p-6 max-w-xl space-y-4 shadow-sm animate-fade-in">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-white/5">
             <UserPlus className="w-4 h-4 text-amber-500" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Register Program Personnel</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Register Program Personnel</h3>
           </div>
 
           {error && (
-            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-lg text-xs flex items-center gap-2">
+            <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400 p-3 rounded-lg text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -145,49 +145,49 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</label>
+              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider">Full Name</label>
               <input
                 type="text"
                 placeholder="e.g. Arc. Joseph Enene"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition"
+                className="w-full bg-white dark:bg-black/60 border border-slate-300 dark:border-white/10 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Username (Caps, distinct)</label>
+              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider">Username (Caps, distinct)</label>
               <input
                 type="text"
                 placeholder="e.g. QS_ENENE"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition"
+                className="w-full bg-white dark:bg-black/60 border border-slate-300 dark:border-white/10 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Official Email</label>
+              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider">Official Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-500" />
+                <Mail className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
                 <input
                   type="email"
                   placeholder="name@fha.gov.ng"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full bg-black/60 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition"
+                  className="w-full bg-white dark:bg-black/60 border border-slate-300 dark:border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assign Role & Authority</label>
+              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider">Assign Role & Authority</label>
               <select
                 value={role}
                 onChange={e => setRole(e.target.value as UserRole)}
-                className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition"
+                className="w-full bg-white dark:bg-black/60 border border-slate-300 dark:border-white/10 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition"
               >
                 {isMD && <option value="MD">Managing Director & CEO (MD)</option>}
                 <option value="PM">Project Manager (PM)</option>
@@ -200,10 +200,10 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
             </div>
           </div>
 
-          <div className="bg-amber-500/5 border border-amber-500/10 p-3 rounded-lg text-[11px] text-slate-400 flex items-start gap-2">
-            <Key className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+          <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-300 dark:border-amber-500/10 p-3 rounded-lg text-[11px] text-slate-700 dark:text-slate-400 flex items-start gap-2">
+            <Key className="w-4 h-4 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-slate-300">Default Access Configuration:</span> New accounts are automatically assigned the default password <code className="bg-black/50 px-1 py-0.5 rounded text-amber-400 font-mono font-bold">password@123</code>. The PM can register all roles except the MD role.
+              <span className="font-semibold text-slate-900 dark:text-slate-300">Default Access Configuration:</span> New accounts are automatically assigned the default password <code className="bg-amber-100 dark:bg-black/50 px-1 py-0.5 rounded text-amber-800 dark:text-amber-400 font-mono font-bold">password@123</code>. The PM can register all roles except the MD role.
             </div>
           </div>
 
@@ -211,13 +211,13 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-xs font-bold rounded-lg transition"
+              className="px-4 py-2 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold rounded-lg transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold rounded-lg transition shadow-lg shadow-amber-500/10"
+              className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold rounded-xl transition shadow-sm cursor-pointer"
             >
               Authorize & Create Account
             </button>
@@ -227,16 +227,16 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
 
       {/* Success Banner */}
       {success && (
-        <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
-          <UserCheck className="w-4 h-4 shrink-0" />
+        <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-400 p-4 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
+          <UserCheck className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
           <span>{success}</span>
         </div>
       )}
 
       {/* Users Table */}
-      <div className="bg-black/40 border border-white/10 rounded-2xl overflow-hidden">
-        <div className="p-4 border-b border-white/5 bg-black/20 flex items-center justify-between">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+      <div className="bg-white dark:bg-slate-900/60 border border-slate-300 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/20 flex items-center justify-between">
+          <h3 className="text-xs font-bold text-slate-800 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
             <Users className="w-4 h-4 text-amber-500" />
             Active Authorized Personnel ({users.length})
           </h3>
@@ -246,7 +246,7 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/5 text-[10px] text-slate-500 uppercase tracking-widest bg-black/10">
+              <tr className="border-b border-slate-200 dark:border-white/5 text-[10px] text-slate-600 dark:text-slate-500 uppercase tracking-widest bg-slate-100/50 dark:bg-black/10">
                 <th className="py-3 px-5">Personnel Name</th>
                 <th className="py-3 px-5">Username</th>
                 <th className="py-3 px-5">Access Level (Role)</th>
@@ -256,14 +256,14 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
             </thead>
             <tbody>
               {users.map(u => (
-                <tr key={u.username} className="border-b border-white/5 text-xs hover:bg-white/5 transition">
-                  <td className="py-3.5 px-5 font-semibold text-white flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-slate-400 uppercase">
+                <tr key={u.username} className="border-b border-slate-200 dark:border-white/5 text-xs hover:bg-slate-50 dark:hover:bg-white/5 transition">
+                  <td className="py-3.5 px-5 font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 flex items-center justify-center font-bold text-slate-700 dark:text-slate-400 uppercase">
                       {u.name.charAt(0)}
                     </div>
                     <span>{u.name}</span>
                   </td>
-                  <td className="py-3.5 px-5 font-mono font-bold text-slate-300">
+                  <td className="py-3.5 px-5 font-mono font-bold text-slate-800 dark:text-slate-300">
                     {u.username}
                   </td>
                   <td className="py-3.5 px-5">
@@ -272,11 +272,11 @@ export default function UsersView({ users, currentUser, onCreateUser, onDeleteUs
                     </span>
                     <span className="text-slate-500 block text-[9px] mt-0.5">{getRoleTitle(u.role)}</span>
                   </td>
-                  <td className="py-3.5 px-5 text-slate-400">
+                  <td className="py-3.5 px-5 text-slate-600 dark:text-slate-400">
                     {u.email}
                   </td>
                   <td className="py-3.5 px-5 text-right font-mono text-[10px] text-slate-500">
-                    Password: <span className="bg-black/30 px-1.5 py-0.5 rounded text-amber-500/80">password@123</span>
+                    Password: <span className="bg-slate-100 dark:bg-black/30 px-1.5 py-0.5 rounded text-amber-700 dark:text-amber-500/80 font-bold">password@123</span>
                   </td>
                 </tr>
               ))}

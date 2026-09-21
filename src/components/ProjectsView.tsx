@@ -292,12 +292,12 @@ export default function ProjectsView({
   return (
     <div className="space-y-6">
       {/* Title block */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-300 dark:border-white/10">
         <div>
-          <h2 className="text-2xl font-medium text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
             Projects <span className="text-amber-500">/</span> Administration & Progress
           </h2>
-          <p className="text-slate-400 text-sm">Deploy new estates, adjust work breakdown structures, and record visual audit logs</p>
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-0.5">Deploy new estates, adjust work breakdown structures, and record visual audit logs</p>
         </div>
         
         {!selectedProjectId && !isSettingUp && !isContractor && (
@@ -310,7 +310,7 @@ export default function ProjectsView({
                 if (firstApp) setContractorId(firstApp.id);
               }
             }}
-            className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-4 py-2.5 rounded-lg text-sm flex items-center gap-2 transition"
+            className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition shadow-sm cursor-pointer"
           >
             <Plus className="w-4 h-4 text-black" />
             <span>Setup New Project Estate</span>
@@ -320,27 +320,27 @@ export default function ProjectsView({
 
       {/* CREATE NEW PROJECT SCREEN (Module 2) */}
       {isSettingUp && (
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-white/10">
+        <div className="bg-white dark:bg-slate-900/60 border border-slate-300 dark:border-white/10 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200 dark:border-white/10">
             <button 
               onClick={() => setIsSettingUp(false)}
-              className="text-slate-400 hover:text-white p-1 rounded hover:bg-white/5 transition"
+              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h3 className="text-lg font-medium text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>Project Registration Scheme</h3>
-              <p className="text-slate-400 text-xs">Establish the contract linkages: State &rarr; Estate &rarr; House Type &rarr; Contractor</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>Project Registration Scheme</h3>
+              <p className="text-slate-600 dark:text-slate-400 text-xs">Establish the contract linkages: State &rarr; Estate &rarr; House Type &rarr; Contractor</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmitSetup} className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">State Jurisdiction</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-1.5">State Jurisdiction</label>
               <select 
                 value={state}
                 onChange={(e) => setState(e.target.value)}
-                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+                className="w-full bg-white dark:bg-black/50 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-white/10 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
               >
                 <option value="Abuja" className="bg-[#050505]">Abuja (FCT)</option>
                 <option value="Kaduna" className="bg-[#050505]">Kaduna</option>
@@ -351,27 +351,27 @@ export default function ProjectsView({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Estate Scheme Name *</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-1.5">Estate Scheme Name *</label>
               <input 
                 type="text" 
                 placeholder="e.g. Kada Hill Estate Phase 2" 
                 value={estateName}
                 onChange={(e) => setEstateName(e.target.value)}
-                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+                className="w-full bg-white dark:bg-black/50 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-white/10 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
                 required
               />
             </div>
 
-            <div className="md:col-span-2 bg-white/5 p-4 rounded-xl border border-white/10 space-y-4">
-              <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
+            <div className="md:col-span-2 bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/10 space-y-4">
+              <div className="flex justify-between items-center border-b border-slate-200 dark:border-white/10 pb-2">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-300 uppercase tracking-widest">
                   Housing Typology & Units Selection
                 </span>
-                <span className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">
+                <span className="text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 px-2.5 py-0.5 rounded-full font-bold">
                   Total Units: {totalHouseUnits}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
                 Select one or more housing typologies and enter the corresponding number of units for each.
               </p>
               
@@ -384,8 +384,8 @@ export default function ProjectsView({
                       key={typology}
                       className={`p-3.5 rounded-xl border transition-all duration-200 flex items-center justify-between gap-4 ${
                         isEnabled 
-                          ? 'bg-[#1D7033]/15 border-[#1D7033]/30 shadow-md shadow-[#1D7033]/5' 
-                          : 'bg-black/30 border-white/5 hover:border-white/10'
+                          ? 'bg-emerald-50 dark:bg-[#1D7033]/15 border-emerald-300 dark:border-[#1D7033]/30 shadow-sm' 
+                          : 'bg-white dark:bg-black/30 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10'
                       }`}
                     >
                       <label className="flex items-center gap-3 cursor-pointer select-none flex-1">
@@ -398,14 +398,14 @@ export default function ProjectsView({
                               [typology]: e.target.checked
                             }));
                           }}
-                          className="rounded border-white/20 bg-black text-emerald-500 focus:ring-0 focus:ring-offset-0 w-4.5 h-4.5 cursor-pointer accent-[#1D7033]"
+                          className="rounded border-slate-300 dark:border-white/20 bg-white dark:bg-black text-emerald-600 focus:ring-0 focus:ring-offset-0 w-4.5 h-4.5 cursor-pointer accent-[#1D7033]"
                         />
-                        <span className="text-xs font-semibold text-slate-200">{typology}</span>
+                        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{typology}</span>
                       </label>
                       
                       {isEnabled && (
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Units:</span>
+                          <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase tracking-wider font-bold">Units:</span>
                           <input 
                             type="number"
                             min="1"
@@ -417,7 +417,7 @@ export default function ProjectsView({
                                 [typology]: val
                               }));
                             }}
-                            className="w-16 bg-black text-slate-100 border border-[#1D7033]/40 focus:border-emerald-500 text-center py-1 px-1.5 rounded font-bold text-xs outline-none"
+                            className="w-16 bg-white dark:bg-black text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-[#1D7033]/40 focus:border-emerald-500 text-center py-1 px-1.5 rounded font-bold text-xs outline-none"
                           />
                         </div>
                       )}
@@ -428,79 +428,79 @@ export default function ProjectsView({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Assigned Onboarded Contractor *</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-1.5">Assigned Onboarded Contractor *</label>
               <select 
                 value={contractorId}
                 onChange={(e) => setContractorId(e.target.value)}
-                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+                className="w-full bg-white dark:bg-black/50 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-white/10 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
                 required
               >
                 {contractors.filter(c => c.status === 'approved').map(c => (
-                  <option key={c.id} value={c.id} className="bg-[#050505]">{c.companyName}</option>
+                  <option key={c.id} value={c.id}>{c.companyName}</option>
                 ))}
                 {contractors.filter(c => c.status === 'approved').length === 0 && (
-                  <option value="" className="bg-[#050505]">No approved contractors available!</option>
+                  <option value="">No approved contractors available!</option>
                 )}
               </select>
             </div>
 
              <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Resident Project Manager / Engr *</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-1.5">Resident Project Manager / Engr *</label>
               <input 
                 type="text" 
                 placeholder="e.g. Engr. Ahmed Abdul" 
                 value={projectManager}
                 onChange={(e) => setProjectManager(e.target.value)}
-                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+                className="w-full bg-white dark:bg-black/50 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-white/10 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Contract Budget Amount (NGN) *</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-1.5">Contract Budget Amount (NGN) *</label>
               <input 
                 type="number" 
                 placeholder="e.g. 350000000" 
                 value={budget}
                 onChange={(e) => setBudget(e.target.value)}
-                className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
+                className="w-full bg-white dark:bg-black/50 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-white/10 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 py-2.5 px-3 rounded-lg text-sm outline-none"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Start Date</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-1.5">Start Date</label>
                 <input 
                   type="date" 
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2 px-3 rounded-lg text-xs outline-none"
+                  className="w-full bg-white dark:bg-black/50 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-white/10 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 py-2 px-3 rounded-lg text-xs outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Target Completion *</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-1.5">Target Completion *</label>
                 <input 
                   type="date" 
                   value={targetCompletionDate}
                   onChange={(e) => setTargetCompletionDate(e.target.value)}
-                  className="w-full bg-black/50 text-slate-100 border border-white/10 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 py-2 px-3 rounded-lg text-xs outline-none"
+                  className="w-full bg-white dark:bg-black/50 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-white/10 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 py-2 px-3 rounded-lg text-xs outline-none"
                   required
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+            <div className="md:col-span-2 flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-white/10">
               <button 
                 type="button"
                 onClick={() => setIsSettingUp(false)}
-                className="text-slate-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg text-sm transition"
+                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 px-4 py-2 rounded-lg text-sm transition cursor-pointer"
               >
                 Cancel
               </button>
               <button 
                 type="submit"
-                className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-5 py-2 rounded-lg text-sm transition"
+                className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-5 py-2 rounded-xl text-sm transition shadow-sm cursor-pointer"
               >
                 Deploy Project Setup
               </button>
@@ -526,27 +526,27 @@ export default function ProjectsView({
                 }
                 onSelectProject(p.id);
               }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-amber-500/30 hover:bg-white/[0.08] cursor-pointer transition flex flex-col md:flex-row justify-between items-start md:items-center gap-5"
+              className="bg-white dark:bg-slate-900/60 border border-slate-300 dark:border-white/10 rounded-2xl p-5 hover:border-amber-500/40 hover:bg-slate-50/70 dark:hover:bg-white/[0.04] cursor-pointer transition flex flex-col md:flex-row justify-between items-start md:items-center gap-5 shadow-xs"
             >
               {/* Left Details */}
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-base font-bold text-white group-hover:text-amber-500 transition-colors font-serif" style={{ fontFamily: 'Georgia, serif' }}>{p.estateName}</h3>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors font-serif" style={{ fontFamily: 'Georgia, serif' }}>{p.estateName}</h3>
                   
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                    p.status === 'Completed' ? 'bg-sky-500/15 text-sky-400 border border-sky-500/30' :
-                    p.status === 'Delayed' ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30' :
-                    p.status === 'Needs Attention' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
-                    'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                    p.status === 'Completed' ? 'bg-sky-100 dark:bg-sky-500/15 text-sky-800 dark:text-sky-400 border border-sky-300 dark:border-sky-500/30' :
+                    p.status === 'Delayed' ? 'bg-rose-100 dark:bg-rose-500/15 text-rose-800 dark:text-rose-400 border border-rose-300 dark:border-rose-500/30' :
+                    p.status === 'Needs Attention' ? 'bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30' :
+                    'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30'
                   }`}>
                     {p.status}
                   </span>
 
                   {p.assignmentStatus && (
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      p.assignmentStatus === 'Accepted' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' :
-                      p.assignmentStatus === 'Rejected' ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30' :
-                      'bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse'
+                      p.assignmentStatus === 'Accepted' ? 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30' :
+                      p.assignmentStatus === 'Rejected' ? 'bg-rose-100 dark:bg-rose-500/15 text-rose-800 dark:text-rose-400 border border-rose-300 dark:border-rose-500/30' :
+                      'bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30 animate-pulse'
                     }`}>
                       {p.assignmentStatus === 'Accepted' ? 'Contract Accepted' :
                        p.assignmentStatus === 'Rejected' ? 'Assignment Rejected' :
@@ -555,7 +555,7 @@ export default function ProjectsView({
                   )}
                 </div>
                 
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-400 pt-0.5">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-600 dark:text-slate-400 pt-0.5">
                   <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-500" /> {p.state}</span>
                   <span className="flex items-center gap-1"><Building className="w-3.5 h-3.5 text-slate-500" /> {p.houseType} ({p.houseCount} Units)</span>
                   <span className="flex items-center gap-1"><User className="w-3.5 h-3.5 text-slate-500" /> PM: {p.projectManager}</span>
@@ -563,16 +563,16 @@ export default function ProjectsView({
 
                 {isContractor && p.assignmentStatus === 'Pending' && (
                   <div className="flex items-center gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
-                    <span className="text-xs text-amber-500 font-bold mr-2">Decision Required:</span>
+                    <span className="text-xs text-amber-600 dark:text-amber-500 font-bold mr-2">Decision Required:</span>
                     <button 
                       onClick={() => onAcceptProject && onAcceptProject(p.id)}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3 rounded text-[10px] flex items-center gap-1 transition shadow-lg shadow-emerald-600/10"
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3 rounded text-[10px] flex items-center gap-1 transition shadow-sm cursor-pointer"
                     >
                       <Check className="w-3 h-3" /> Accept Assignment
                     </button>
                     <button 
                       onClick={() => onRejectProject && onRejectProject(p.id)}
-                      className="bg-rose-600 hover:bg-rose-500 text-white font-bold py-1.5 px-3 rounded text-[10px] flex items-center gap-1 transition shadow-lg shadow-rose-600/10"
+                      className="bg-rose-600 hover:bg-rose-500 text-white font-bold py-1.5 px-3 rounded text-[10px] flex items-center gap-1 transition shadow-sm cursor-pointer"
                     >
                       <X className="w-3 h-3" /> Decline
                     </button>
@@ -582,11 +582,11 @@ export default function ProjectsView({
 
               {/* Progress Slider */}
               <div className="w-full md:w-60 space-y-1">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-400">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400">
                   <span>WBS Progress</span>
-                  <span className="text-white font-bold">{p.progress}%</span>
+                  <span className="text-slate-900 dark:text-white font-bold">{p.progress}%</span>
                 </div>
-                <div className="w-full h-2 bg-black/50 rounded-full overflow-hidden">
+                <div className="w-full h-2.5 bg-slate-200 dark:bg-black/50 rounded-full overflow-hidden border border-slate-300 dark:border-white/10">
                   <div 
                     className={`h-full transition-all duration-500 ${
                       p.status === 'Delayed' ? 'bg-rose-500' : p.status === 'Needs Attention' ? 'bg-amber-500' : p.status === 'Completed' ? 'bg-sky-500' : 'bg-amber-500'
@@ -599,8 +599,8 @@ export default function ProjectsView({
               {/* Financial Summary */}
               <div className="text-left md:text-right shrink-0">
                 <div className="text-xs text-slate-500 font-bold uppercase tracking-widest">Contract Budget</div>
-                <div className="text-sm font-bold text-amber-500">{formatMoney(p.budget)}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Disbursed: {formatMoney(p.spent)}</div>
+                <div className="text-sm font-bold text-amber-600 dark:text-amber-500">{formatMoney(p.budget)}</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Disbursed: {formatMoney(p.spent)}</div>
               </div>
             </div>
           ))}
@@ -611,32 +611,32 @@ export default function ProjectsView({
       {selectedProjectId && currentProject && !isSettingUp && (
         <div className="space-y-6">
           {/* Header Bar */}
-          <div className="bg-white/5 rounded-2xl border border-white/10 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-300 dark:border-white/10 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => onSelectProject(null)}
-                className="text-slate-400 hover:text-white p-2 rounded-lg bg-black/40 border border-white/10 hover:border-white/20 transition"
+                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 rounded-lg bg-slate-100 dark:bg-black/40 border border-slate-300 dark:border-white/10 hover:border-slate-400 dark:hover:border-white/20 transition cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-bold text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>{currentProject.estateName}</h3>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>{currentProject.estateName}</h3>
                   <span className="text-xs text-slate-500">&bull; PM Workspace</span>
                 </div>
-                <div className="text-xs text-slate-400 flex flex-wrap gap-x-3 gap-y-1 mt-0.5">
-                  <span>Jurisdiction: <strong>{currentProject.state}</strong></span>
+                <div className="text-xs text-slate-600 dark:text-slate-400 flex flex-wrap gap-x-3 gap-y-1 mt-0.5">
+                  <span>Jurisdiction: <strong className="text-slate-900 dark:text-slate-200">{currentProject.state}</strong></span>
                   <span>&bull;</span>
-                  <span>Typology: <strong>{currentProject.houseType}</strong></span>
+                  <span>Typology: <strong className="text-slate-900 dark:text-slate-200">{currentProject.houseType}</strong></span>
                   <span>&bull;</span>
-                  <span>Contractor: <strong className="text-amber-500">{currentProject.contractorName}</strong></span>
+                  <span>Contractor: <strong className="text-amber-600 dark:text-amber-500">{currentProject.contractorName}</strong></span>
                 </div>
                 {currentProject.typologies && currentProject.typologies.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2.5">
                     {currentProject.typologies.map((t, idx) => (
                       <span 
                         key={idx} 
-                        className="bg-[#1D7033]/15 border border-[#1D7033]/30 text-emerald-400 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider"
+                        className="bg-emerald-50 dark:bg-[#1D7033]/15 border border-emerald-300 dark:border-[#1D7033]/30 text-emerald-800 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider"
                       >
                         {t.count} Units &bull; {t.type}
                       </span>
@@ -647,8 +647,8 @@ export default function ProjectsView({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">WBS Progress:</span>
-              <div className="bg-black/50 border border-white/10 px-3 py-1.5 rounded-lg text-sm font-extrabold text-amber-500">
+              <span className="text-xs text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest">WBS Progress:</span>
+              <div className="bg-slate-100 dark:bg-black/50 border border-slate-300 dark:border-white/10 px-3 py-1.5 rounded-lg text-sm font-extrabold text-amber-600 dark:text-amber-500">
                 {currentProject.progress}%
               </div>
             </div>
@@ -658,14 +658,14 @@ export default function ProjectsView({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* 1. Discrete Stages Checkboxes (Module 3) */}
-            <div className="lg:col-span-4 bg-white/5 rounded-2xl border border-white/10 p-5 flex flex-col justify-between">
+            <div className="lg:col-span-4 bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-300 dark:border-white/10 p-5 flex flex-col justify-between shadow-sm">
               <div>
-                <div className="pb-3 border-b border-white/10 mb-4">
-                  <h4 className="text-sm font-medium text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+                <div className="pb-3 border-b border-slate-200 dark:border-white/10 mb-4">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                     <Check className="w-4 h-4 text-amber-500" />
                     <span>WBS Milestone Progress Checklist</span>
                   </h4>
-                  <p className="text-slate-400 text-[10px] mt-0.5">Check completed segments to automatically calculate percentage.</p>
+                  <p className="text-slate-600 dark:text-slate-400 text-[10px] mt-0.5">Check completed segments to automatically calculate percentage.</p>
                 </div>
 
                 <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
@@ -674,10 +674,10 @@ export default function ProjectsView({
                     return (
                       <div 
                         key={stage}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
+                        className={`flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-medium transition ${
                           isChecked 
-                            ? 'bg-amber-500/5 border-amber-500/20 text-white' 
-                            : 'bg-black/40 border-white/5 text-slate-400 hover:border-white/10'
+                            ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/30 text-slate-900 dark:text-white' 
+                            : 'bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/5 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/10'
                         }`}
                       >
                         <label className="flex items-center gap-3 cursor-pointer flex-1">
@@ -687,7 +687,7 @@ export default function ProjectsView({
                             onChange={() => handleStageCheckboxToggle(stage)}
                             className="accent-amber-500 w-4 h-4 cursor-pointer"
                           />
-                          <span>{stage}</span>
+                          <span className="font-semibold">{stage}</span>
                         </label>
                         <button
                           type="button"
@@ -704,7 +704,7 @@ export default function ProjectsView({
                               afterUrl = "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=500&q=80";
                             } else if (stage.toLowerCase().includes("finish") || stage.toLowerCase().includes("complete")) {
                               beforeUrl = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=500&q=80";
-                              afterUrl = "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=500&q=80";
+                              afterUrl = "https://images.unsplash.com/photo-160058515526-990dced4db0d?auto=format&fit=crop&w=500&q=80";
                             } else if (stage.toLowerCase().includes("electrical") || stage.toLowerCase().includes("plumbing")) {
                               beforeUrl = "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=500&q=80";
                               afterUrl = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=500&q=80";
@@ -729,7 +729,7 @@ export default function ProjectsView({
                             }, 400);
                           }}
                           title={`Capture visual progress for ${stage}`}
-                          className="p-1 bg-white/5 hover:bg-amber-500 hover:text-black rounded text-slate-400 transition ml-2 flex items-center justify-center"
+                          className="p-1.5 bg-slate-100 hover:bg-amber-500 hover:text-black dark:bg-white/5 rounded text-slate-500 dark:text-slate-400 transition ml-2 flex items-center justify-center cursor-pointer"
                         >
                           <Camera className="w-3.5 h-3.5" />
                         </button>
@@ -739,10 +739,10 @@ export default function ProjectsView({
                 </div>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-white/10">
+              <div className="mt-5 pt-4 border-t border-slate-200 dark:border-white/10">
                 <button 
                   onClick={handleSaveProgress}
-                  className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-2.5 rounded-lg text-xs transition"
+                  className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-2.5 rounded-xl text-xs transition shadow-sm cursor-pointer"
                 >
                   Save WBS Milestone Changes
                 </button>
@@ -750,22 +750,22 @@ export default function ProjectsView({
             </div>
 
             {/* 2. Photo & GPS Evidence Upload (Module 4) */}
-            <div className="lg:col-span-8 bg-white/5 rounded-2xl border border-white/10 p-5 flex flex-col justify-between">
+            <div className="lg:col-span-8 bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-300 dark:border-white/10 p-5 flex flex-col justify-between shadow-sm">
               <div>
-                <div className="pb-3 border-b border-white/10 mb-4 flex items-center justify-between">
+                <div className="pb-3 border-b border-slate-200 dark:border-white/10 mb-4 flex items-center justify-between">
                   <div>
-                    <h4 className="text-sm font-medium text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                       <Camera className="w-4 h-4 text-amber-500" />
                       <span>On-Site Visual Audit Log (Photo Evidence)</span>
                     </h4>
-                    <p className="text-slate-400 text-[10px] mt-0.5">Simulate actual site capture (with precise timestamp, GPS, and imagery)</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-[10px] mt-0.5">Simulate actual site capture (with precise timestamp, GPS, and imagery)</p>
                   </div>
                   
                   <button 
                     type="button"
                     onClick={handleSimulateCapture}
                     disabled={isSimulatingCapture}
-                    className="bg-black/50 hover:bg-white/5 text-amber-500 font-semibold px-3 py-1.5 border border-white/10 hover:border-amber-500/30 rounded-lg text-[10px] flex items-center gap-2 transition disabled:opacity-50"
+                    className="bg-slate-100 hover:bg-slate-200 dark:bg-black/50 dark:hover:bg-white/5 text-amber-600 dark:text-amber-500 font-bold px-3 py-1.5 border border-slate-300 dark:border-white/10 hover:border-amber-500/30 rounded-xl text-[10px] flex items-center gap-2 transition disabled:opacity-50 cursor-pointer"
                   >
                     <UploadCloud className="w-3.5 h-3.5 text-amber-500 animate-bounce" />
                     <span>{isSimulatingCapture ? "Simulating..." : "Simulate Site Capture"}</span>
@@ -774,25 +774,25 @@ export default function ProjectsView({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Target Construction Stage</label>
+                    <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-1">Target Construction Stage</label>
                     <select 
                       value={photoStage}
                       onChange={(e) => setPhotoStage(e.target.value)}
-                      className="w-full bg-black/50 text-slate-100 border border-white/10 py-2 px-3 rounded-lg text-xs outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
+                      className="w-full bg-white dark:bg-black/50 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-white/10 py-2 px-3 rounded-lg text-xs outline-none focus:border-amber-500"
                     >
                       {CONSTRUCTION_STAGES.map(s => (
-                        <option key={s} value={s} className="bg-[#050505]">{s}</option>
+                        <option key={s} value={s}>{s}</option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Responsible Reporting Party</label>
+                    <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-1">Responsible Reporting Party</label>
                     <input 
                       type="text" 
                       value={uploader}
                       onChange={(e) => setUploader(e.target.value)}
-                      className="w-full bg-black/50 text-slate-100 border border-white/10 py-2 px-3 rounded-lg text-xs outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
+                      className="w-full bg-white dark:bg-black/50 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-white/10 py-2 px-3 rounded-lg text-xs outline-none focus:border-amber-500"
                       placeholder="e.g. Resident Engineer"
                     />
                   </div>
@@ -800,49 +800,49 @@ export default function ProjectsView({
 
                 {/* Imagery Preview Box */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-black/40 border border-white/5 rounded-xl p-3">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                  <div className="bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/5 rounded-xl p-3 shadow-xs">
+                    <div className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
                       <Camera className="w-3 h-3 text-slate-500" />
                       <span>Before Photo</span>
                     </div>
                     {beforePhoto ? (
-                      <img src={beforePhoto} alt="Before" referrerPolicy="no-referrer" className="w-full h-32 object-cover rounded border border-white/5" />
+                      <img src={beforePhoto} alt="Before" referrerPolicy="no-referrer" className="w-full h-32 object-cover rounded border border-slate-200 dark:border-white/5" />
                     ) : (
-                      <div className="w-full h-32 bg-[#050505] flex items-center justify-center text-xs text-slate-500">Capture simulation needed</div>
+                      <div className="w-full h-32 bg-slate-100 dark:bg-[#050505] flex items-center justify-center text-xs text-slate-500 rounded border border-slate-200 dark:border-white/5">Capture simulation needed</div>
                     )}
                   </div>
 
-                  <div className="bg-black/40 border border-white/5 rounded-xl p-3">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                  <div className="bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/5 rounded-xl p-3 shadow-xs">
+                    <div className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
                       <Camera className="w-3 h-3 text-amber-500" />
                       <span>After Photo</span>
                     </div>
                     {afterPhoto ? (
-                      <img src={afterPhoto} alt="After" referrerPolicy="no-referrer" className="w-full h-32 object-cover rounded border border-white/5" />
+                      <img src={afterPhoto} alt="After" referrerPolicy="no-referrer" className="w-full h-32 object-cover rounded border border-slate-200 dark:border-white/5" />
                     ) : (
-                      <div className="w-full h-32 bg-[#050505] flex items-center justify-center text-xs text-slate-500">Capture simulation needed</div>
+                      <div className="w-full h-32 bg-slate-100 dark:bg-[#050505] flex items-center justify-center text-xs text-slate-500 rounded border border-slate-200 dark:border-white/5">Capture simulation needed</div>
                     )}
                   </div>
                 </div>
 
                 {/* GPS and Metadata Summary */}
                 {simulatedGps && (
-                  <div className="bg-amber-500/5 border border-amber-500/10 rounded-lg p-3 mt-4 text-[11px] space-y-1 flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 w-full text-slate-300">
-                      <div>Location Name: <strong className="text-white">{simulatedGps.locationName}</strong></div>
-                      <div>Precise Coordinates: <strong className="text-white">{simulatedGps.lat.toFixed(5)}, {simulatedGps.lng.toFixed(5)}</strong></div>
-                      <div>Receiver Accuracy: <strong className="text-amber-400">&plusmn; {simulatedGps.accuracy}m (GNSS RTK)</strong></div>
-                      <div>Timestamp: <strong className="text-white">{new Date().toLocaleString()}</strong></div>
+                  <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-300 dark:border-amber-500/10 rounded-xl p-3 mt-4 text-[11px] space-y-1 flex items-start gap-3">
+                    <MapPin className="w-4 h-4 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 w-full text-slate-700 dark:text-slate-300">
+                      <div>Location Name: <strong className="text-slate-900 dark:text-white">{simulatedGps.locationName}</strong></div>
+                      <div>Precise Coordinates: <strong className="text-slate-900 dark:text-white">{simulatedGps.lat.toFixed(5)}, {simulatedGps.lng.toFixed(5)}</strong></div>
+                      <div>Receiver Accuracy: <strong className="text-amber-600 dark:text-amber-400">&plusmn; {simulatedGps.accuracy}m (GNSS RTK)</strong></div>
+                      <div>Timestamp: <strong className="text-slate-900 dark:text-white">{new Date().toLocaleString()}</strong></div>
                     </div>
                   </div>
                 )}
               </div>
 
               {simulatedGps && (
-                <div className="mt-5 pt-3 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between text-xs gap-3">
-                  <span className="text-emerald-500 font-bold flex items-center gap-1.5">
-                    <Check className="w-4 h-4 text-emerald-500 animate-pulse" /> Capture verified with GPS signature
+                <div className="mt-5 pt-3 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between text-xs gap-3">
+                  <span className="text-emerald-700 dark:text-emerald-500 font-bold flex items-center gap-1.5">
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-500 animate-pulse" /> Capture verified with GPS signature
                   </span>
                   
                   <div className="flex gap-2">
@@ -867,7 +867,7 @@ export default function ProjectsView({
                           console.error("Error saving photo evidence:", err);
                         }
                       }}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-1.5 transition shadow-lg shadow-emerald-600/15"
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl flex items-center justify-center gap-1.5 transition shadow-sm cursor-pointer"
                     >
                       <UploadCloud className="w-4 h-4" />
                       <span>Upload Standalone Evidence to Gallery</span>
@@ -880,8 +880,8 @@ export default function ProjectsView({
           </div>
 
           {/* Photographic Audit History Trail */}
-          <div className="bg-white/5 rounded-2xl border border-white/10 p-5">
-            <h4 className="text-sm font-medium text-white flex items-center gap-2 mb-4 pb-3 border-b border-white/10 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+          <div className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-300 dark:border-white/10 p-5 shadow-sm">
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4 pb-3 border-b border-slate-200 dark:border-white/10 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
               <FileText className="w-4 h-4 text-amber-500" />
               <span>Photographic Site Audit History Trail</span>
             </h4>
@@ -893,34 +893,34 @@ export default function ProjectsView({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {currentProject.photoUpdates.map((item, idx) => (
-                  <div key={idx} className="bg-black/40 p-4 border border-white/10 rounded-xl flex flex-col justify-between gap-3">
+                  <div key={idx} className="bg-slate-50 dark:bg-black/40 p-4 border border-slate-200 dark:border-white/10 rounded-xl flex flex-col justify-between gap-3 shadow-xs">
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="text-xs font-bold text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>{item.stage} Verification</div>
-                        <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                        <div className="text-xs font-bold text-slate-900 dark:text-white font-serif" style={{ fontFamily: 'Georgia, serif' }}>{item.stage} Verification</div>
+                        <div className="text-[10px] text-slate-600 dark:text-slate-400 flex items-center gap-1 mt-0.5">
                           <MapPin className="w-3.5 h-3.5 text-slate-500" />
                           <span>{item.gps.locationName} &bull; Coordinates: {item.gps.lat.toFixed(4)}, {item.gps.lng.toFixed(4)}</span>
                         </div>
                       </div>
-                      <span className="text-[9px] bg-amber-500/10 text-amber-500 border border-amber-500/20 font-bold px-2 py-0.5 rounded">
+                      <span className="text-[9px] bg-amber-100 dark:bg-amber-500/10 text-amber-800 dark:text-amber-500 border border-amber-300 dark:border-amber-500/20 font-bold px-2 py-0.5 rounded">
                         GPS Verified (&plusmn;{item.gps.accuracy}m)
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Stage Commencement</span>
-                        <img src={item.beforePhoto} alt="Before" referrerPolicy="no-referrer" className="w-full h-24 object-cover rounded border border-white/5" />
+                        <span className="text-[8px] font-bold text-slate-600 dark:text-slate-500 uppercase tracking-widest block mb-1">Stage Commencement</span>
+                        <img src={item.beforePhoto} alt="Before" referrerPolicy="no-referrer" className="w-full h-24 object-cover rounded border border-slate-200 dark:border-white/5" />
                       </div>
                       <div>
-                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Stage Delivery Verification</span>
-                        <img src={item.afterPhoto} alt="After" referrerPolicy="no-referrer" className="w-full h-24 object-cover rounded border border-white/5" />
+                        <span className="text-[8px] font-bold text-slate-600 dark:text-slate-500 uppercase tracking-widest block mb-1">Stage Delivery Verification</span>
+                        <img src={item.afterPhoto} alt="After" referrerPolicy="no-referrer" className="w-full h-24 object-cover rounded border border-slate-200 dark:border-white/5" />
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center text-[10px] text-slate-500 border-t border-white/5 pt-2.5">
-                      <div>Reported by: <strong className="text-slate-300">{item.uploadedBy}</strong></div>
-                      <div>Date: <strong className="text-slate-300">{new Date(item.timestamp).toLocaleDateString()}</strong></div>
+                    <div className="flex justify-between items-center text-[10px] text-slate-500 border-t border-slate-200 dark:border-white/5 pt-2.5">
+                      <div>Reported by: <strong className="text-slate-800 dark:text-slate-300">{item.uploadedBy}</strong></div>
+                      <div>Date: <strong className="text-slate-800 dark:text-slate-300">{new Date(item.timestamp).toLocaleDateString()}</strong></div>
                     </div>
                   </div>
                 ))}

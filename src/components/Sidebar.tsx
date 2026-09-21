@@ -130,14 +130,14 @@ export default function Sidebar({
                 title={isCollapsed ? item.name : undefined}
                 className={`w-full flex items-center ${isCollapsed ? 'justify-center px-1' : 'justify-between px-3'} py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
+                    ? 'bg-amber-500 text-black font-bold shadow-md shadow-amber-500/20'
                     : item.highlight
-                    ? 'bg-amber-500/10 dark:bg-white/5 text-amber-700 dark:text-amber-400 border border-amber-500/30 dark:border-white/10 hover:bg-amber-500/15 dark:hover:bg-white/10'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100'
+                    ? 'bg-amber-500/10 dark:bg-white/5 text-amber-800 dark:text-amber-400 border border-amber-500/30 dark:border-white/10 hover:bg-amber-500/15 dark:hover:bg-white/10'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100'
                 }`}
               >
                 <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} relative w-full`}>
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.highlight ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-black' : item.highlight ? 'text-amber-700 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`} />
                   {!isCollapsed && <span className="truncate">{item.name}</span>}
                   
                   {isCollapsed && item.count !== undefined && item.count > 0 && (
@@ -151,11 +151,11 @@ export default function Sidebar({
                   <span className={`px-2 py-0.5 text-[9px] rounded font-extrabold shrink-0 ${
                     item.urgent 
                       ? isActive 
-                        ? 'bg-white/20 text-white font-extrabold'
-                        : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30' 
+                        ? 'bg-black/20 text-black font-extrabold'
+                        : 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30' 
                       : isActive
-                        ? 'bg-white/20 text-white font-extrabold'
-                        : 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30'
+                        ? 'bg-black/20 text-black font-extrabold'
+                        : 'bg-amber-500/15 text-amber-800 dark:text-amber-400 border border-amber-500/30'
                   }`}>
                     {item.count}
                   </span>

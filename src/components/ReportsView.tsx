@@ -583,8 +583,8 @@ export default function ReportsView({
       {/* PDF HIGH FIDELITY REPORT PREVIEW */}
       {reportFormat === 'pdf' && (
         <div className="space-y-4 print:space-y-6">
-          <div className="flex items-center justify-between bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-3 rounded-xl print:hidden">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Multi-page print-ready executive summary. Includes complete housing portfolio, financial outlay, and exception matrix.</span>
+          <div className="flex items-center justify-between bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 px-5 py-3 rounded-xl print:hidden">
+            <span className="text-xs text-slate-700 dark:text-slate-400 font-medium">Multi-page print-ready executive summary. Includes complete housing portfolio, financial outlay, and exception matrix.</span>
             <button 
               onClick={handlePrint}
               className="bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 py-2 rounded-lg text-xs flex items-center gap-2 transition shadow-sm cursor-pointer"
@@ -595,12 +595,12 @@ export default function ReportsView({
           </div>
 
           {/* Letter styled layout */}
-          <div className="bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 p-8 sm:p-10 rounded-2xl max-w-4xl mx-auto shadow-xl space-y-6 print:bg-white print:text-slate-950 print:border-none print:shadow-none print:p-0 print:max-w-none print:w-full print:m-0 print:space-y-8">
+          <div className="bg-white dark:bg-[#070b14] border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-200 p-8 sm:p-10 rounded-2xl max-w-4xl mx-auto shadow-md space-y-6 print:bg-white print:text-slate-950 print:border-none print:shadow-none print:p-0 print:max-w-none print:w-full print:m-0 print:space-y-8">
             
             {/* Report Header */}
-            <div className="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 print:border-slate-400 pb-5">
+            <div className="flex justify-between items-start border-b border-slate-300 dark:border-slate-800 print:border-slate-400 pb-5">
               <div className="space-y-1.5">
-                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-widest bg-amber-100 dark:bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-300 dark:border-amber-500/20 w-max">
+                <div className="text-[10px] text-amber-800 dark:text-amber-400 font-bold uppercase tracking-widest bg-amber-100 dark:bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-400 dark:border-amber-500/20 w-max">
                   FHA STRICTLY CONFIDENTIAL
                 </div>
                 <h1 className="text-xl font-bold text-slate-900 dark:text-white print:text-black font-serif" style={{ fontFamily: 'Georgia, serif' }}>FEDERAL HOUSING AUTHORITY OF NIGERIA</h1>
@@ -610,12 +610,12 @@ export default function ReportsView({
               <div className="text-right text-xs">
                 <div className="font-bold text-slate-900 dark:text-white print:text-black uppercase tracking-wide">Weekly Delivery Summary</div>
                 <div className="text-slate-600 dark:text-slate-400 print:text-slate-700 mt-1">Date: {new Date().toLocaleDateString('en-NG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                <div className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-0.5">Report Reference: FHA-REP-W34</div>
+                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold mt-0.5">Report Reference: FHA-REP-W34</div>
               </div>
             </div>
 
             {/* Executive Memorandum Header */}
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-black/40 print:bg-slate-100 p-4 rounded-xl border border-slate-200 dark:border-white/5 print:border-slate-300 text-xs text-slate-700 dark:text-slate-300 print:text-slate-900">
+            <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-black/40 print:bg-slate-100 p-4 rounded-xl border border-slate-300 dark:border-white/10 print:border-slate-300 text-xs text-slate-800 dark:text-slate-300 print:text-slate-900">
               <div className="space-y-1">
                 <div>TO: <strong className="text-slate-900 dark:text-white print:text-black">Managing Director & CEO, FHA</strong></div>
                 <div>FROM: <strong className="text-slate-900 dark:text-white print:text-black">Directorate of Housing Delivery & PM</strong></div>
@@ -627,8 +627,8 @@ export default function ReportsView({
             </div>
 
             {/* Memorandum Body */}
-            <div className="space-y-4 text-xs leading-relaxed text-slate-700 dark:text-slate-300 print:text-slate-900 report-page-block">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-white/5 print:border-slate-300 pb-1 flex items-center gap-1.5 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+            <div className="space-y-4 text-xs leading-relaxed text-slate-800 dark:text-slate-300 print:text-slate-900 report-page-block">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-300 dark:border-white/10 print:border-slate-300 pb-1 flex items-center gap-1.5 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 <Sparkles className="w-4 h-4 text-amber-500" />
                 <span>1. Strategic Executive Summary</span>
               </h3>
@@ -642,34 +642,34 @@ export default function ReportsView({
 
             {/* KPIs Grid in PDF */}
             <div className="grid grid-cols-4 gap-3 text-center report-page-block">
-              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-200 dark:border-white/5 print:border-slate-300 print:bg-slate-50">
-                <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Total Housing Units</div>
+              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-300 dark:border-white/10 print:border-slate-300 print:bg-slate-50">
+                <div className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-wider">Total Housing Units</div>
                 <div className="text-base font-extrabold text-slate-900 dark:text-white print:text-black mt-1 font-mono">{totalHouses}</div>
               </div>
-              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-200 dark:border-white/5 print:border-slate-300 print:bg-slate-50">
-                <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Units Completed</div>
-                <div className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 print:text-emerald-700 mt-1 font-mono">{completedHouses}</div>
+              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-300 dark:border-white/10 print:border-slate-300 print:bg-slate-50">
+                <div className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-wider">Units Completed</div>
+                <div className="text-base font-extrabold text-emerald-700 dark:text-emerald-400 print:text-emerald-700 mt-1 font-mono">{completedHouses}</div>
               </div>
-              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-200 dark:border-white/5 print:border-slate-300 print:bg-slate-50">
-                <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Capital Spent</div>
+              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-300 dark:border-white/10 print:border-slate-300 print:bg-slate-50">
+                <div className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-wider">Capital Spent</div>
                 <div className="text-base font-extrabold text-slate-900 dark:text-white print:text-black mt-1 font-mono">{formatNaira(totalSpent)}</div>
               </div>
-              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-200 dark:border-white/5 print:border-slate-300 print:bg-slate-50">
-                <div className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Under Construction</div>
-                <div className="text-base font-extrabold text-amber-600 dark:text-amber-400 print:text-amber-700 mt-1 font-mono">{inProgressHouses}</div>
+              <div className="bg-slate-50 dark:bg-black/40 p-3 rounded-lg border border-slate-300 dark:border-white/10 print:border-slate-300 print:bg-slate-50">
+                <div className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-wider">Under Construction</div>
+                <div className="text-base font-extrabold text-amber-700 dark:text-amber-400 print:text-amber-700 mt-1 font-mono">{inProgressHouses}</div>
               </div>
             </div>
 
             {/* Estates Inventory table */}
             <div className="space-y-2.5 report-page-block">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-white/5 print:border-slate-300 pb-1 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-300 dark:border-white/10 print:border-slate-300 pb-1 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 2. Housing Estates Status Audit
               </h3>
               
               <div className="overflow-x-auto print:overflow-visible">
                 <table className="w-full text-left text-2xs border-collapse">
                   <thead>
-                    <tr className="bg-slate-100 dark:bg-black/40 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-300 dark:border-white/10 print:bg-slate-100 print:text-slate-900 print:border-slate-300 uppercase tracking-widest text-[9px]">
+                    <tr className="bg-slate-100 dark:bg-black/40 text-slate-800 dark:text-slate-300 font-bold border-b border-slate-300 dark:border-white/10 print:bg-slate-100 print:text-slate-900 print:border-slate-300 uppercase tracking-widest text-[9px]">
                       <th className="p-2">Estate Name</th>
                       <th className="p-2">State</th>
                       <th className="p-2">Typology</th>
@@ -679,14 +679,14 @@ export default function ReportsView({
                       <th className="p-2">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-white/5 print:divide-slate-200">
+                  <tbody className="divide-y divide-slate-200 dark:divide-white/5 print:divide-slate-200">
                     {projects.map(p => (
-                      <tr key={p.id} className="text-slate-700 dark:text-slate-300 print:text-slate-900 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                      <tr key={p.id} className="text-slate-800 dark:text-slate-300 print:text-slate-900 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                         <td className="p-2 font-bold text-slate-900 dark:text-white print:text-black">{p.estateName}</td>
                         <td className="p-2">{p.state}</td>
                         <td className="p-2">{p.houseType}</td>
                         <td className="p-2 text-right font-mono font-medium">{p.houseCount}</td>
-                        <td className="p-2 text-right font-mono font-bold text-amber-600 dark:text-amber-400 print:text-emerald-700">{p.progress}%</td>
+                        <td className="p-2 text-right font-mono font-bold text-amber-700 dark:text-amber-400 print:text-emerald-700">{p.progress}%</td>
                         <td className="p-2 truncate max-w-[120px]">{p.contractorName}</td>
                         <td className="p-2">
                           <span className={`font-extrabold uppercase text-[10px] px-1.5 py-0.5 rounded ${
@@ -704,24 +704,24 @@ export default function ReportsView({
 
             {/* Strategic Risks & Interventions Matrix */}
             <div className="space-y-3 report-page-block">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-white/5 print:border-slate-300 pb-1 flex items-center gap-1.5 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-300 dark:border-white/10 print:border-slate-300 pb-1 flex items-center gap-1.5 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
                 <AlertTriangle className="w-4 h-4 text-amber-500" />
                 <span>3. Critical Exception & Risk Matrix</span>
               </h3>
 
               <div className="space-y-2">
                 {activeRisks.map(risk => (
-                  <div key={risk.id} className="p-3 rounded-lg bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/5 print:bg-slate-50 print:border-slate-300 grid grid-cols-1 md:grid-cols-4 gap-3 text-2xs">
-                    <div className="md:col-span-1 border-r border-slate-200 dark:border-white/10 print:border-slate-300 pr-2">
+                  <div key={risk.id} className="p-3 rounded-lg bg-slate-50 dark:bg-black/40 border border-slate-300 dark:border-white/10 print:bg-slate-50 print:border-slate-300 grid grid-cols-1 md:grid-cols-4 gap-3 text-2xs">
+                    <div className="md:col-span-1 border-r border-slate-300 dark:border-white/10 print:border-slate-300 pr-2">
                       <div className="font-extrabold text-rose-700 dark:text-rose-400 uppercase tracking-wider">{risk.severity} Severity</div>
-                      <div className="text-[10px] text-slate-500 mt-1 font-medium">Project: {risk.projectName}</div>
+                      <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-1 font-medium">Project: {risk.projectName}</div>
                     </div>
                     <div className="md:col-span-2">
                       <div className="font-bold text-slate-900 dark:text-white print:text-black">{risk.title}</div>
-                      <p className="text-slate-600 dark:text-slate-400 print:text-slate-700 mt-1">{risk.details}</p>
+                      <p className="text-slate-700 dark:text-slate-400 print:text-slate-700 mt-1">{risk.details}</p>
                     </div>
                     <div className="md:col-span-1 flex flex-col justify-between">
-                      <div className="text-[10px] text-slate-500">Target Mitigation:</div>
+                      <div className="text-[10px] text-slate-600 dark:text-slate-400">Target Mitigation:</div>
                       <div className="font-bold text-emerald-700 dark:text-emerald-400 print:text-emerald-700 mt-1">Executive Inquiry Formulated</div>
                     </div>
                   </div>
@@ -730,14 +730,14 @@ export default function ReportsView({
             </div>
 
             {/* Signatures Footer */}
-            <div className="grid grid-cols-2 gap-12 pt-10 text-center text-2xs border-t border-slate-200 dark:border-white/10 print:border-slate-300 report-page-block">
+            <div className="grid grid-cols-2 gap-12 pt-10 text-center text-2xs border-t border-slate-300 dark:border-white/10 print:border-slate-300 report-page-block">
               <div className="space-y-1 border-t border-slate-300 dark:border-white/10 print:border-slate-400 pt-2 max-w-[200px] mx-auto">
-                <div className="font-bold text-slate-800 dark:text-slate-200 print:text-black">Director of Project Delivery</div>
-                <div className="text-[10px] text-slate-500">Federal Housing Authority, Abuja</div>
+                <div className="font-bold text-slate-900 dark:text-slate-200 print:text-black">Director of Project Delivery</div>
+                <div className="text-[10px] text-slate-600 dark:text-slate-400">Federal Housing Authority, Abuja</div>
               </div>
               <div className="space-y-1 border-t border-slate-300 dark:border-white/10 print:border-slate-400 pt-2 max-w-[200px] mx-auto">
-                <div className="font-bold text-slate-800 dark:text-slate-200 print:text-black">Managing Director & CEO</div>
-                <div className="text-[10px] text-slate-500">Executive Endorsement Seal</div>
+                <div className="font-bold text-slate-900 dark:text-slate-200 print:text-black">Managing Director & CEO</div>
+                <div className="text-[10px] text-slate-600 dark:text-slate-400">Executive Endorsement Seal</div>
               </div>
             </div>
 
@@ -748,33 +748,33 @@ export default function ReportsView({
       {/* POWERPOINT 16:9 PRESENTATION BRIEF SLIDESHOW PREVIEW */}
       {reportFormat === 'ppt' && (
         <div className="space-y-4 print:hidden">
-          <div className="flex items-center justify-between bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-3 rounded-xl">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium font-sans">PowerPoint Slide deck preview for board presentation briefings.</span>
+          <div className="flex items-center justify-between bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 px-5 py-3 rounded-xl">
+            <span className="text-xs text-slate-700 dark:text-slate-400 font-medium font-sans">PowerPoint Slide deck preview for board presentation briefings.</span>
             
             <div className="flex items-center gap-3">
               <button
                 onClick={downloadPPT}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-md shadow-emerald-900/10 active:scale-95"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-sm active:scale-95"
               >
                 <Download className="w-4 h-4 text-emerald-100" />
                 <span>Download .PPTX File</span>
               </button>
 
-              <div className="h-4 w-px bg-white/10" />
+              <div className="h-4 w-px bg-slate-300 dark:bg-white/10" />
 
               <div className="flex items-center gap-1.5">
                 <button 
                   onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
                   disabled={activeSlide === 0}
-                  className="bg-black/50 hover:bg-white/5 border border-white/10 px-2.5 py-1 rounded-md text-xs font-bold text-white disabled:opacity-50 transition cursor-pointer"
+                  className="bg-slate-200 dark:bg-black/50 hover:bg-slate-300 dark:hover:bg-white/5 border border-slate-300 dark:border-white/10 px-2.5 py-1 rounded-md text-xs font-bold text-slate-800 dark:text-white disabled:opacity-50 transition cursor-pointer"
                 >
                   &larr; Prev
                 </button>
-                <span className="text-xs text-slate-300 font-bold px-2">{activeSlide + 1} / {slides.length}</span>
+                <span className="text-xs text-slate-800 dark:text-slate-300 font-bold px-2">{activeSlide + 1} / {slides.length}</span>
                 <button 
                   onClick={() => setActiveSlide(prev => Math.min(slides.length - 1, prev + 1))}
                   disabled={activeSlide === slides.length - 1}
-                  className="bg-black/50 hover:bg-white/5 border border-white/10 px-2.5 py-1 rounded-md text-xs font-bold text-white disabled:opacity-50 transition cursor-pointer"
+                  className="bg-slate-200 dark:bg-black/50 hover:bg-slate-300 dark:hover:bg-white/5 border border-slate-300 dark:border-white/10 px-2.5 py-1 rounded-md text-xs font-bold text-slate-800 dark:text-white disabled:opacity-50 transition cursor-pointer"
                 >
                   Next &rarr;
                 </button>
