@@ -1,6 +1,6 @@
 {
   "name": "FHA Project Delivery & Executive Monitoring Platform",
-  "description": "An executive dashboard and project tracking platform for nationwide construction projects, contractor onboarding, progress reporting, and AI-powered insights.",
+  "description": "An executive dashboard and project tracking platform for nationwide construction projects, contractor onboarding, progress reporting, and AI-powered insights with reports",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
