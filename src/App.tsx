@@ -28,7 +28,8 @@ import {
   Grid,
   Sun,
   Moon,
-  Menu
+  Menu,
+  LogOut
 } from 'lucide-react';
 
 export default function App() {
@@ -70,26 +71,60 @@ export default function App() {
   });
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    // If the user explicitly logged out, keep them logged out
+    const isLoggedOut = localStorage.getItem('nhdp_logged_out') === 'true';
+    if (isLoggedOut) return null;
+
     const cached = localStorage.getItem('nhdp_user');
-    if (!cached) return null;
-    try {
-      const user = JSON.parse(cached);
-      if (user.role === 'PM' && (!user.name.includes('Ahmed Abdul'))) {
-        user.name = "Ahmed Abdul (PM)";
-        user.email = "a.abdul@fha.gov.ng";
-        localStorage.setItem('nhdp_user', JSON.stringify(user));
-      } else if (user.role === 'RE' && (!user.name.includes('Adebisi Olamide'))) {
-        user.name = "Adebisi Olamide (RE)";
-        user.email = "a.olamide@fha.gov.ng";
-        localStorage.setItem('nhdp_user', JSON.stringify(user));
+    if (cached) {
+      try {
+        const user = JSON.parse(cached);
+        if (user && user.role) {
+          if (user.role === 'PM' && (!user.name.includes('Ahmed Abdul'))) {
+            user.name = "Ahmed Abdul (PM)";
+            user.email = "a.abdul@fha.gov.ng";
+          } else if (user.role === 'RE' && (!user.name.includes('Adebisi Olamide'))) {
+            user.name = "Adebisi Olamide (RE)";
+            user.email = "a.olamide@fha.gov.ng";
+          }
+          localStorage.setItem('nhdp_user', JSON.stringify(user));
+          return user;
+        }
+      } catch {
+        // Fallback to default user
       }
-      return user;
-    } catch {
-      return null;
     }
+
+    // Default persistent profile if not explicitly logged out
+    const defaultUser = fallbackDb.getUsers()[0] || {
+      name: "Hon. Oyetunde Oladimeji Ojo (MD)",
+      username: "MD",
+      role: "MD",
+      email: "O.Ojo@fha.gov.ng"
+    };
+    localStorage.setItem('nhdp_user', JSON.stringify(defaultUser));
+    return defaultUser;
   });
+
+  // Keep localStorage always in sync whenever currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('nhdp_user', JSON.stringify(currentUser));
+      localStorage.removeItem('nhdp_logged_out');
+    }
+  }, [currentUser]);
+
   const [users, setUsers] = useState<User[]>([]);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('nhdp_active_tab') || 'dashboard';
+  });
+
+  useEffect(() => {
+    if (activeTab) {
+      localStorage.setItem('nhdp_active_tab', activeTab);
+    }
+  }, [activeTab]);
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [contractors, setContractors] = useState<Contractor[]>([]);
   const [valuations, setValuations] = useState<ValuationRequest[]>([]);
@@ -175,6 +210,7 @@ export default function App() {
   }, [currentUser]);
 
   const handleLogin = async (username: string, password: string) => {
+    localStorage.removeItem('nhdp_logged_out');
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
@@ -186,6 +222,7 @@ export default function App() {
         if (data.success && data.user) {
           setCurrentUser(data.user);
           localStorage.setItem('nhdp_user', JSON.stringify(data.user));
+          localStorage.removeItem('nhdp_logged_out');
           if (data.token) {
             localStorage.setItem('nhdp_token', data.token);
           }
@@ -209,6 +246,7 @@ export default function App() {
       }
       setCurrentUser(matched);
       localStorage.setItem('nhdp_user', JSON.stringify(matched));
+      localStorage.removeItem('nhdp_logged_out');
       return { success: true };
     }
     return { success: false, error: 'Invalid credentials (Fallback Mode)' };
@@ -218,6 +256,7 @@ export default function App() {
     setCurrentUser(null);
     localStorage.removeItem('nhdp_user');
     localStorage.removeItem('nhdp_token');
+    localStorage.setItem('nhdp_logged_out', 'true');
     setActiveTab('dashboard');
   };
 
@@ -653,12 +692,6 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Real-time telemetry connection status */}
-            <div className="hidden sm:flex items-center gap-2 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/10 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="tracking-widest uppercase">SYSTEM SECURE</span>
-            </div>
-
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
@@ -675,6 +708,16 @@ export default function App() {
               className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg border border-slate-300 dark:border-white/10 transition cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
+            </button>
+
+            {/* Header Log Out Button */}
+            <button
+              onClick={handleLogout}
+              title={`Log Out (${currentUser.name})`}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40 rounded-lg text-xs font-semibold transition cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Log Out</span>
             </button>
           </div>
         </header>

@@ -135,7 +135,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
           <div className="flex items-center justify-between pb-5 border-b border-slate-200 dark:border-white/10 mb-6">
             <div>
               <h2 className="text-lg font-serif text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
-                Secure Portal Access
+                Portal Access
               </h2>
               <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">Please provide your authorized credentials.</p>
             </div>
@@ -198,7 +198,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
               disabled={isSubmitting}
               className="w-full py-3 bg-emerald-700 hover:bg-emerald-600 disabled:bg-emerald-700/50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-700/20 flex items-center justify-center gap-2 font-serif cursor-pointer"
             >
-              <span>{isSubmitting ? 'Verifying Credentials...' : 'Establish Secure Connection'}</span>
+              <span>{isSubmitting ? 'Verifying Credentials...' : 'Sign In to Portal'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>

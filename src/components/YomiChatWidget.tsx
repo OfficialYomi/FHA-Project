@@ -20,7 +20,7 @@ import {
   HardHat
 } from 'lucide-react';
 import { Project, User } from '../types';
-import { queryYomiLocalIntelligence } from '../utils/yomiLocalEngine';
+import { queryYomiLocalIntelligence, stripRedundantGreeting } from '../utils/yomiLocalEngine';
 import { fallbackDb } from '../fallbackDb';
 import FormattedChatResponse from './FormattedChatResponse';
 
@@ -139,58 +139,60 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          message: textToSend.trim(),
-          userRole: currentUser.role,
-          username: currentUser.username,
-          userName: currentUser.name,
-          selectedProjectId: selectedProjectId !== 'ALL' ? selectedProjectId : undefined
-        })
-      });
+      let receivedReply: string | null = null;
+      let replySource: string = 'gemini';
 
-      if (response.ok) {
-        const data = await response.json();
-        const assistantMessage: Message = {
-          id: `ast-${Date.now()}`,
-          role: 'assistant',
-          content: data.reply || "I have analyzed the database records for your query.",
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          source: data.source || 'fha-neural-engine'
-        };
-        setMessages(prev => [...prev, assistantMessage]);
-        return;
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            message: textToSend.trim(),
+            userRole: currentUser.role,
+            username: currentUser.username,
+            userName: currentUser.name,
+            selectedProjectId: selectedProjectId !== 'ALL' ? selectedProjectId : undefined
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.reply) {
+            receivedReply = stripRedundantGreeting(data.reply);
+            replySource = data.source || 'gemini';
+          }
+        }
+      } catch (err: any) {
+        console.warn("Server endpoint unreachable, engaging local engine:", err);
       }
-    } catch (err: any) {
-      console.warn("Server endpoint unreachable or static hosting detected. Engaging autonomous telemetry engine:", err);
-    }
 
-    // Zero-downtime autonomous intelligence fallback (prevents 405 error on GitHub Pages or server disconnects)
-    try {
-      const localReply = queryYomiLocalIntelligence(
-        textToSend.trim(),
-        currentUser.role,
-        currentUser.username,
-        selectedProjectId !== 'ALL' ? selectedProjectId : undefined,
-        projects,
-        fallbackDb.getValuations(),
-        fallbackDb.getContractors(),
-        fallbackDb.getAlerts(),
-        fallbackDb.getScorecards()
-      );
+      if (!receivedReply) {
+        // Zero-downtime autonomous intelligence fallback
+        const localReply = queryYomiLocalIntelligence(
+          textToSend.trim(),
+          currentUser.role,
+          currentUser.username,
+          selectedProjectId !== 'ALL' ? selectedProjectId : undefined,
+          projects,
+          fallbackDb.getValuations(),
+          fallbackDb.getContractors(),
+          fallbackDb.getAlerts(),
+          fallbackDb.getScorecards()
+        );
+        receivedReply = stripRedundantGreeting(localReply);
+        replySource = 'fha-telemetry-engine';
+      }
 
       const assistantMessage: Message = {
         id: `ast-${Date.now()}`,
         role: 'assistant',
-        content: localReply,
+        content: receivedReply,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        source: 'fha-telemetry-engine'
+        source: replySource
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (localErr: any) {
-      console.error("Local intelligence fallback error:", localErr);
+      console.error("Local intelligence error:", localErr);
       const fallbackMsg: Message = {
         id: `ast-${Date.now()}`,
         role: 'assistant',
@@ -293,7 +295,7 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
   return (
     <>
       {/* 1. FLOATING BLINKING GREEN TRIGGER ICON (BOTTOM RIGHT) */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 print:hidden select-none">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-2 print:hidden select-none">
         <AnimatePresence>
           {!isOpen && (
             <motion.div
@@ -302,27 +304,27 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
               exit={{ opacity: 0, y: 10, scale: 0.9 }}
               className="flex items-center gap-2"
             >
-              {/* Floating trigger button */}
+              {/* Floating trigger button: Compact blinking icon on mobile, full pill on desktop */}
               <button
                 id="yomi-floating-trigger"
                 onClick={() => setIsOpen(true)}
-                className="group relative flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white rounded-full shadow-xl shadow-emerald-950/30 border border-emerald-400/40 cursor-pointer transition-all duration-300 hover:shadow-emerald-500/25 hover:scale-105 active:scale-95"
+                className="group relative flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white rounded-full shadow-xl shadow-emerald-950/30 border border-emerald-400/40 cursor-pointer transition-all duration-300 hover:shadow-emerald-500/25 hover:scale-105 active:scale-95"
                 title="Open Yomi - Executive AI Project Assistant"
                 aria-label="Open Yomi AI Assistant"
               >
                 {/* Blinking / pulsing radar indicator beacon */}
-                <span className="relative flex h-3.5 w-3.5 shrink-0">
+                <span className="relative flex h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-80" />
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-200 shadow-sm border border-white" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 bg-emerald-200 shadow-sm border border-white" />
                 </span>
 
                 {/* Brain/Bot Icon in green ring */}
-                <div className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
-                  <Bot className="w-4 h-4 text-white" />
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/15 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform ml-1 sm:ml-2">
+                  <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                 </div>
 
-                {/* Label and Badge */}
-                <div className="flex flex-col text-left pr-1">
+                {/* Label and Badge (hidden on mobile, visible on desktop) */}
+                <div className="hidden sm:flex flex-col text-left pr-1 ml-2">
                   <div className="flex items-center gap-1.5 leading-none">
                     <span className="font-bold text-sm tracking-tight text-white font-serif">Yomi</span>
                     <span className="text-[9px] bg-white/20 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider">AI</span>
@@ -343,12 +345,12 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 28 }}
-              className="w-[430px] max-w-[calc(100vw-2rem)] h-[620px] max-h-[calc(100vh-5rem)] bg-white dark:bg-[#0c0f12] border border-slate-300 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 backdrop-blur-xl"
+              className="w-[430px] max-w-[calc(100vw-1.5rem)] sm:max-w-[calc(100vw-2rem)] h-[620px] max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-5rem)] bg-white dark:bg-[#0c0f12] border border-slate-300 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 backdrop-blur-xl"
             >
               {/* Header Bar */}
               <div className="p-3.5 bg-gradient-to-r from-emerald-700 via-emerald-800 to-teal-900 text-white flex items-center justify-between border-b border-emerald-600/40 shrink-0">
-                <div className="flex items-center gap-2.5">
-                  <div className="relative">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="relative shrink-0">
                     <div className="w-9 h-9 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white shadow-inner">
                       <Bot className="w-5 h-5" />
                     </div>
@@ -359,20 +361,20 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                     </span>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <h3 className="font-serif font-bold text-sm text-white tracking-tight">Yomi</h3>
-                      <span className="text-[9px] bg-emerald-500/40 text-emerald-100 border border-emerald-300/30 px-1.5 py-0.2 rounded font-mono font-semibold">
+                      <span className="text-[9px] bg-emerald-500/40 text-emerald-100 border border-emerald-300/30 px-1.5 py-0.2 rounded font-mono font-semibold shrink-0">
                         LIVE DB
                       </span>
                     </div>
-                    <p className="text-[10px] text-emerald-100 tracking-tight truncate max-w-[220px]">
-                      Executive AI Assistant
+                    <p className="text-[10px] text-emerald-100 tracking-tight truncate max-w-[120px] sm:max-w-[200px]">
+                      {currentUser?.name || 'Executive AI Assistant'}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={handleResetChat}
                     title="Clear Conversation"
@@ -508,9 +510,12 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
 
               {/* Suggestions Pills (Role-Tailored) */}
               <div className="px-3 py-2 bg-slate-50 dark:bg-[#0c0f12] border-t border-slate-300 dark:border-white/10 shrink-0">
-                <div className="text-[10px] text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                  <span>Tactical Inquiries</span>
+                <div className="text-[10px] text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                    <span>Tactical Inquiries</span>
+                  </div>
+                  <span className="text-[9px] font-normal text-slate-400 dark:text-slate-500 lowercase">slide →</span>
                 </div>
                 <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
                   {getSuggestions().map((s, idx) => (
@@ -518,7 +523,7 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                       key={idx}
                       onClick={() => handleSend(s.query)}
                       disabled={isLoading}
-                      className="shrink-0 bg-white dark:bg-[#161c22] hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-300 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-700 rounded-full px-2.5 py-1 text-[11px] font-medium transition disabled:opacity-50 cursor-pointer shadow-xs"
+                      className="shrink-0 whitespace-nowrap bg-white dark:bg-[#161c22] hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-300 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-700 rounded-full px-2.5 py-1 text-[11px] font-medium transition disabled:opacity-50 cursor-pointer shadow-xs"
                     >
                       {s.label}
                     </button>

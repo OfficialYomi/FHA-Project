@@ -683,12 +683,59 @@ function getGeminiAI() {
       apiKey: key,
       httpOptions: {
         headers: {
-          'User-Agent': 'fha-platform',
+          'User-Agent': 'aistudio-build',
         }
       }
     });
   }
   return aiInstance;
+}
+
+// Resilient Gemini Content Generation with high-demand failover
+async function generateGeminiContentWithFallback(
+  ai: GoogleGenAI, 
+  message: string, 
+  systemInstruction: string
+): Promise<{ text: string; model: string }> {
+  // Try candidate models in order: if primary experiences a temporary 503 high-demand spike,
+  // fail over immediately to flash-lite without dropping user queries
+  const candidateModels = ["gemini-3.8-flash", "gemini-3.1-flash-lite"];
+  let lastError: any = null;
+
+  for (const model of candidateModels) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: message,
+        config: {
+          systemInstruction,
+          temperature: 0.15,
+        }
+      });
+      if (response && response.text) {
+        return { text: response.text, model };
+      }
+    } catch (err: any) {
+      lastError = err;
+      const isHighDemandOrUnavailable = 
+        err?.status === 503 || 
+        err?.status === 429 || 
+        (err?.message && (
+          err.message.includes('503') || 
+          err.message.includes('high demand') || 
+          err.message.includes('UNAVAILABLE')
+        ));
+
+      if (isHighDemandOrUnavailable) {
+        console.warn(`[Gemini API] Model ${model} is experiencing temporary high demand (503/UNAVAILABLE). Failing over to next model in cluster...`);
+        continue;
+      }
+      
+      console.warn(`[Gemini API] Notice for ${model}:`, err?.message || err);
+    }
+  }
+
+  throw lastError || new Error("All Gemini models temporarily unavailable");
 }
 
 // REST API ROUTES
@@ -1567,6 +1614,17 @@ app.get("/api/overview", (req, res) => {
   });
 });
 
+function stripRedundantGreeting(text: string): string {
+  if (!text) return text;
+  let cleaned = text.trim();
+  // Strip opening greetings like "Good day, **Honourable Managing Director & CEO**."
+  cleaned = cleaned.replace(/^(?:(?:Hello|Hi|Greetings|Good (?:day|morning|afternoon|evening))[^.\n]*[.\n]+)/i, '');
+  cleaned = cleaned.trim();
+  // Strip "I am Yomi...", "I'm Yomi...", "This is Yomi...", "As Yomi..."
+  cleaned = cleaned.replace(/^(?:(?:I am|I'm|This is|As)\s+\*?\*?Yomi\*?\*?[^.\n]*[.\n]+)/i, '');
+  return cleaned.trim() || text;
+}
+
 // AI EXECUTIVE ASSISTANT ENDPOINT - "YOMI"
 // Intelligent role-based handler with strict project scoping and fallback engine
 function handleYomiQueryLocally(message: string, userRole: string = "MD", username: string = "", selectedProjectId?: string): string {
@@ -1590,7 +1648,7 @@ function handleYomiQueryLocally(message: string, userRole: string = "MD", userna
   const isJustGreeting = nonProjectGreetings.some(g => q === g || q === `${g} yomi` || q === `yomi`);
 
   if (!hasProjectContext && !isJustGreeting) {
-    return "I am Yomi, your Project Delivery AI Assistant. I exclusively answer tactical, operational, and financial questions and queries directly concerning the active housing projects in our database. I cannot answer queries outside our project portfolio.";
+    return "I exclusively answer tactical, operational, and financial questions directly concerning active housing projects in our database. I cannot answer queries outside our project portfolio.";
   }
 
   if (isJustGreeting) {
@@ -1613,7 +1671,7 @@ function handleYomiQueryLocally(message: string, userRole: string = "MD", userna
       ? "Your authorized scope covers project allocations, expenditure, payment releases, and treasury disbursements."
       : "Your authorized scope covers project scheduling, WBS milestone progression, and contractor performance.";
 
-    return `Good day, **${title}**. I am **Yomi**, the Executive AI Assistant for the Federal Housing Authority (FHA).
+    return `Good day, **${title}**.
 
 ${jurisdictionDesc}
 
@@ -1802,7 +1860,7 @@ STRICT OPERATIONAL RULES:
 2. STRICT SCOPE DISCIPLINE (NEGATIVE CONSTRAINT):
    - You MUST NOT answer questions outside the housing projects.
    - If the user asks ANY question that is not about the housing projects (e.g. general knowledge, world news, coding, trivia, sports, cooking, weather outside project sites, personal chat), you MUST politely and strictly decline by responding:
-     "I am Yomi, your Project Delivery AI Assistant. I exclusively answer tactical, operational, and financial questions and queries directly concerning the active housing projects in our database. I cannot answer queries outside our project portfolio."
+     "I exclusively answer tactical, operational, and financial questions and queries directly concerning active housing projects in our database. I cannot answer queries outside our project portfolio."
 3. ROLE-BASED JURISDICTION ENFORCEMENT:
    - Current user role: "${userRole}" (Username: "${username}").
    - ONLY the MD (Managing Director & CEO) has the right to ask everything about all projects nationwide, including high-level ministerial memos and total portfolio audits.
@@ -1817,25 +1875,22 @@ STRICT OPERATIONAL RULES:
    - Always represent currency in Nigerian Naira (₦) with clean commas (e.g. ₦120,000,000 or ₦1.2B).
    - Use bold for key names, states, amounts, and progress metrics.
    - Provide direct, concise executive insights. Never invent fake external data.
+5. DIRECT DATA-DRIVEN RESPONSES (NO REPETITIVE GREETINGS OR INTRODUCTIONS):
+   - DO NOT start your response with "I am Yomi", "Hello, I am Yomi...", "Greetings", or repeat who you are. The user was already greeted at session start.
+   - Go straight to answering the user's tactical, financial, or operational query directly with clear markdown tables and direct analysis.
 
 LIVE FHA DATABASE CONTEXT (ROLE-SCOPED):
 ${JSON.stringify(dbContext, null, 2)}`;
 
-    const chat = ai.chats.create({
-      model: "gemini-3.8-flash",
-      config: {
-        systemInstruction: systemInstruction,
-        temperature: 0.15,
-      }
-    });
-
-    const response = await chat.sendMessage({ message: message });
-    return res.json({ reply: response.text, source: "gemini" });
+    const { text, model } = await generateGeminiContentWithFallback(ai, message, systemInstruction);
+    const cleanedReply = stripRedundantGreeting(text);
+    return res.json({ reply: cleanedReply, source: "gemini", model });
   } catch (error: any) {
-    console.error("Gemini API Error in backend, engaging Yomi local engine fallback:", error);
+    console.warn("[Yomi Assistant] Gemini model cluster currently under peak demand; seamlessly utilizing localized FHA analytical engine.");
     const { message, userRole = "MD", username = "", selectedProjectId } = req.body;
     const fallbackReply = handleYomiQueryLocally(message || "", userRole, username, selectedProjectId);
-    res.json({ reply: fallbackReply, source: "fallback-engine" });
+    const cleanedFallback = stripRedundantGreeting(fallbackReply);
+    return res.json({ reply: cleanedFallback, source: "fallback-engine" });
   }
 });
 

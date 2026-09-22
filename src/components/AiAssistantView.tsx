@@ -12,7 +12,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { Project, User } from '../types';
-import { queryYomiLocalIntelligence } from '../utils/yomiLocalEngine';
+import { queryYomiLocalIntelligence, stripRedundantGreeting } from '../utils/yomiLocalEngine';
 import { fallbackDb } from '../fallbackDb';
 import FormattedChatResponse from './FormattedChatResponse';
 
@@ -140,53 +140,57 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          message: textToSend.trim(),
-          userRole: role,
-          username: currentUser?.username || 'MD',
-          userName: currentUser?.name
-        })
-      });
+      let receivedReply: string | null = null;
+      let replySource: string = 'gemini';
 
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(prev => [...prev, { 
-          role: 'assistant', 
-          content: data.reply,
-          source: data.source || 'fha-neural-engine',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }]);
-        return;
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            message: textToSend.trim(),
+            userRole: role,
+            username: currentUser?.username || 'MD',
+            userName: currentUser?.name
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.reply) {
+            receivedReply = stripRedundantGreeting(data.reply);
+            replySource = data.source || 'gemini';
+          }
+        }
+      } catch (networkErr: any) {
+        console.warn("AiAssistantView network error or static hosting detected, engaging local analytics:", networkErr);
       }
-    } catch (error: any) {
-      console.warn("AiAssistantView network error or static hosting detected, engaging local analytics:", error);
-    }
 
-    // Zero-downtime autonomous intelligence fallback
-    try {
-      const localReply = queryYomiLocalIntelligence(
-        textToSend.trim(),
-        role,
-        currentUser?.username || 'MD',
-        undefined,
-        projects,
-        fallbackDb.getValuations(),
-        fallbackDb.getContractors(),
-        fallbackDb.getAlerts(),
-        fallbackDb.getScorecards()
-      );
+      if (!receivedReply) {
+        // Zero-downtime autonomous intelligence fallback
+        const localReply = queryYomiLocalIntelligence(
+          textToSend.trim(),
+          role,
+          currentUser?.username || 'MD',
+          undefined,
+          projects,
+          fallbackDb.getValuations(),
+          fallbackDb.getContractors(),
+          fallbackDb.getAlerts(),
+          fallbackDb.getScorecards()
+        );
+        receivedReply = stripRedundantGreeting(localReply);
+        replySource = 'fha-telemetry-engine';
+      }
 
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: localReply,
-        source: 'fha-telemetry-engine',
+        content: receivedReply!,
+        source: replySource,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }]);
-    } catch (localErr: any) {
-      console.error("Local intelligence fallback error in view:", localErr);
+    } catch (err: any) {
+      console.error("Local intelligence fallback error in view:", err);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: "I have recorded your executive query. All project milestones, financial certificates, and site telemetry remain intact across all active schemes.",
@@ -367,20 +371,25 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
           <div ref={scrollRef} />
         </div>
 
-        {/* Suggested Queries */}
-        <div className="p-3.5 bg-slate-50 dark:bg-[#07090b] border-t border-slate-300 dark:border-white/10 shrink-0 space-y-2">
-          <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Frequent Queries</span>
+        {/* Suggested Queries - Compact Horizontal Straight Line */}
+        <div className="px-4 py-2.5 bg-slate-50 dark:bg-[#07090b] border-t border-slate-300 dark:border-white/10 shrink-0">
+          <div className="flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider mb-1.5">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Frequent Queries</span>
+            </div>
+            <span className="text-[9px] font-normal text-slate-400 dark:text-slate-500 lowercase">
+              slide from left to right to see all →
+            </span>
           </div>
 
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-white/20 select-none">
             {getPromptSuggestions().map((prompt, idx) => (
               <button 
                 key={idx}
                 onClick={() => handleSend(prompt)}
                 disabled={isLoading}
-                className="bg-white dark:bg-[#14191f] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-800 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-300 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-700 rounded-lg px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 text-left cursor-pointer shadow-xs"
+                className="shrink-0 whitespace-nowrap bg-white dark:bg-[#14191f] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-800 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-300 dark:border-white/10 hover:border-emerald-400 dark:hover:border-emerald-700 rounded-full px-3.5 py-1.5 text-xs font-medium transition disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 {prompt}
               </button>

@@ -5,6 +5,17 @@ import { Project, ValuationRequest, Contractor, RiskAlert, ContractorScorecard }
  * Provides resilient, zero-downtime analytics even when hosting on static servers
  * (e.g. GitHub Pages) or when backend endpoints are temporarily unreachable.
  */
+export function stripRedundantGreeting(text: string): string {
+  if (!text) return text;
+  let cleaned = text.trim();
+  // Strip opening greetings like "Good day, **Honourable Managing Director & CEO**."
+  cleaned = cleaned.replace(/^(?:(?:Hello|Hi|Greetings|Good (?:day|morning|afternoon|evening))[^.\n]*[.\n]+)/i, '');
+  cleaned = cleaned.trim();
+  // Strip "I am Yomi...", "I'm Yomi...", "This is Yomi...", "As Yomi..."
+  cleaned = cleaned.replace(/^(?:(?:I am|I'm|This is|As)\s+\*?\*?Yomi\*?\*?[^.\n]*[.\n]+)/i, '');
+  return cleaned.trim() || text;
+}
+
 export function queryYomiLocalIntelligence(
   message: string,
   userRole: string = 'MD',
@@ -37,7 +48,7 @@ export function queryYomiLocalIntelligence(
   const isJustGreeting = nonProjectGreetings.some(g => q === g || q === `${g} yomi` || q === `yomi`);
 
   if (!hasProjectContext && !isJustGreeting) {
-    return "I am Yomi, your Project Delivery AI Assistant. I exclusively answer tactical, operational, and financial questions directly concerning the active housing projects in our database. I cannot answer queries outside our project portfolio.";
+    return "I exclusively answer tactical, operational, and financial questions directly concerning active housing projects in our database. I cannot answer queries outside our project portfolio.";
   }
 
   if (isJustGreeting) {
@@ -60,7 +71,7 @@ export function queryYomiLocalIntelligence(
       ? "Your authorized scope covers project allocations, expenditure, payment releases, and treasury disbursements."
       : "Your authorized scope covers project scheduling, WBS milestone progression, and contractor performance.";
 
-    return `Good day, **${title}**. I am **Yomi**, the Executive AI Assistant for the Federal Housing Authority (FHA).
+    return `Good day, **${title}**.
 
 ${jurisdictionDesc}
 
