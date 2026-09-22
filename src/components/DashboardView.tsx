@@ -24,6 +24,7 @@ import {
   FileText
 } from 'lucide-react';
 import NigeriaMap from './NigeriaMap';
+import GanttTimelineView from './GanttTimelineView';
 
 interface DashboardViewProps {
   projects: Project[];
@@ -544,83 +545,90 @@ export default function DashboardView({
             </div>
           </div>
 
-          {/* MD and PM specific: Estates Directory Portfolio Overview Widget */}
-          {(userRole === 'MD' || userRole === 'PM') && (
-            <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
-                    <Building className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <span>Estate Portfolio Directory Overview</span>
-                  </h4>
-                  <p className="text-slate-600 dark:text-slate-400 text-[10px] mt-0.5">National portfolio grouped by estate developments and consolidated key performance metrics</p>
-                </div>
-                <button
-                  onClick={() => onNavigateToTab('estates')}
-                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-[10px] font-bold flex items-center gap-1.5 transition cursor-pointer"
-                >
-                  <span>Open Directory Tab</span>
-                  <ChevronRight className="w-3 h-3" />
-                </button>
+          {/* Estates Directory Portfolio Overview Widget (Available on All Dashboards) */}
+          <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-6 space-y-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+                  <Building className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <span>Estate Portfolio Directory Overview</span>
+                </h4>
+                <p className="text-slate-600 dark:text-slate-400 text-[10px] mt-0.5">National portfolio grouped by estate developments and consolidated key performance metrics</p>
               </div>
+              <button
+                onClick={() => onNavigateToTab('estates')}
+                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-[10px] font-bold flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <span>Open Directory Tab</span>
+                <ChevronRight className="w-3 h-3" />
+              </button>
+            </div>
 
-              <div className="bg-white dark:bg-[#0c121e] border border-slate-300 dark:border-slate-700/80 rounded-xl overflow-hidden shadow-xs dark:shadow-xl text-slate-800 dark:text-slate-200">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#060911] text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        <th className="py-2.5 px-4">Estate Name</th>
-                        <th className="py-2.5 px-4">State</th>
-                        <th className="py-2.5 px-4 text-center">Contracts</th>
-                        <th className="py-2.5 px-4 text-center">Houses</th>
-                        <th className="py-2.5 px-4">Avg Progress</th>
-                        <th className="py-2.5 px-4 text-right">Total Budget</th>
-                        <th className="py-2.5 px-4 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-xs text-slate-700 dark:text-slate-200">
-                      {dashboardEstates.map((est) => (
-                        <tr 
-                          key={est.name} 
-                          onClick={() => onNavigateToTab('estates')}
-                          className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition"
-                        >
-                          <td className="py-3 px-4 font-bold text-slate-900 dark:text-white font-serif">{est.name}</td>
-                          <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{est.state}</td>
-                          <td className="py-3 px-4 text-center text-slate-900 dark:text-white font-bold">{est.projectsCount}</td>
-                          <td className="py-3 px-4 text-center text-slate-900 dark:text-white font-semibold">{est.totalHouses} Units</td>
-                          <td className="py-3 px-4 min-w-[120px]">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-slate-900 dark:text-white text-[10px] w-8">{est.avgProgress}%</span>
-                              <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden max-w-[80px]">
-                                <div 
-                                  className={`h-full ${
-                                    est.status === 'Delayed' ? 'bg-rose-500' : est.status === 'Needs Attention' ? 'bg-amber-500' : est.status === 'Completed' ? 'bg-sky-500' : 'bg-emerald-500'
-                                  }`} 
-                                  style={{ width: `${est.avgProgress}%` }} 
-                                />
-                              </div>
+            <div className="bg-white dark:bg-[#0c121e] border border-slate-300 dark:border-slate-700/80 rounded-xl overflow-hidden shadow-xs dark:shadow-xl text-slate-800 dark:text-slate-200">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#060911] text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="py-2.5 px-4">Estate Name</th>
+                      <th className="py-2.5 px-4">State</th>
+                      <th className="py-2.5 px-4 text-center">Contracts</th>
+                      <th className="py-2.5 px-4 text-center">Houses</th>
+                      <th className="py-2.5 px-4">Avg Progress</th>
+                      <th className="py-2.5 px-4 text-right">Total Budget</th>
+                      <th className="py-2.5 px-4 text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-xs text-slate-700 dark:text-slate-200">
+                    {dashboardEstates.map((est) => (
+                      <tr 
+                        key={est.name} 
+                        onClick={() => onNavigateToTab('estates')}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition"
+                      >
+                        <td className="py-3 px-4 font-bold text-slate-900 dark:text-white font-serif">{est.name}</td>
+                        <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{est.state}</td>
+                        <td className="py-3 px-4 text-center text-slate-900 dark:text-white font-bold">{est.projectsCount}</td>
+                        <td className="py-3 px-4 text-center text-slate-900 dark:text-white font-semibold">{est.totalHouses} Units</td>
+                        <td className="py-3 px-4 min-w-[120px]">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900 dark:text-white text-[10px] w-8">{est.avgProgress}%</span>
+                            <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden max-w-[80px]">
+                              <div 
+                                className={`h-full ${
+                                  est.status === 'Delayed' ? 'bg-rose-500' : est.status === 'Needs Attention' ? 'bg-amber-500' : est.status === 'Completed' ? 'bg-sky-500' : 'bg-emerald-500'
+                                }`} 
+                                style={{ width: `${est.avgProgress}%` }} 
+                              />
                             </div>
-                          </td>
-                          <td className="py-3 px-4 text-right font-bold text-amber-700 dark:text-amber-400 text-[11px] font-mono">{formatNaira(est.totalBudget)}</td>
-                          <td className="py-3 px-4 text-center">
-                            <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-bold ${
-                              est.status === 'Completed' ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/40' :
-                              est.status === 'Delayed' ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/40' :
-                              est.status === 'Needs Attention' ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40' :
-                              'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40'
-                            }`}>
-                              {est.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-right font-bold text-amber-700 dark:text-amber-400 text-[11px] font-mono">{formatNaira(est.totalBudget)}</td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-bold ${
+                            est.status === 'Completed' ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/40' :
+                            est.status === 'Delayed' ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/40' :
+                            est.status === 'Needs Attention' ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40' :
+                            'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40'
+                          }`}>
+                            {est.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-          )}
+
+            {/* Program Delivery Gantt & Projected Milestones Visual Timeline (Directly below Estate Portfolio Directory Overview) */}
+            <div className="pt-2">
+              <GanttTimelineView 
+                projects={displayedProjects} 
+                onSelectProject={onSelectProject} 
+                className="bg-slate-50/60 dark:bg-black/40 border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 md:p-5 space-y-5 shadow-xs"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Sidebar Widgets (Photos & Realtime Incidents) */}
