@@ -77,13 +77,13 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
           className="p-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl transition shadow-sm dark:shadow-md cursor-pointer"
         >
-          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#005082]" />}
+          {theme === 'dark' ? <Sun className="w-4 h-4 text-emerald-400" /> : <Moon className="w-4 h-4 text-emerald-700" />}
         </button>
       </div>
 
-      {/* Decorative Golden Ambient Gradients */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-amber-500/[0.03] dark:bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-amber-500/[0.03] dark:bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
+      {/* Decorative Emerald Ambient Gradients */}
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-emerald-500/[0.04] dark:bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] bg-emerald-600/[0.04] dark:bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Main Container */}
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
@@ -94,7 +94,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
             <FhaLogo size={100} showText={true} />
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-widest leading-none mx-auto lg:mx-0">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-widest leading-none mx-auto lg:mx-0">
             <Building className="w-3.5 h-3.5" />
             Federal Republic of Nigeria
           </div>
@@ -102,14 +102,14 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
           <div className="space-y-3 text-center lg:text-left">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white leading-none font-serif" style={{ fontFamily: 'Georgia, serif' }}>
               FEDERAL HOUSING <br />
-              <span className="text-amber-500">AUTHORITY</span>
+              <span className="text-emerald-700 dark:text-emerald-400">AUTHORITY</span>
             </h1>
             <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto lg:mx-0 font-medium leading-relaxed">
               National Housing Delivery Programme (NHDP) Executive Monitoring & Multi-Role Operations Portal.
             </p>
           </div>
 
-          <div className="border-l-2 border-emerald-500/30 pl-4 space-y-1.5 hidden lg:block text-left">
+          <div className="border-l-2 border-emerald-500/40 pl-4 space-y-1.5 hidden lg:block text-left">
             <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Platform Purpose</p>
             <p className="text-[11px] text-slate-500 dark:text-slate-500 leading-relaxed">
               Real-time synchronization of physical site works (WBS), contractor rating metric scorecards, progress valuation claims, on-site telemetry photo validation, and multi-tier executive approval loops.
@@ -122,7 +122,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
               href="https://yonahtech.com" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-amber-500 hover:text-amber-600 dark:text-amber-400 dark:hover:text-amber-300 font-bold hover:underline transition-all"
+              className="text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 font-bold hover:underline transition-all"
             >
               Yonahtech Limited
             </a>
@@ -130,14 +130,14 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
         </div>
 
         {/* Right column: Login Form & Sandbox accounts */}
-        <div className="lg:col-span-7 bg-white dark:bg-black/60 border border-slate-300 dark:border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-xl dark:shadow-2xl relative transition-colors duration-200">
+        <div className="lg:col-span-7 bg-white dark:bg-black/80 border border-slate-300 dark:border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-xl dark:shadow-2xl relative transition-colors duration-200">
           
           <div className="flex items-center justify-between pb-5 border-b border-slate-200 dark:border-white/10 mb-6">
             <div>
               <h2 className="text-lg font-serif text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
                 Secure Portal Access
               </h2>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">Please provide your assigned credential keys.</p>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">Please provide your authorized credentials.</p>
             </div>
             <div className="w-12 h-12 flex items-center justify-center">
               <FhaLogo size={44} showText={false} />
@@ -162,7 +162,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
                   placeholder="e.g. MD"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-black/80 border border-slate-300 dark:border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all shadow-inner font-mono font-bold"
+                  className="w-full bg-slate-50 dark:bg-black/90 border border-slate-300 dark:border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-600 transition-all shadow-inner font-mono font-bold"
                 />
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-[10px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider">Passphrase key</label>
-                <span className="text-[9px] text-slate-600 dark:text-slate-400">All Sandbox passwords: <code className="text-amber-700 dark:text-amber-500/80 font-bold">password@123</code></span>
+                <span className="text-[9px] text-slate-600 dark:text-slate-400">All Sandbox passwords: <code className="text-emerald-700 dark:text-emerald-400 font-bold">password@123</code></span>
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-500 dark:text-slate-500" />
@@ -180,7 +180,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
                   placeholder="••••••••••••"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-black/80 border border-slate-300 dark:border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all shadow-inner font-mono"
+                  className="w-full bg-slate-50 dark:bg-black/90 border border-slate-300 dark:border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-600 transition-all shadow-inner font-mono"
                 />
                 <button
                   type="button"
@@ -196,7 +196,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/50 text-slate-950 text-xs font-bold rounded-xl transition-all shadow-md shadow-amber-500/15 flex items-center justify-center gap-2 font-serif cursor-pointer"
+              className="w-full py-3 bg-emerald-700 hover:bg-emerald-600 disabled:bg-emerald-700/50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-700/20 flex items-center justify-center gap-2 font-serif cursor-pointer"
             >
               <span>{isSubmitting ? 'Verifying Credentials...' : 'Establish Secure Connection'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -206,7 +206,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
           {/* QUICK SANDBOX ACCOUNTS PANELS */}
           <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/10 space-y-3">
             <div className="flex items-center gap-1.5">
-              <Key className="w-3.5 h-3.5 text-amber-500" />
+              <Key className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span className="text-[10px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-wider">Quick Select Authorization Role (Tap to Auto-fill)</span>
             </div>
 
@@ -218,7 +218,7 @@ export default function LoginView({ onLogin, theme, onToggleTheme }: LoginViewPr
                   onClick={() => handleSandboxClick(acc.label)}
                   className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
                     username.toUpperCase() === acc.label 
-                      ? 'bg-amber-500/10 dark:bg-amber-500/10 border-amber-500 text-amber-800 dark:text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.1)]' 
+                      ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border-emerald-600 text-emerald-800 dark:text-emerald-300 shadow-[0_0_12px_rgba(29,112,51,0.15)] font-bold' 
                       : 'bg-slate-50 dark:bg-white/5 border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:border-slate-400 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >

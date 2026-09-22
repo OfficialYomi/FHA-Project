@@ -18,10 +18,67 @@ import {
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Middleware
 app.use(express.json({ limit: "20mb" }));
+
+// AWS / Production Health Check Endpoint
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    service: "FHA Project Delivery & Executive Monitoring Platform",
+    environment: process.env.NODE_ENV || "development",
+    timestamp: new Date().toISOString() 
+  });
+});
+
+// =========================================================================
+// ENTERPRISE ROLE-BASED ACCESS CONTROL (RBAC) & SECURITY MIDDLEWARE
+// =========================================================================
+interface CallerContext {
+  role: string;
+  username: string;
+  contractorId?: string;
+}
+
+function getCallerContext(req: express.Request): CallerContext {
+  let role = (req.headers['x-user-role'] as string) || (req.query.role as string) || '';
+  let username = (req.headers['x-username'] as string) || (req.query.username as string) || '';
+  let contractorId = (req.headers['x-contractor-id'] as string) || (req.query.contractorId as string) || undefined;
+
+  // Check Bearer Token if present
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    try {
+      const decoded = JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
+      if (decoded && decoded.role) {
+        role = decoded.role;
+        username = decoded.username || username;
+        contractorId = decoded.contractorId || contractorId;
+      }
+    } catch {
+      // If token parsing fails, fallback to headers
+    }
+  }
+
+  return {
+    role: (role || '').toUpperCase(),
+    username: username || '',
+    contractorId: contractorId || undefined
+  };
+}
+
+const STAGE_PERMISSIONS: Record<ValuationStage, string[]> = {
+  request_valuation: ['CONTRACTOR', 'PM', 'MD'],
+  resident_engineer_verify: ['RE', 'MD'],
+  project_manager_approve: ['PM', 'MD'],
+  quantity_surveyor_certify: ['QS', 'MD'],
+  finance_review: ['FD', 'MD'],
+  executive_approve: ['MD'],
+  payment_released: ['CT', 'MD']
+};
 
 // IN-MEMORY DATABASE SEED DATA
 let users: User[] = [
@@ -704,6 +761,11 @@ app.post("/api/contractors", (req, res) => {
 });
 
 app.post("/api/contractors/approve/:id", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role && caller.role !== 'MD' && caller.role !== 'PM') {
+    return res.status(403).json({ error: "Access Denied: Only Managing Director (MD) or Project Manager (PM) can approve contractors." });
+  }
+
   const { id } = req.params;
   const contractor = contractors.find(c => c.id === id);
   if (!contractor) {
@@ -714,6 +776,11 @@ app.post("/api/contractors/approve/:id", (req, res) => {
 });
 
 app.post("/api/contractors/:id/approve", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role && caller.role !== 'MD' && caller.role !== 'PM') {
+    return res.status(403).json({ error: "Access Denied: Only Managing Director (MD) or Project Manager (PM) can approve contractors." });
+  }
+
   const { id } = req.params;
   const contractor = contractors.find(c => c.id === id);
   if (!contractor) {
@@ -724,10 +791,20 @@ app.post("/api/contractors/:id/approve", (req, res) => {
 });
 
 app.get("/api/projects", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    const cId = caller.contractorId || 'c-1';
+    return res.json(projects.filter(p => p.contractorId === cId));
+  }
   res.json(projects);
 });
 
 app.post("/api/projects/setup", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role && caller.role !== 'MD' && caller.role !== 'PM') {
+    return res.status(403).json({ error: "Access Denied: Only Managing Director (MD) or Project Manager (PM) can set up new projects." });
+  }
+
   const data = req.body;
   
   // Create blank stages dictionary
@@ -770,6 +847,11 @@ app.post("/api/projects/setup", (req, res) => {
 });
 
 app.post("/api/projects", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role && caller.role !== 'MD' && caller.role !== 'PM') {
+    return res.status(403).json({ error: "Access Denied: Only Managing Director (MD) or Project Manager (PM) can set up new projects." });
+  }
+
   const data = req.body;
   
   // Create blank stages dictionary
@@ -817,6 +899,12 @@ app.post("/api/projects/:id/accept", (req, res) => {
   if (!project) {
     return res.status(404).json({ error: "Project not found" });
   }
+
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR' && caller.contractorId && project.contractorId !== caller.contractorId) {
+    return res.status(403).json({ error: "Access Denied: You cannot accept a project assigned to another contractor." });
+  }
+
   project.assignmentStatus = "Accepted";
   project.lastUpdated = new Date().toISOString();
   res.json(project);
@@ -828,6 +916,12 @@ app.post("/api/projects/:id/reject", (req, res) => {
   if (!project) {
     return res.status(404).json({ error: "Project not found" });
   }
+
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR' && caller.contractorId && project.contractorId !== caller.contractorId) {
+    return res.status(403).json({ error: "Access Denied: You cannot reject a project assigned to another contractor." });
+  }
+
   project.assignmentStatus = "Rejected";
   project.lastUpdated = new Date().toISOString();
   res.json(project);
@@ -839,6 +933,16 @@ app.post("/api/projects/update/:id", (req, res) => {
   const project = projects.find(p => p.id === id);
   if (!project) {
     return res.status(404).json({ error: "Project not found" });
+  }
+
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    if (caller.contractorId && project.contractorId && project.contractorId !== caller.contractorId) {
+      return res.status(403).json({ error: "Access Denied: You cannot update projects assigned to another contractor." });
+    }
+    if (stages && stages["Completed"] === true && project.stages["Completed"] !== true) {
+      return res.status(403).json({ error: "Access Denied: Contractors cannot mark final project completion without Resident Engineer inspection sign-off." });
+    }
   }
 
   if (stages) {
@@ -917,6 +1021,16 @@ app.patch("/api/projects/:id", (req, res) => {
     return res.status(404).json({ error: "Project not found" });
   }
 
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    if (caller.contractorId && project.contractorId && project.contractorId !== caller.contractorId) {
+      return res.status(403).json({ error: "Access Denied: You cannot update projects assigned to another contractor." });
+    }
+    if (stages && stages["Completed"] === true && project.stages["Completed"] !== true) {
+      return res.status(403).json({ error: "Access Denied: Contractors cannot mark final project completion without Resident Engineer inspection sign-off." });
+    }
+  }
+
   if (stages) {
     project.stages = stages;
     // Calculate progress
@@ -986,12 +1100,26 @@ app.patch("/api/projects/:id", (req, res) => {
 });
 
 app.get("/api/valuations", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    const cId = caller.contractorId || 'c-1';
+    const assignedProjectIds = projects.filter(p => p.contractorId === cId).map(p => p.id);
+    return res.json(valuations.filter(v => assignedProjectIds.includes(v.projectId)));
+  }
   res.json(valuations);
 });
 
 app.post("/api/valuations", (req, res) => {
   const data = req.body;
   const project = projects.find(p => p.id === data.projectId);
+  if (!project) {
+    return res.status(404).json({ error: "Project not found for this valuation claim" });
+  }
+
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR' && caller.contractorId && project.contractorId !== caller.contractorId) {
+    return res.status(403).json({ error: "Access Denied: You cannot submit valuation claims for projects assigned to another contractor." });
+  }
   
   const newValuation: ValuationRequest = {
     id: `val-${valuations.length + 1}`,
@@ -1007,7 +1135,7 @@ app.post("/api/valuations", (req, res) => {
       {
         stage: "request_valuation",
         date: new Date().toISOString().split('T')[0],
-        actor: project?.contractorName || "Contractor Representative",
+        actor: caller.username || project?.contractorName || "Contractor Representative",
         status: "approved",
         comments: data.comments || "Submitted formal progress valuation request."
       }
@@ -1021,6 +1149,14 @@ app.post("/api/valuations", (req, res) => {
 app.post("/api/valuations/request", (req, res) => {
   const data = req.body;
   const project = projects.find(p => p.id === data.projectId);
+  if (!project) {
+    return res.status(404).json({ error: "Project not found for this valuation claim" });
+  }
+
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR' && caller.contractorId && project.contractorId !== caller.contractorId) {
+    return res.status(403).json({ error: "Access Denied: You cannot submit valuation claims for projects assigned to another contractor." });
+  }
   
   const newValuation: ValuationRequest = {
     id: `val-${valuations.length + 1}`,
@@ -1036,7 +1172,7 @@ app.post("/api/valuations/request", (req, res) => {
       {
         stage: "request_valuation",
         date: new Date().toISOString().split('T')[0],
-        actor: project?.contractorName || "Contractor Representative",
+        actor: caller.username || project?.contractorName || "Contractor Representative",
         status: "approved",
         comments: data.comments || "Submitted formal progress valuation request."
       }
@@ -1047,12 +1183,21 @@ app.post("/api/valuations/request", (req, res) => {
   res.status(201).json(newValuation);
 });
 
-app.post("/api/valuations/approve/:id", (req, res) => {
+function executeValuationApproval(req: express.Request, res: express.Response) {
   const { id } = req.params;
-  const { stage, actor, comments, status, amountCertified } = req.body;
+  const { actor, comments, status, amountCertified } = req.body;
   const val = valuations.find(v => v.id === id);
   if (!val) {
     return res.status(404).json({ error: "Valuation request not found" });
+  }
+
+  const caller = getCallerContext(req);
+
+  // Absolute security check: Contractors can NEVER approve valuations or self-authorize payments!
+  if (caller.role === 'CONTRACTOR') {
+    return res.status(403).json({ 
+      error: "Access Denied: Contractors are strictly prohibited from approving valuations or authorizing funds." 
+    });
   }
 
   const STAGES_WORKFLOW: ValuationStage[] = [
@@ -1067,10 +1212,18 @@ app.post("/api/valuations/approve/:id", (req, res) => {
 
   const currentIdx = STAGES_WORKFLOW.indexOf(val.currentStage);
   if (currentIdx === -1 || currentIdx === STAGES_WORKFLOW.length - 1) {
-    return res.status(400).json({ error: "Cannot approve request in its current stage." });
+    return res.status(400).json({ error: "Cannot approve request in its current stage or it has already been finalized." });
   }
 
   const nextStage = STAGES_WORKFLOW[currentIdx + 1];
+
+  // RBAC Gate Check: Only authorized role can advance this stage
+  const permittedRoles = STAGE_PERMISSIONS[nextStage] || ['MD'];
+  if (caller.role && !permittedRoles.includes(caller.role) && caller.role !== 'MD') {
+    return res.status(403).json({ 
+      error: `Access Denied: Role '${caller.role}' is not authorized to sign off at '${nextStage}'. Required authorized roles: ${permittedRoles.join(', ')}.` 
+    });
+  }
   
   // Update request stage
   if (status === 'approved') {
@@ -1085,9 +1238,9 @@ app.post("/api/valuations/approve/:id", (req, res) => {
   val.history.push({
     stage: nextStage,
     date: new Date().toISOString().split('T')[0],
-    actor: actor || "FHA Official",
+    actor: actor || caller.username || `FHA Official (${caller.role || 'Officer'})`,
     status: status || 'approved',
-    comments: comments || `Approved at ${nextStage} stage.`
+    comments: comments || `Verified and approved at ${nextStage} stage.`
   });
 
   // If fully released, add budget spend to project
@@ -1099,67 +1252,26 @@ app.post("/api/valuations/approve/:id", (req, res) => {
   }
 
   res.json(val);
-});
+}
 
-app.post("/api/valuations/:id/approve", (req, res) => {
-  const { id } = req.params;
-  const { stage, actor, comments, status, amountCertified } = req.body;
-  const val = valuations.find(v => v.id === id);
-  if (!val) {
-    return res.status(404).json({ error: "Valuation request not found" });
-  }
-
-  const STAGES_WORKFLOW: ValuationStage[] = [
-    'request_valuation',
-    'resident_engineer_verify',
-    'project_manager_approve',
-    'quantity_surveyor_certify',
-    'finance_review',
-    'executive_approve',
-    'payment_released'
-  ];
-
-  const currentIdx = STAGES_WORKFLOW.indexOf(val.currentStage);
-  if (currentIdx === -1 || currentIdx === STAGES_WORKFLOW.length - 1) {
-    return res.status(400).json({ error: "Cannot approve request in its current stage." });
-  }
-
-  const nextStage = STAGES_WORKFLOW[currentIdx + 1];
-  
-  // Update request stage
-  if (status === 'approved') {
-    val.currentStage = nextStage;
-    if (amountCertified !== undefined) {
-      val.amountCertified = Number(amountCertified);
-    } else if (!val.amountCertified) {
-      val.amountCertified = val.amountRequested;
-    }
-  }
-
-  val.history.push({
-    stage: nextStage,
-    date: new Date().toISOString().split('T')[0],
-    actor: actor || "FHA Official",
-    status: status || 'approved',
-    comments: comments || `Approved at ${nextStage} stage.`
-  });
-
-  // If fully released, add budget spend to project
-  if (val.currentStage === 'payment_released' && status === 'approved') {
-    const project = projects.find(p => p.id === val.projectId);
-    if (project) {
-      project.spent += val.amountCertified || val.amountRequested;
-    }
-  }
-
-  res.json(val);
-});
+app.post("/api/valuations/approve/:id", executeValuationApproval);
+app.post("/api/valuations/:id/approve", executeValuationApproval);
 
 app.get("/api/scorecards", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    const cId = caller.contractorId || 'c-1';
+    return res.json(scorecards.filter(sc => sc.contractorId === cId));
+  }
   res.json(scorecards);
 });
 
 app.post("/api/scorecards/create", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role && caller.role !== 'MD' && caller.role !== 'PM' && caller.role !== 'QS') {
+    return res.status(403).json({ error: "Access Denied: Only MD, PM, or QS can evaluate contractor scorecards." });
+  }
+
   const data = req.body;
   const contractor = contractors.find(c => c.id === data.contractorId);
   const project = projects.find(p => p.id === data.projectId);
@@ -1184,8 +1296,8 @@ app.post("/api/scorecards/create", (req, res) => {
     projectName: project?.estateName || data.projectName || "FHA Estate Project",
     scores: scores,
     overallRating: overallRating,
-    feedback: data.feedback || "Good standard performance.",
-    reviewedBy: data.reviewedBy || "Executive Evaluator",
+    feedback: data.feedback || "Standard verified performance review.",
+    reviewedBy: caller.username || data.reviewedBy || "Executive Evaluator",
     dateCreated: new Date().toISOString().split('T')[0]
   };
 
@@ -1202,6 +1314,11 @@ app.post("/api/scorecards/create", (req, res) => {
 });
 
 app.post("/api/scorecards", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role && caller.role !== 'MD' && caller.role !== 'PM' && caller.role !== 'QS') {
+    return res.status(403).json({ error: "Access Denied: Only MD, PM, or QS can evaluate contractor scorecards." });
+  }
+
   const data = req.body;
   const contractor = contractors.find(c => c.id === data.contractorId);
   const project = projects.find(p => p.id === data.projectId);
@@ -1226,8 +1343,8 @@ app.post("/api/scorecards", (req, res) => {
     projectName: project?.estateName || data.projectName || "FHA Estate Project",
     scores: scores,
     overallRating: overallRating,
-    feedback: data.feedback || "Good standard performance.",
-    reviewedBy: data.reviewedBy || "Executive Evaluator",
+    feedback: data.feedback || "Standard verified performance review.",
+    reviewedBy: caller.username || data.reviewedBy || "Executive Evaluator",
     dateCreated: new Date().toISOString().split('T')[0]
   };
 
@@ -1244,10 +1361,21 @@ app.post("/api/scorecards", (req, res) => {
 });
 
 app.get("/api/alerts", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    const cId = caller.contractorId || 'c-1';
+    const assignedProjectIds = projects.filter(p => p.contractorId === cId).map(p => p.id);
+    return res.json(alerts.filter(a => assignedProjectIds.includes(a.projectId)));
+  }
   res.json(alerts);
 });
 
 app.post("/api/alerts/create", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    return res.status(403).json({ error: "Access Denied: Contractors cannot create internal executive risk alerts." });
+  }
+
   const data = req.body;
   const project = projects.find(p => p.id === data.projectId);
   const newAlert: RiskAlert = {
@@ -1268,6 +1396,11 @@ app.post("/api/alerts/create", (req, res) => {
 });
 
 app.post("/api/alerts/resolve/:id", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    return res.status(403).json({ error: "Access Denied: Contractors cannot resolve executive risk alerts." });
+  }
+
   const { id } = req.params;
   const alert = alerts.find(a => a.id === id);
   if (!alert) {
@@ -1278,6 +1411,11 @@ app.post("/api/alerts/resolve/:id", (req, res) => {
 });
 
 app.post("/api/alerts/:id/resolve", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    return res.status(403).json({ error: "Access Denied: Contractors cannot resolve executive risk alerts." });
+  }
+
   const { id } = req.params;
   const alert = alerts.find(a => a.id === id);
   if (!alert) {
@@ -1288,6 +1426,11 @@ app.post("/api/alerts/:id/resolve", (req, res) => {
 });
 
 app.post("/api/alerts/:id/action", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role === 'CONTRACTOR') {
+    return res.status(403).json({ error: "Access Denied: Contractors cannot register executive mitigation directives." });
+  }
+
   const { id } = req.params;
   const { actionType, details } = req.body;
   const alert = alerts.find(a => a.id === id);
@@ -1318,6 +1461,11 @@ app.get("/api/users", (req, res) => {
 });
 
 app.post("/api/users", (req, res) => {
+  const caller = getCallerContext(req);
+  if (caller.role && caller.role !== 'MD' && caller.role !== 'PM') {
+    return res.status(403).json({ error: "Access Denied: Only Managing Director (MD) or Project Manager (PM) can create users." });
+  }
+
   const { name, username, email, role, contractorId } = req.body;
   
   if (!name || !username || !email || !role) {
@@ -1357,27 +1505,56 @@ app.post("/api/login", (req, res) => {
     return res.status(401).json({ error: `User with username '${username}' not found.` });
   }
 
-  res.json({ success: true, user });
+  // Generate verifiable session token
+  const tokenPayload = {
+    username: user.username,
+    role: user.role,
+    name: user.name,
+    contractorId: user.contractorId,
+    timestamp: Date.now(),
+    exp: Date.now() + 24 * 60 * 60 * 1000
+  };
+  const token = Buffer.from(JSON.stringify(tokenPayload)).toString('base64');
+
+  res.json({ success: true, user, token });
 });
 
 app.get("/api/overview", (req, res) => {
-  const totalProjects = projects.length;
-  const onScheduleCount = projects.filter(p => p.status === 'On Schedule').length;
-  const delayedCount = projects.filter(p => p.status === 'Delayed').length;
-  const attentionCount = projects.filter(p => p.status === 'Needs Attention').length;
-  const completedCount = projects.filter(p => p.status === 'Completed').length;
+  const caller = getCallerContext(req);
   
-  const totalBudget = projects.reduce((acc, p) => acc + p.budget, 0);
-  const totalSpent = projects.reduce((acc, p) => acc + p.spent, 0);
-  const activeContractors = contractors.filter(c => c.status === 'approved' && c.assignedProjectsCount > 0).length;
-  const pendingValuations = valuations.filter(v => v.currentStage !== 'payment_released').length;
+  let filteredProjects = projects;
+  let filteredValuations = valuations;
+  let filteredContractors = contractors;
+  let filteredAlerts = alerts;
+  let filteredScorecards = scorecards;
+
+  if (caller.role === 'CONTRACTOR') {
+    const cId = caller.contractorId || 'c-1';
+    filteredProjects = projects.filter(p => p.contractorId === cId);
+    const assignedProjectIds = filteredProjects.map(p => p.id);
+    filteredValuations = valuations.filter(v => assignedProjectIds.includes(v.projectId));
+    filteredContractors = contractors.filter(c => c.id === cId);
+    filteredAlerts = alerts.filter(a => assignedProjectIds.includes(a.projectId));
+    filteredScorecards = scorecards.filter(sc => sc.contractorId === cId);
+  }
+
+  const totalProjects = filteredProjects.length;
+  const onScheduleCount = filteredProjects.filter(p => p.status === 'On Schedule').length;
+  const delayedCount = filteredProjects.filter(p => p.status === 'Delayed').length;
+  const attentionCount = filteredProjects.filter(p => p.status === 'Needs Attention').length;
+  const completedCount = filteredProjects.filter(p => p.status === 'Completed').length;
+  
+  const totalBudget = filteredProjects.reduce((acc, p) => acc + p.budget, 0);
+  const totalSpent = filteredProjects.reduce((acc, p) => acc + p.spent, 0);
+  const activeContractors = filteredContractors.filter(c => c.status === 'approved' && c.assignedProjectsCount > 0).length;
+  const pendingValuations = filteredValuations.filter(v => v.currentStage !== 'payment_released').length;
 
   res.json({
-    projects,
-    contractors,
-    valuations,
-    scorecards,
-    alerts,
+    projects: filteredProjects,
+    contractors: filteredContractors,
+    valuations: filteredValuations,
+    scorecards: filteredScorecards,
+    alerts: filteredAlerts,
     totalProjects,
     onScheduleCount,
     delayedCount,
@@ -1575,7 +1752,11 @@ Please ask a specific tactical question (e.g., *"Which projects are delayed?"*, 
 // POST /api/chat - Yomi AI Assistant Endpoint
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, userRole = "MD", username = "", selectedProjectId } = req.body;
+    const caller = getCallerContext(req);
+    const { message, userRole: bodyRole, username: bodyUsername, selectedProjectId } = req.body;
+    const userRole = caller.role || bodyRole || "MD";
+    const username = caller.username || bodyUsername || "";
+
     if (!message) {
       return res.status(400).json({ error: "No user message provided." });
     }

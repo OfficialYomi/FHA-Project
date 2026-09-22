@@ -27,7 +27,8 @@ import {
   RefreshCw, 
   Grid,
   Sun,
-  Moon
+  Moon,
+  Menu
 } from 'lucide-react';
 
 export default function App() {
@@ -61,6 +62,13 @@ export default function App() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1024; // Auto collapse on non-laptops/smaller screens
+    }
+    return false;
+  });
+
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const cached = localStorage.getItem('nhdp_user');
     if (!cached) return null;
@@ -90,10 +98,32 @@ export default function App() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Authentication headers helper
+  const getAuthHeaders = (extra: Record<string, string> = {}) => {
+    const token = localStorage.getItem('nhdp_token') || '';
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...extra
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    if (currentUser) {
+      headers['x-user-role'] = currentUser.role;
+      headers['x-username'] = currentUser.username;
+      if (currentUser.contractorId) {
+        headers['x-contractor-id'] = currentUser.contractorId;
+      }
+    }
+    return headers;
+  };
+
   // Fetch users list
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/users');
+      const response = await fetch('/api/users', {
+        headers: getAuthHeaders()
+      });
       if (response.ok) {
         const data = await response.json();
         setUsers(data);
@@ -110,7 +140,9 @@ export default function App() {
   const fetchOverviewData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/overview');
+      const response = await fetch('/api/overview', {
+        headers: getAuthHeaders()
+      });
       if (response.ok) {
         const data = await response.json();
         setProjects(data.projects);
@@ -154,6 +186,9 @@ export default function App() {
         if (data.success && data.user) {
           setCurrentUser(data.user);
           localStorage.setItem('nhdp_user', JSON.stringify(data.user));
+          if (data.token) {
+            localStorage.setItem('nhdp_token', data.token);
+          }
           return { success: true };
         }
       }
@@ -182,6 +217,7 @@ export default function App() {
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem('nhdp_user');
+    localStorage.removeItem('nhdp_token');
     setActiveTab('dashboard');
   };
 
@@ -189,11 +225,16 @@ export default function App() {
     try {
       const response = await fetch('/api/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(userData)
       });
       if (response.ok) {
         await fetchUsers();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: You do not have permission to manage users.");
         return;
       }
     } catch (error) {
@@ -207,10 +248,16 @@ export default function App() {
   const handleDeleteUser = async (usernameToDelete: string) => {
     try {
       const response = await fetch(`/api/users/${usernameToDelete}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: getAuthHeaders()
       });
       if (response.ok) {
         await fetchUsers();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: You do not have permission to delete users.");
         return;
       }
     } catch (error) {
@@ -226,11 +273,16 @@ export default function App() {
     try {
       const response = await fetch('/api/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(projectData)
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: Only Ministry, MD, or PM can create new housing schemes.");
         return;
       }
     } catch (error) {
@@ -250,11 +302,16 @@ export default function App() {
     try {
       const response = await fetch(`/api/projects/${projectId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(updateData)
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: Unauthorized project update.");
         return;
       }
     } catch (error) {
@@ -272,10 +329,16 @@ export default function App() {
   const handleAcceptProject = async (projectId: string) => {
     try {
       const response = await fetch(`/api/projects/${projectId}/accept`, {
-        method: 'POST'
+        method: 'POST',
+        headers: getAuthHeaders()
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: You cannot accept this project.");
         return;
       }
     } catch (error) {
@@ -293,10 +356,16 @@ export default function App() {
   const handleRejectProject = async (projectId: string) => {
     try {
       const response = await fetch(`/api/projects/${projectId}/reject`, {
-        method: 'POST'
+        method: 'POST',
+        headers: getAuthHeaders()
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: You cannot reject this project.");
         return;
       }
     } catch (error) {
@@ -316,11 +385,16 @@ export default function App() {
     try {
       const response = await fetch('/api/contractors', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(contractorData)
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: Cannot submit onboarding.");
         return;
       }
     } catch (error) {
@@ -339,10 +413,16 @@ export default function App() {
   const handleApproveContractor = async (contractorId: string) => {
     try {
       const response = await fetch(`/api/contractors/${contractorId}/approve`, {
-        method: 'POST'
+        method: 'POST',
+        headers: getAuthHeaders()
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: Only Ministry, MD, or PM can approve contractor onboarding.");
         return;
       }
     } catch (error) {
@@ -362,11 +442,16 @@ export default function App() {
     try {
       const response = await fetch('/api/valuations', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(valData)
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: You cannot submit this valuation claim.");
         return;
       }
     } catch (error) {
@@ -383,21 +468,30 @@ export default function App() {
 
   // Module 7: Approve/advance Valuation clearance stages
   const handleApproveValuation = async (valId: string, approvalData: any) => {
+    if (currentUser?.role === 'CONTRACTOR') {
+      alert("Access Denied: Contractors are strictly prohibited from approving valuations or certifying milestone payments.");
+      return;
+    }
     try {
       const response = await fetch(`/api/valuations/${valId}/approve`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(approvalData)
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ ...approvalData, role: currentUser?.role, actor: currentUser?.name || currentUser?.username })
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: You are not authorized to approve this valuation gate.");
         return;
       }
     } catch (error) {
       console.error("Error certifying progress payment via backend:", error);
     }
     // Local Fallback
-    const data = fallbackDb.approveValuation(valId, approvalData);
+    const data = fallbackDb.approveValuation(valId, { ...approvalData, role: currentUser?.role, actor: currentUser?.name || currentUser?.username });
     setProjects(data.projects);
     setContractors(data.contractors);
     setValuations(data.valuations);
@@ -407,14 +501,23 @@ export default function App() {
 
   // Module 8: Score contractor performance
   const handleCreateScorecard = async (scorecardData: any) => {
+    if (currentUser?.role === 'CONTRACTOR') {
+      alert("Access Denied: Contractors cannot score their own or other contractor performance.");
+      return;
+    }
     try {
       const response = await fetch('/api/scorecards', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(scorecardData)
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: Contractor performance scoring is restricted to PM and RE.");
         return;
       }
     } catch (error) {
@@ -431,14 +534,23 @@ export default function App() {
 
   // Module 10: Exception Action (query, withhold, etc)
   const handleTriggerAlertAction = async (alertId: string, actionType: 'query' | 'meeting' | 'withhold' | 'directive', details: string) => {
+    if (currentUser?.role === 'CONTRACTOR') {
+      alert("Access Denied: Contractors cannot execute sanctions or executive directives.");
+      return;
+    }
     try {
       const response = await fetch(`/api/alerts/${alertId}/action`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ actionType, details })
       });
       if (response.ok) {
         await fetchOverviewData();
+        return;
+      }
+      if (response.status === 403) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Access Denied: Only MD or PM can execute risk exception actions.");
         return;
       }
     } catch (error) {
@@ -506,31 +618,42 @@ export default function App() {
         currentUser={currentUser}
         onLogout={handleLogout}
         theme={theme}
+        isCollapsed={isSidebarCollapsed}
+        setIsCollapsed={setIsSidebarCollapsed}
       />
 
       {/* 2. Main Executive Command Cockpit (Right Frame) */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden print:overflow-visible print:h-auto print:w-full print:block">
         
         {/* Top Program Branding Bar */}
-        <header className="h-16 border-b border-slate-300 dark:border-white/10 shrink-0 bg-white dark:bg-black/40 flex items-center justify-between px-6 z-10 print:hidden transition-colors duration-200">
-          <div className="flex items-center gap-3">
-            <div className="bg-amber-500 text-white p-2 rounded flex items-center justify-center font-bold">
+        <header className="h-16 border-b border-slate-300 dark:border-white/10 shrink-0 bg-white dark:bg-black/40 flex items-center justify-between px-3 sm:px-6 z-10 print:hidden transition-colors duration-200">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            {/* Mobile / Screen Toggle Button */}
+            <button
+              onClick={() => setIsSidebarCollapsed(prev => !prev)}
+              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-emerald-800 dark:text-emerald-400 rounded-lg border border-slate-300 dark:border-white/10 transition cursor-pointer shrink-0"
+              title={isSidebarCollapsed ? "Expand Navigation Menu" : "Collapse Navigation Menu"}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div className="bg-emerald-700 text-white p-2 rounded flex items-center justify-center font-bold shrink-0">
               <span className="text-sm leading-none font-bold">{currentUser.role[0]}</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest leading-none">{currentUser.role} Desk</span>
-                <span className="text-[10px] bg-slate-100 dark:bg-white/5 text-slate-800 dark:text-slate-400 border border-slate-300 dark:border-white/10 px-1.5 py-0.5 rounded font-semibold uppercase">{currentUser.name}</span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest leading-none shrink-0">{currentUser.role} Desk</span>
+                <span className="text-[10px] bg-slate-100 dark:bg-white/5 text-slate-800 dark:text-slate-400 border border-slate-300 dark:border-white/10 px-1.5 py-0.5 rounded font-semibold uppercase truncate max-w-[110px] sm:max-w-[200px]">{currentUser.name}</span>
               </div>
-              <h1 className="text-base font-semibold text-slate-900 dark:text-white tracking-tight font-serif" style={{ fontFamily: 'Georgia, serif' }}>
+              <h1 className="text-xs sm:text-base font-semibold text-slate-900 dark:text-white tracking-tight font-serif truncate" style={{ fontFamily: 'Georgia, serif' }}>
                 National Housing Delivery Platform
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Real-time telemetry connection status */}
-            <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/10 shadow-xs">
+            <div className="hidden sm:flex items-center gap-2 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/10 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span className="tracking-widest uppercase">SYSTEM SECURE</span>
             </div>
@@ -541,7 +664,7 @@ export default function App() {
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
               className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg border border-slate-300 dark:border-white/10 transition cursor-pointer"
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#005082]" />}
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-emerald-400" /> : <Moon className="w-4 h-4 text-emerald-700" />}
             </button>
 
             {/* Quick Synchronize Database button */}
@@ -550,13 +673,13 @@ export default function App() {
               title="Refresh Cockpit Telemetry"
               className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg border border-slate-300 dark:border-white/10 transition cursor-pointer"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-amber-500' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
             </button>
           </div>
         </header>
 
         {/* Dynamic Center Workstation with View Routing */}
-        <main className="flex-1 overflow-y-auto print:overflow-visible print:h-auto print:bg-white print:m-0 print:p-0 bg-slate-100/50 dark:bg-black/20 p-6 transition-colors duration-200">
+        <main className="flex-1 overflow-y-auto print:overflow-visible print:h-auto print:bg-white print:m-0 print:p-0 bg-slate-100/50 dark:bg-black/20 p-3 sm:p-6 transition-colors duration-200">
           {isLoading && projects.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center gap-3">
               <LoaderIndicator />

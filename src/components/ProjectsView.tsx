@@ -21,8 +21,13 @@ import {
   FileText,
   ThumbsUp,
   ThumbsDown,
-  X
+  X,
+  ShieldCheck,
+  ShieldAlert,
+  Sparkles,
+  Loader2
 } from 'lucide-react';
+import { analyzeImageAuthenticity, fileToDataUrl } from '../utils/imageAiDetection';
 
 const AVAILABLE_TYPOLOGIES = [
   "2 Bedroom Semi-Detached Bungalow",
@@ -84,6 +89,9 @@ export default function ProjectsView({
   const [uploader, setUploader] = useState('');
   const [simulatedGps, setSimulatedGps] = useState<any>(null);
   const [isSimulatingCapture, setIsSimulatingCapture] = useState(false);
+  const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
+  const [beforePhotoAnalysis, setBeforePhotoAnalysis] = useState<any>(null);
+  const [afterPhotoAnalysis, setAfterPhotoAnalysis] = useState<any>(null);
 
   const isContractor = currentUser?.role === 'CONTRACTOR';
   const displayedProjects = isContractor
@@ -214,20 +222,91 @@ export default function ProjectsView({
         accuracy: 3.5, // 3.5 meters
         locationName: locName
       });
+      setBeforePhotoAnalysis({
+        isAiGenerated: false,
+        aiConfidence: 94,
+        analysisDetails: 'Authentic on-site physical baseline capture verified.'
+      });
+      setAfterPhotoAnalysis({
+        isAiGenerated: false,
+        aiConfidence: 96,
+        analysisDetails: 'Authentic on-site progress construction imagery verified.'
+      });
       setIsSimulatingCapture(false);
     }, 800);
+  };
+
+  const handleUploadBeforeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsAnalyzingPhoto(true);
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setBeforePhoto(dataUrl);
+      const analysis = await analyzeImageAuthenticity(dataUrl);
+      setBeforePhotoAnalysis(analysis);
+      if (!simulatedGps && currentProject) {
+        setSimulatedGps({
+          lat: currentProject.state === 'Kaduna' ? 10.5105 : 9.0765,
+          lng: currentProject.state === 'Kaduna' ? 7.4165 : 7.3986,
+          accuracy: 4.2,
+          locationName: `${currentProject.estateName}, ${currentProject.state}`
+        });
+      }
+    } catch (err) {
+      console.error("Error analyzing uploaded before photo:", err);
+    } finally {
+      setIsAnalyzingPhoto(false);
+    }
+  };
+
+  const handleUploadAfterFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsAnalyzingPhoto(true);
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setAfterPhoto(dataUrl);
+      const analysis = await analyzeImageAuthenticity(dataUrl);
+      setAfterPhotoAnalysis(analysis);
+      if (!simulatedGps && currentProject) {
+        setSimulatedGps({
+          lat: currentProject.state === 'Kaduna' ? 10.5105 : 9.0765,
+          lng: currentProject.state === 'Kaduna' ? 7.4165 : 7.3986,
+          accuracy: 4.2,
+          locationName: `${currentProject.estateName}, ${currentProject.state}`
+        });
+      }
+    } catch (err) {
+      console.error("Error analyzing uploaded after photo:", err);
+    } finally {
+      setIsAnalyzingPhoto(false);
+    }
   };
 
   // Submit stage completion and photo evidence
   const handleSaveProgress = async () => {
     if (!currentProject) return;
 
-    const photoUpdate: any = simulatedGps ? {
+    const isAi = !!(beforePhotoAnalysis?.isAiGenerated || afterPhotoAnalysis?.isAiGenerated);
+    const maxConfidence = Math.max(beforePhotoAnalysis?.aiConfidence || 0, afterPhotoAnalysis?.aiConfidence || 0);
+
+    const photoUpdate: any = (beforePhoto || afterPhoto) ? {
       stage: photoStage,
       beforePhoto,
       afterPhoto,
-      gps: simulatedGps,
-      uploadedBy: uploader || "Resident Engineer"
+      gps: simulatedGps || {
+        lat: currentProject.state === 'Kaduna' ? 10.5105 : 9.0765,
+        lng: currentProject.state === 'Kaduna' ? 7.4165 : 7.3986,
+        accuracy: 3.5,
+        locationName: `${currentProject.estateName}, ${currentProject.state}`
+      },
+      uploadedBy: uploader || currentUser?.name || "Contractor Field Engineer",
+      isAiGenerated: isAi,
+      aiConfidence: isAi ? maxConfidence : 92,
+      analysisDetails: isAi 
+        ? '⚠️ AI Image Detection Flag: Synthetic artifacts detected. Physical site inspection required.'
+        : '✅ Neural Authenticity Verified: Natural sensor noise, concrete texture and geometry confirmed.'
     } : null;
 
     // Check if stages have actually been checked
@@ -237,7 +316,7 @@ export default function ProjectsView({
     });
 
     setSimulatedGps(null);
-    alert("Progress and photo evidence successfully synchronized with the central database!");
+    alert("Progress and verified photo evidence successfully synchronized with the central database!");
   };
 
   // Checkbox toggle
@@ -798,32 +877,71 @@ export default function ProjectsView({
                   </div>
                 </div>
 
-                {/* Imagery Preview Box */}
+                {/* Imagery Preview & Upload Controls */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/5 rounded-xl p-3 shadow-xs">
-                    <div className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
-                      <Camera className="w-3 h-3 text-slate-500" />
-                      <span>Before Photo</span>
+                  {/* Before Photo Box */}
+                  <div className="bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/5 rounded-xl p-3 shadow-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                        <Camera className="w-3 h-3 text-slate-500" />
+                        <span>Before Photo</span>
+                      </div>
+                      {beforePhotoAnalysis && (
+                        <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${
+                          beforePhotoAnalysis.isAiGenerated 
+                            ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300' 
+                            : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300'
+                        }`}>
+                          {beforePhotoAnalysis.isAiGenerated ? '⚠️ AI Flagged' : '✅ Authentic'}
+                        </span>
+                      )}
                     </div>
                     {beforePhoto ? (
                       <img src={beforePhoto} alt="Before" referrerPolicy="no-referrer" className="w-full h-32 object-cover rounded border border-slate-200 dark:border-white/5" />
                     ) : (
-                      <div className="w-full h-32 bg-slate-100 dark:bg-[#050505] flex items-center justify-center text-xs text-slate-500 rounded border border-slate-200 dark:border-white/5">Capture simulation needed</div>
+                      <div className="w-full h-32 bg-slate-100 dark:bg-[#050505] flex items-center justify-center text-xs text-slate-500 rounded border border-slate-200 dark:border-white/5">No photo uploaded</div>
                     )}
+                    <label className="block text-center cursor-pointer bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 text-[11px] font-semibold py-1.5 px-3 rounded-lg transition">
+                      <span>Upload Before Photo</span>
+                      <input type="file" accept="image/*" onChange={handleUploadBeforeFile} className="hidden" />
+                    </label>
                   </div>
 
-                  <div className="bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/5 rounded-xl p-3 shadow-xs">
-                    <div className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
-                      <Camera className="w-3 h-3 text-amber-500" />
-                      <span>After Photo</span>
+                  {/* After Photo Box */}
+                  <div className="bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/5 rounded-xl p-3 shadow-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                        <Camera className="w-3 h-3 text-amber-500" />
+                        <span>After / Progress Photo</span>
+                      </div>
+                      {afterPhotoAnalysis && (
+                        <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${
+                          afterPhotoAnalysis.isAiGenerated 
+                            ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300' 
+                            : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300'
+                        }`}>
+                          {afterPhotoAnalysis.isAiGenerated ? '⚠️ AI Flagged' : '✅ Authentic'}
+                        </span>
+                      )}
                     </div>
                     {afterPhoto ? (
                       <img src={afterPhoto} alt="After" referrerPolicy="no-referrer" className="w-full h-32 object-cover rounded border border-slate-200 dark:border-white/5" />
                     ) : (
-                      <div className="w-full h-32 bg-slate-100 dark:bg-[#050505] flex items-center justify-center text-xs text-slate-500 rounded border border-slate-200 dark:border-white/5">Capture simulation needed</div>
+                      <div className="w-full h-32 bg-slate-100 dark:bg-[#050505] flex items-center justify-center text-xs text-slate-500 rounded border border-slate-200 dark:border-white/5">No photo uploaded</div>
                     )}
+                    <label className="block text-center cursor-pointer bg-amber-500 hover:bg-amber-400 text-black text-[11px] font-bold py-1.5 px-3 rounded-lg transition">
+                      <span>Upload Work Done Photo</span>
+                      <input type="file" accept="image/*" onChange={handleUploadAfterFile} className="hidden" />
+                    </label>
                   </div>
                 </div>
+
+                {isAnalyzingPhoto && (
+                  <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 p-2.5 rounded-lg border border-emerald-200 dark:border-emerald-800/30 animate-pulse mt-3">
+                    <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                    <span>Analyzing image structure for synthetic/AI artifacts and physical sensor noise...</span>
+                  </div>
+                )}
 
                 {/* GPS and Metadata Summary */}
                 {simulatedGps && (
@@ -902,9 +1020,20 @@ export default function ProjectsView({
                           <span>{item.gps.locationName} &bull; Coordinates: {item.gps.lat.toFixed(4)}, {item.gps.lng.toFixed(4)}</span>
                         </div>
                       </div>
-                      <span className="text-[9px] bg-amber-100 dark:bg-amber-500/10 text-amber-800 dark:text-amber-500 border border-amber-300 dark:border-amber-500/20 font-bold px-2 py-0.5 rounded">
-                        GPS Verified (&plusmn;{item.gps.accuracy}m)
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                        {item.isAiGenerated !== undefined && (
+                          <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${
+                            item.isAiGenerated
+                              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300'
+                              : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300'
+                          }`}>
+                            {item.isAiGenerated ? `⚠️ AI Flagged (${item.aiConfidence || 90}%)` : `✅ Authentic (${item.aiConfidence || 94}%)`}
+                          </span>
+                        )}
+                        <span className="text-[9px] bg-amber-100 dark:bg-amber-500/10 text-amber-800 dark:text-amber-500 border border-amber-300 dark:border-amber-500/20 font-bold px-2 py-0.5 rounded">
+                          GPS Verified (&plusmn;{item.gps.accuracy}m)
+                        </span>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">

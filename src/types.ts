@@ -25,6 +25,16 @@ export interface Contractor {
   rating?: number;
 }
 
+export interface ValuationPhoto {
+  id?: string;
+  url: string;
+  caption?: string;
+  isAiGenerated?: boolean;
+  aiConfidence?: number; // 0 - 100%
+  analysisDetails?: string;
+  verifiedAt?: string;
+}
+
 export interface PhotoUpdate {
   stage: string;
   beforePhoto: string;
@@ -38,6 +48,9 @@ export interface PhotoUpdate {
   };
   timestamp: string;
   uploadedBy: string;
+  isAiGenerated?: boolean;
+  aiConfidence?: number;
+  analysisDetails?: string;
 }
 
 export interface Project {
@@ -94,6 +107,7 @@ export interface ValuationRequest {
   history: ValuationHistory[];
   invoiceNumber: string;
   certificateNumber?: string;
+  photos?: ValuationPhoto[];
 }
 
 export interface ContractorScorecard {
@@ -145,6 +159,7 @@ export interface User {
   role: UserRole;
   contractorId?: string; // only if role === 'CONTRACTOR'
   email: string;
+  token?: string;
 }
 
 export const CONSTRUCTION_STAGES = [

@@ -668,6 +668,26 @@ export const fallbackDb = {
   getOverview: (): StorageData => {
     return getStoredDb();
   },
+
+  getProjects: (): Project[] => {
+    return getStoredDb().projects;
+  },
+
+  getValuations: (): ValuationRequest[] => {
+    return getStoredDb().valuations;
+  },
+
+  getContractors: (): Contractor[] => {
+    return getStoredDb().contractors;
+  },
+
+  getAlerts: (): RiskAlert[] => {
+    return getStoredDb().alerts;
+  },
+
+  getScorecards: (): ContractorScorecard[] => {
+    return getStoredDb().scorecards;
+  },
   
   getUsers: (): User[] => {
     return getStoredDb().users;
@@ -851,6 +871,11 @@ export const fallbackDb = {
     const db = getStoredDb();
     const valuation = db.valuations.find(v => v.id === valId);
     if (valuation) {
+      if (approvalData.role === 'CONTRACTOR') {
+        console.warn("Security Alert: Contractor cannot approve valuations.");
+        return db;
+      }
+
       const currentStage = valuation.currentStage;
       let nextStage: typeof valuation.currentStage = "request_valuation";
       
@@ -888,7 +913,7 @@ export const fallbackDb = {
       
       if (!valuation.history) valuation.history = [];
       valuation.history.push({
-        stage: currentStage,
+        stage: nextStage,
         date: new Date().toISOString().split('T')[0],
         actor: approvalData.actor || "FHA Official",
         status: "approved",

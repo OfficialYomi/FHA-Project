@@ -7,28 +7,37 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Official FHA Brand Color Palette */
-  --color-fha-blue: #005082;
+  /* Official FHA Brand Color Palette - Authentic FHA Green from Logo (#1D7033) */
   --color-fha-green: #1D7033;
-  --color-fha-dark: #212529;
+  --color-fha-green-light: #258f41;
+  --color-fha-green-dark: #155225;
+  --color-fha-blue: #1D7033;
+  --color-fha-dark: #000000;
 
-  /* Global mapping of amber classes to FHA Blue for primary brand actions */
-  --color-amber-400: #00609c;
-  --color-amber-500: #005082;
-  --color-amber-600: #004068;
+  /* Global mapping of amber classes to Official FHA Green for unified primary branding */
+  --color-amber-50: #f0fdf4;
+  --color-amber-100: #dcfce7;
+  --color-amber-200: #bbf7d0;
+  --color-amber-300: #86efac;
+  --color-amber-400: #2ea04e;
+  --color-amber-500: #1D7033;
+  --color-amber-600: #165a29;
+  --color-amber-700: #124720;
+  --color-amber-800: #0d3817;
+  --color-amber-900: #08240f;
   
-  /* Global mapping of emerald classes to FHA Green for secondary branding */
-  --color-emerald-400: #258f41;
+  /* Global mapping of emerald classes to FHA Green */
+  --color-emerald-400: #2ea04e;
   --color-emerald-500: #1D7033;
-  --color-emerald-600: #155225;
+  --color-emerald-600: #165a29;
 }
 
 @layer base {
   body {
-    @apply antialiased text-slate-800 bg-[#F4F6F8] font-sans selection:bg-fha-blue/30 selection:text-white transition-colors duration-200;
+    @apply antialiased text-slate-900 bg-white font-sans selection:bg-[#1D7033]/20 selection:text-[#1D7033] transition-colors duration-200;
   }
   .dark body, body.dark {
-    @apply text-slate-200 bg-[#121517];
+    @apply text-slate-100 bg-[#000000] selection:bg-[#1D7033]/40 selection:text-white;
   }
 }
 
