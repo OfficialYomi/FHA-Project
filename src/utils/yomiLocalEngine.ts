@@ -86,13 +86,11 @@ You can ask me questions in natural language or structured queries. How may I as
 
     return `### ⚠️ Tactical Schedule Audit: Projects Requiring Executive Attention
 
-Based on live WBS milestone telemetry, here are the projects requiring immediate attention:
+Based on live WBS milestone telemetry, here are the schemes requiring immediate attention:
 
-${delayedProjects.map((p, idx) => `**${idx + 1}. ${p.estateName} (${p.state} State)**:
-- **Contractor**: ${p.contractorName}
-- **Progress**: **${p.progress}%**
-- **Status**: **${p.status.toUpperCase()}** (${p.timelineExceededDays > 0 ? `${p.timelineExceededDays} days overdue` : 'Milestone attention required'})
-- **Budget**: ₦${p.budget.toLocaleString()} | **Spent**: ₦${p.spent.toLocaleString()}`).join('\n\n')}
+| Estate Scheme | State | Contractor | Progress | Delivery Status | Overdue Days | Budget (₦) |
+|---|---|---|---|---|---|---|
+${delayedProjects.map(p => `| **${p.estateName}** | ${p.state} | ${p.contractorName} | **${p.progress}%** | ${p.status} | ${p.timelineExceededDays > 0 ? `${p.timelineExceededDays}d overdue` : 'Milestone attention'} | ₦${p.budget.toLocaleString()} |`).join('\n')}
 
 ${userRole === 'MD' ? '💡 **Executive Recommendation**: Direct the Zonal Project Manager to issue an immediate site query and schedule an on-site milestone compliance review.' : ''}`;
   }
@@ -101,13 +99,13 @@ ${userRole === 'MD' ? '💡 **Executive Recommendation**: Direct the Zonal Proje
     const atRoofing = projects.filter(p => p.stages && p.stages['Roofing'] === true && !p.stages['Finishes']);
     const pendingRoofing = projects.filter(p => p.stages && p.stages['Lintel'] === true && !p.stages['Roofing']);
 
-    return `### 🏗️ Tactical Milestone Status: Roofing Stage
+    return `### 🏗️ Tactical Milestone Status: Roofing Stage Audit
 
-- **Currently at Roofing Stage**:
-${atRoofing.length > 0 ? atRoofing.map(p => `  - **${p.estateName} (${p.state})**: Roof trussing and coverings underway (${p.progress}% overall completion)`).join('\n') : '  - None currently active at roofing stage.'}
-
-- **Approaching Roofing Mobilization (Lintel Cast)**:
-${pendingRoofing.length > 0 ? pendingRoofing.map(p => `  - **${p.estateName} (${p.state})**: Blockwork and lintel completed; ready for roof fabrication.`).join('\n') : '  - Foundations and substructures in progress on earlier stage schemes.'}`;
+| Estate Scheme | State | Contractor | Progress | Roofing Stage Status | Key Action Required |
+|---|---|---|---|---|---|
+${atRoofing.map(p => `| **${p.estateName}** | ${p.state} | ${p.contractorName} | **${p.progress}%** | Active Roofing | Roof trussing & coverings underway |`).join('\n')}
+${pendingRoofing.map(p => `| **${p.estateName}** | ${p.state} | ${p.contractorName} | **${p.progress}%** | Ready for Roofing | Lintel completed; ready for truss fabrication |`).join('\n')}
+${atRoofing.length === 0 && pendingRoofing.length === 0 ? '| *None* | — | — | — | Substructures Active | Foundations in progress on earlier stage schemes |' : ''}`;
   }
 
   if (q.includes('spent') || q.includes('budget') || q.includes('cost') || q.includes('financ') || q.includes('disburs')) {
@@ -115,27 +113,28 @@ ${pendingRoofing.length > 0 ? pendingRoofing.map(p => `  - **${p.estateName} (${
     const totalSpent = projects.reduce((acc, p) => acc + (p.spent || 0), 0);
     const pct = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
 
-    return `### 💰 Financial Execution & Disbursement Overview
+    return `### 💰 Financial Execution & Capital Disbursement Overview
 
 - **Total Programme Allocation**: **₦${totalBudget.toLocaleString()}**
 - **Total Certified Disbursements**: **₦${totalSpent.toLocaleString()}**
 - **Capital Utilization Rate**: **${pct}%**
 
-#### Estate Breakdown:
-${projects.map(p => `• **${p.estateName} (${p.state})**: Budget ₦${p.budget.toLocaleString()} | Spent ₦${p.spent.toLocaleString()} (${p.budget > 0 ? Math.round((p.spent / p.budget) * 100) : 0}%) — *${p.status}*`).join('\n')}`;
+| Estate Scheme | State | Total Budget | Amount Disbursed | Capital Utilization | Delivery Status |
+|---|---|---|---|---|---|
+${projects.map(p => {
+  const util = p.budget > 0 ? Math.round((p.spent / p.budget) * 100) : 0;
+  return `| **${p.estateName}** | ${p.state} | ₦${p.budget.toLocaleString()} | ₦${p.spent.toLocaleString()} | **${util}%** | ${p.status} |`;
+}).join('\n')}`;
   }
 
   if (q.includes('valuation') || q.includes('invoice') || q.includes('claim')) {
-    return `### 📑 Valuation Claims & Milestone Certification Audit
+    return `### 📑 Interim Valuation Claims & Milestone Certification Audit
 
-Total interim valuation requests: **${valuations.length}**
+Total active interim valuation requests: **${valuations.length}**
 
-${valuations.map((v, i) => `${i + 1}. **${v.estateName}** (${v.invoiceNumber}):
-   - **Contractor**: ${v.contractorName}
-   - **Claimed Amount**: **₦${v.amountRequested.toLocaleString()}**
-   - **Certified Amount**: **₦${((v.amountCertified || v.amountRequested)).toLocaleString()}**
-   - **Current Workflow Stage**: \`${v.currentStage.replace(/_/g, ' ').toUpperCase()}\`
-   - **Photo Evidence**: ${v.photos?.length || 0} site photo(s) logged`).join('\n\n')}
+| Invoice No. | Estate Scheme | Contractor | Claimed Amount | Certified Amount | Workflow Approval Gate | Site Photos |
+|---|---|---|---|---|---|---|
+${valuations.map(v => `| \`${v.invoiceNumber}\` | **${v.estateName}** | ${v.contractorName} | ₦${v.amountRequested.toLocaleString()} | ₦${((v.amountCertified || v.amountRequested)).toLocaleString()} | \`${v.currentStage.replace(/_/g, ' ').toUpperCase()}\` | ${v.photos?.length || 0} photo(s) |`).join('\n')}
 
 ${userRole === 'QS' ? '💡 **QS Directive**: Ensure all claimed quantities are matched against certified bill of quantities before endorsing interim valuation certificates.' : ''}`;
   }
@@ -143,12 +142,9 @@ ${userRole === 'QS' ? '💡 **QS Directive**: Ensure all claimed quantities are 
   if (q.includes('contractor') || q.includes('score') || q.includes('rating')) {
     return `### 👷 Contractor Performance & Delivery Audit
 
-${contractors.map(c => `• **${c.companyName}** (${c.registrationNo}):
-   - **Contract Amount**: ₦${c.contractAmount.toLocaleString()} | **Duration**: ${c.durationMonths} months
-   - **Assigned Sites**: ${c.assignedProjectsCount}
-   - **Bank**: ${c.bankName}
-   - **Rating**: ${c.rating ? `${c.rating}/5.0` : 'Under Evaluation'}
-   - **Status**: ${c.status.toUpperCase()}`).join('\n\n')}`;
+| Contractor Company | Registration No. | Assigned Schemes | Contract Value | Performance Rating | Bank Partner | Prequalification |
+|---|---|---|---|---|---|---|
+${contractors.map(c => `| **${c.companyName}** | \`${c.registrationNo}\` | ${c.assignedProjectsCount} site(s) | ₦${c.contractAmount.toLocaleString()} | **${c.rating ? `${c.rating}/5.0` : 'Under Evaluation'}** | ${c.bankName} | ${c.status.toUpperCase()} |`).join('\n')}`;
   }
 
   // Project-specific lookup
@@ -164,25 +160,29 @@ ${contractors.map(c => `• **${c.companyName}** (${c.registrationNo}):
 
     return `### 📍 Estate Tactical Profile: ${matchedProject.estateName} (${matchedProject.state})
 
-- **Status**: **${matchedProject.status.toUpperCase()}**
+- **Delivery Status**: **${matchedProject.status.toUpperCase()}**
 - **Physical Progress**: **${matchedProject.progress}%**
-- **Typology**: ${matchedProject.houseType} (${matchedProject.houseCount} housing units)
-- **Contractor**: **${matchedProject.contractorName}**
-- **Project Manager**: ${matchedProject.projectManager}
+- **Housing Typology**: ${matchedProject.houseType} (${matchedProject.houseCount} housing units)
+- **Contractor**: **${matchedProject.contractorName}** | **Project Manager**: ${matchedProject.projectManager}
 - **Budget**: ₦${matchedProject.budget.toLocaleString()} | **Disbursed**: ₦${matchedProject.spent.toLocaleString()}
-- **Completed Stages**: ${completedStages.join(', ') || 'Site clearing initialized'}
-- **Next Critical Milestones**: ${pendingStages.slice(0, 3).join(', ') || 'Project in handover phase'}
-- **Verified Site Photos**: ${matchedProject.photoUpdates?.length || 0} visual audit entries logged.`;
+
+| Construction Stage | Verification Status | Milestone Remarks |
+|---|---|---|
+${Object.entries(matchedProject.stages || {}).map(([stage, isDone]) => `| **${stage}** | ${isDone ? 'Completed' : 'Pending'} | ${isDone ? 'Verified through resident engineer GPS log' : 'Scheduled for upcoming work package'} |`).join('\n')}
+
+- **Logged Site Telemetry**: ${matchedProject.photoUpdates?.length || 0} geo-tagged inspection photos logged.`;
   }
 
   // General executive summary
   return `### 🏛️ Federal Housing Authority Delivery Cockpit Summary
 
-- **Active Projects**: **${projects.length}** estate schemes across **${new Set(projects.map(p => p.state)).size}** states
-- **Completed Schemes**: **${projects.filter(p => p.status === 'Completed').length}**
-- **On Schedule**: **${projects.filter(p => p.status === 'On Schedule').length}**
-- **Attention / Delayed**: **${projects.filter(p => p.status === 'Needs Attention' || p.status === 'Delayed').length}**
-- **Total Housing Units Under Construction**: **${projects.reduce((acc, p) => acc + (p.houseCount || 0), 0)}** units
+| Delivery Metric | Portfolio Telemetry | Notes |
+|---|---|---|
+| **Active Estate Schemes** | **${projects.length}** estates | Distributed across **${new Set(projects.map(p => p.state)).size}** Nigerian states |
+| **Total Units Under Construction** | **${projects.reduce((acc, p) => acc + (p.houseCount || 0), 0)}** units | Renewed Hope Cities & Estates |
+| **Schemes on Schedule** | **${projects.filter(p => p.status === 'On Schedule').length}** schemes | Progressing within target milestones |
+| **Schemes Completed** | **${projects.filter(p => p.status === 'Completed').length}** schemes | Ready or delivered for commissioning |
+| **Requiring Attention / Overdue** | **${projects.filter(p => p.status === 'Needs Attention' || p.status === 'Delayed').length}** schemes | Monitored by zonal project managers |
 
-Feel free to ask a specific query (e.g., *"Which projects are delayed?"*, *"Show Kada Hill progress"*, *"Valuation claims awaiting certification"*, *"Disbursement audit"*).`;
+Ask specific queries (e.g. *"Which projects are delayed?"*, *"Show Kada Hill progress"*, *"Valuation claims awaiting certification"*, *"Disbursement audit"*).`;
 }

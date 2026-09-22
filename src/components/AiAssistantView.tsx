@@ -14,6 +14,7 @@ import {
 import { Project, User } from '../types';
 import { queryYomiLocalIntelligence } from '../utils/yomiLocalEngine';
 import { fallbackDb } from '../fallbackDb';
+import FormattedChatResponse from './FormattedChatResponse';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -319,7 +320,7 @@ export default function AiAssistantView({ currentUser, projects = [] }: AiAssist
                   {isUser ? (
                     <div className="whitespace-pre-wrap">{m.content}</div>
                   ) : (
-                    <div>{renderFormattedContent(m.content)}</div>
+                    <FormattedChatResponse content={m.content} />
                   )}
 
                   <div className="flex items-center justify-between gap-3 mt-2 pt-1.5 border-t border-slate-200 dark:border-white/5 text-[9px] opacity-75">

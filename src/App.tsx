@@ -64,7 +64,7 @@ export default function App() {
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
-      return window.innerWidth < 1024; // Auto collapse on non-laptops/smaller screens
+      return window.innerWidth < 768; // Auto collapse only on mobile phones (< 768px)
     }
     return false;
   });
@@ -628,11 +628,12 @@ export default function App() {
         {/* Top Program Branding Bar */}
         <header className="h-16 border-b border-slate-300 dark:border-white/10 shrink-0 bg-white dark:bg-black/40 flex items-center justify-between px-3 sm:px-6 z-10 print:hidden transition-colors duration-200">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            {/* Mobile / Screen Toggle Button */}
+            {/* Mobile-Only Navigation Drawer Toggle Button (Hidden on Tablet and Laptop) */}
             <button
               onClick={() => setIsSidebarCollapsed(prev => !prev)}
-              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-emerald-800 dark:text-emerald-400 rounded-lg border border-slate-300 dark:border-white/10 transition cursor-pointer shrink-0"
-              title={isSidebarCollapsed ? "Expand Navigation Menu" : "Collapse Navigation Menu"}
+              className="md:hidden p-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-emerald-800 dark:text-emerald-400 rounded-lg border border-slate-300 dark:border-white/10 transition cursor-pointer shrink-0"
+              title={isSidebarCollapsed ? "Open Navigation Menu" : "Close Navigation Menu"}
+              aria-label="Toggle Navigation Menu"
             >
               <Menu className="w-5 h-5" />
             </button>

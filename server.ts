@@ -1634,19 +1634,11 @@ You can ask me questions in natural language or structured queries. How may I as
     const delayedProjects = projects.filter(p => p.status === 'Delayed' || p.status === 'Needs Attention' || p.timelineExceededDays > 0);
     return `### ⚠️ Tactical Schedule Audit: Projects Behind Schedule
 
-Based on live WBS milestone tracking, here are the projects requiring immediate attention:
+Based on live WBS milestone tracking, here are the schemes requiring immediate attention:
 
-1. **Rumuokoro Royal Garden (Rivers State)**:
-   - **Contractor**: Nze Construction Ltd (Rating: **2.3/5**)
-   - **Progress**: Only **23%** complete (stopped at Excavation stage)
-   - **Delay**: **43+ days overdue** against target handover date (2026-06-01)
-   - **Tactical Status**: Site stagnant with no progress updates in over 42 days. Funding withheld pending formal query.
-
-2. **Kada Hill Estate Phase 1 (Kaduna State)**:
-   - **Contractor**: ABC Construction Ltd
-   - **Progress**: **38%** (Ground beam completed; blockwork pending)
-   - **Status**: **Needs Attention** — Inactive with no weekly photo update logged in 9 days.
-   - **Compliance Flag**: Performance bond is nearing expiry in 15 days.
+| Estate Scheme | State | Contractor | Progress | Delivery Status | Overdue Days | Budget (₦) |
+|---|---|---|---|---|---|---|
+${delayedProjects.map(p => `| **${p.estateName}** | ${p.state} | ${p.contractorName} | **${p.progress}%** | ${p.status} | ${p.timelineExceededDays > 0 ? `${p.timelineExceededDays}d overdue` : 'Milestone flag'} | ₦${p.budget.toLocaleString()} |`).join('\n')}
 
 ${userRole === 'MD' ? '💡 **Executive Recommendation**: Issue an immediate ministerial query to Nze Construction and direct the Zonal PM to conduct an unannounced site audit on Kada Hill Estate.' : ''}`;
   }
@@ -1655,14 +1647,13 @@ ${userRole === 'MD' ? '💡 **Executive Recommendation**: Issue an immediate min
     const roofingReady = projects.filter(p => p.stages["Lintel"] === true && p.stages["Roofing"] === false);
     const atRoofing = projects.filter(p => p.stages["Roofing"] === true && p.stages["Finishes"] === false);
     
-    return `### 🏗️ Tactical Milestone Status: Roofing Stage
+    return `### 🏗️ Tactical Milestone Status: Roofing Stage Audit
 
-- **Currently at Roofing Stage**:
-  - **Gwarinpa Vista Heights (Abuja)**: Roof trussing and aluminum sheeting verified at **62%** overall project completion. Valuation cert #VAL/CERT/GWAR/002 certified at **₦120,000,000**.
-- **Pending Roofing Mobilization**:
-  - **Kada Hill Estate (Kaduna)**: At Foundation & Ground Beam stage (**38%**). Requires blockwork and lintel casting before roofing mobilization.
-  - **Dala Hill Court (Kano)**: Currently at Foundation stage (**31%**).
-  - **Rumuokoro Royal Garden (Rivers)**: Stagnant at Excavation (**23%**).`;
+| Estate Scheme | State | Contractor | Progress | Roofing Stage | Remarks & Key Action |
+|---|---|---|---|---|---|
+${atRoofing.map(p => `| **${p.estateName}** | ${p.state} | ${p.contractorName} | **${p.progress}%** | Active Roofing | Truss fabrication and aluminum coverings underway |`).join('\n')}
+${roofingReady.map(p => `| **${p.estateName}** | ${p.state} | ${p.contractorName} | **${p.progress}%** | Ready for Roofing | Blockwork & lintel cast; awaiting truss delivery |`).join('\n')}
+${atRoofing.length === 0 && roofingReady.length === 0 ? '| *None* | — | — | — | Substructures Active | Foundations in progress on earlier stage schemes |' : ''}`;
   }
 
   if (q.includes('spent') || q.includes('budget') || q.includes('cost') || q.includes('financ')) {
@@ -1670,42 +1661,38 @@ ${userRole === 'MD' ? '💡 **Executive Recommendation**: Issue an immediate min
     const totalSpent = projects.reduce((acc, p) => acc + p.spent, 0);
     const pct = Math.round((totalSpent / totalBudget) * 100);
 
-    return `### 💰 Financial Execution Overview
+    return `### 💰 Financial Execution & Capital Disbursement Overview
 
 - **Total Programme Budget**: **₦${(totalBudget).toLocaleString()}** (₦${(totalBudget / 1000000000).toFixed(2)}B)
 - **Total Certified Expenditure**: **₦${(totalSpent).toLocaleString()}** (₦${(totalSpent / 1000000).toFixed(1)}M)
 - **Capital Utilization Rate**: **${pct}%**
 
-#### Estate Breakdown:
-${projects.map(p => `• **${p.estateName} (${p.state})**: Budget ₦${(p.budget).toLocaleString()} | Spent ₦${(p.spent).toLocaleString()} (${Math.round((p.spent/p.budget)*100)}%) — *${p.status}*`).join('\n')}`;
+| Estate Scheme | State | Budget (₦) | Disbursed (₦) | Utilization | Delivery Status |
+|---|---|---|---|---|---|
+${projects.map(p => {
+  const util = p.budget > 0 ? Math.round((p.spent / p.budget) * 100) : 0;
+  return `| **${p.estateName}** | ${p.state} | ₦${p.budget.toLocaleString()} | ₦${p.spent.toLocaleString()} | **${util}%** | ${p.status} |`;
+}).join('\n')}`;
   }
 
   if (q.includes('valuation') || q.includes('invoice') || q.includes('claim')) {
     return `### 📑 Valuation Claims & Certification Audit
 
-Total valuation requests in system: **${valuations.length}**
+Total active interim valuation requests: **${valuations.length}**
 
-${valuations.map(v => `1. **${v.estateName}** (${v.invoiceNumber}):
-   - **Contractor**: ${v.contractorName}
-   - **Amount Requested**: **₦${(v.amountRequested).toLocaleString()}**
-   - **Amount Certified**: **₦${((v.amountCertified || v.amountRequested)).toLocaleString()}**
-   - **Current Workflow Stage**: \`${v.currentStage.replace(/_/g, ' ').toUpperCase()}\`
-`).join('\n')}
+| Invoice No. | Estate Scheme | Contractor | Claimed Amount | Certified Amount | Approval Gate | Site Photos |
+|---|---|---|---|---|---|---|
+${valuations.map(v => `| \`${v.invoiceNumber}\` | **${v.estateName}** | ${v.contractorName} | ₦${v.amountRequested.toLocaleString()} | ₦${((v.amountCertified || v.amountRequested)).toLocaleString()} | \`${v.currentStage.replace(/_/g, ' ').toUpperCase()}\` | ${v.photos?.length || 0} photo(s) |`).join('\n')}
+
 ${userRole === 'QS' ? '💡 **QS Directive**: Valuation **val-3** (Kada Hill Estate, ₦45,000,000) is awaiting Resident Engineer and PM verification before Quantity Surveyor certification.' : ''}`;
   }
 
   if (q.includes('contractor') || q.includes('score') || q.includes('rating')) {
     return `### 👷 Contractor Performance & Delivery Audit
 
-${contractors.map(c => `• **${c.companyName}** (${c.registrationNo}):
-   - **Contract Value**: ₦${(c.contractAmount).toLocaleString()} | **Duration**: ${c.durationMonths} months
-   - **Assigned Projects**: ${c.assignedProjectsCount} active site(s)
-   - **Bank**: ${c.bankName}
-   - **Status**: ${c.status.toUpperCase()}`).join('\n')}
-
-**Key Performance Highlights**:
-- **Cappa & D'Alberto PLC**: Top performer (Rating **4.7/5**). Delivered Isheri Olofin Court on time and on budget.
-- **Nze Construction Ltd**: Flagged underperformer. 43+ days overdue on Rivers State scheme.`;
+| Contractor Company | Reg. Number | Assigned Sites | Contract Value (₦) | Performance Rating | Bank Partner | Status |
+|---|---|---|---|---|---|---|
+${contractors.map(c => `| **${c.companyName}** | \`${c.registrationNo}\` | ${c.assignedProjectsCount} site(s) | ₦${c.contractAmount.toLocaleString()} | **${c.rating ? `${c.rating}/5.0` : 'Under Evaluation'}** | ${c.bankName} | ${c.status.toUpperCase()} |`).join('\n')}`;
   }
 
   // Project-specific lookup (check state, full estate name, or key name roots)
@@ -1824,8 +1811,9 @@ STRICT OPERATIONAL RULES:
      * Quantity Surveyor (QS): Financial valuations, requested vs certified amounts, BOQ stage costs, payment certificates.
      * Project Manager (PM): Operational milestones, delays, schedule variances, contractor scorecards.
      * Finance Director (FD) / Treasury (CT): Budgets, disbursements, payment releases, CBN RTGS tracking.
-4. TACTICAL & FINANCIAL EXPERTISE:
-   - You answer questions in both structured (e.g. tables, bulleted metrics) and unstructured (e.g. conversational, colloquial queries like "how is kano doing?" or "who is messing up?") styles.
+4. TACTICAL & FINANCIAL EXPERTISE & CLEAN TABLE FORMATTING:
+   - When users ask questions involving multiple projects, delays, financial breakdowns, valuations, contractor ratings, or stage milestones, ALWAYS present the information in a clean, professional Markdown table (| Header 1 | Header 2 | ...) with clear columns.
+   - If there are multiple items, points, or comparisons, organize them into orderly tables or structured sections. Avoid messy unstructured text dumps.
    - Always represent currency in Nigerian Naira (₦) with clean commas (e.g. ₦120,000,000 or ₦1.2B).
    - Use bold for key names, states, amounts, and progress metrics.
    - Provide direct, concise executive insights. Never invent fake external data.

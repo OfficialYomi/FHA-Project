@@ -203,9 +203,15 @@ export default function DashboardView({
     return `₦${(amount / 1_000_000).toFixed(1)}M`;
   };
 
-  // State-specific projects filter
+  // State-specific projects filter with FCT/Abuja alias support
   const stateProjects = selectedState 
-    ? displayedProjects.filter(p => p.state.toLowerCase() === selectedState.toLowerCase())
+    ? displayedProjects.filter(p => {
+        const pState = p.state.toLowerCase();
+        const sel = selectedState.toLowerCase();
+        return pState === sel || 
+          (sel === 'fct' && (pState === 'abuja' || pState === 'fct')) || 
+          (sel === 'abuja' && (pState === 'abuja' || pState === 'fct'));
+      })
     : displayedProjects;
 
   // Active status color helpers

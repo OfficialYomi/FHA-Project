@@ -50,7 +50,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
-      return window.innerWidth < 1024; // Automatically collapse on non-laptop/small screens
+      return window.innerWidth < 768; // Automatically collapse only on mobile screens (< 768px)
     }
     return false;
   });
@@ -58,10 +58,10 @@ export default function Sidebar({
   const isCollapsed = propIsCollapsed !== undefined ? propIsCollapsed : internalCollapsed;
   const setIsCollapsed = propSetIsCollapsed !== undefined ? propSetIsCollapsed : setInternalCollapsed;
 
-  // Auto-collapse if screen resized below 1024px (tablet or mobile)
+  // Auto-collapse only if screen resized below 768px (mobile phones)
   React.useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024) {
+      if (window.innerWidth < 768) {
         setIsCollapsed(true);
       }
     };
@@ -71,14 +71,14 @@ export default function Sidebar({
 
   const handleNavClick = (tabId: string) => {
     setActiveTab(tabId);
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setIsCollapsed(true);
     }
   };
 
   const handleProjectClick = (projectId: string) => {
     onSelectProject(projectId);
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setIsCollapsed(true);
     }
   };

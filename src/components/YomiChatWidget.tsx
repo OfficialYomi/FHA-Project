@@ -22,6 +22,7 @@ import {
 import { Project, User } from '../types';
 import { queryYomiLocalIntelligence } from '../utils/yomiLocalEngine';
 import { fallbackDb } from '../fallbackDb';
+import FormattedChatResponse from './FormattedChatResponse';
 
 interface Message {
   id: string;
@@ -455,7 +456,7 @@ export default function YomiChatWidget({ currentUser, projects }: YomiChatWidget
                         {isUser ? (
                           <div className="text-xs whitespace-pre-wrap leading-relaxed">{msg.content}</div>
                         ) : (
-                          <div>{renderFormattedContent(msg.content)}</div>
+                          <FormattedChatResponse content={msg.content} />
                         )}
 
                         {/* Message metadata & actions */}

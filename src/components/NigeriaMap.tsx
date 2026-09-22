@@ -1,50 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Project } from '../types';
-import { MapPin, Info, Sparkles } from 'lucide-react';
+import { MapPin, Search, Compass, Layers, CheckCircle2, AlertTriangle, X } from 'lucide-react';
+import { 
+  ALL_NIGERIAN_STATES, 
+  ALL_STATES_COMBINED_PATH, 
+  NIGERIA_VIEWBOX,
+  NigerianStateData 
+} from '../data/nigeriaMapData';
 
 interface NigeriaMapProps {
   projects: Project[];
   selectedState: string | null;
   onSelectState: (state: string | null) => void;
-  getStateColor: (state: string) => string;
+  getStateColor?: (state: string) => string;
 }
-
-interface StateNode {
-  id: string;
-  name: string;
-  code: string;
-  zone: string;
-  cx: number;
-  cy: number;
-  labelX: number;
-  labelY: number;
-  align: 'middle' | 'start' | 'end';
-}
-
-// Geographically calibrated coordinates for Nigerian States with housing delivery assets
-const HOUSING_STATES: StateNode[] = [
-  { id: 'kano', name: 'Kano', code: 'KN', zone: 'North-West', cx: 275, cy: 105, labelX: 275, labelY: 88, align: 'middle' },
-  { id: 'kaduna', name: 'Kaduna', code: 'KD', zone: 'North-West', cx: 240, cy: 165, labelX: 240, labelY: 148, align: 'middle' },
-  { id: 'abuja', name: 'Abuja', code: 'FCT', zone: 'North-Central', cx: 232, cy: 225, labelX: 275, labelY: 228, align: 'start' },
-  { id: 'lagos', name: 'Lagos', code: 'LA', zone: 'South-West', cx: 85, cy: 320, labelX: 85, labelY: 340, align: 'middle' },
-  { id: 'rivers', name: 'Rivers', code: 'RV', zone: 'South-South', cx: 250, cy: 355, labelX: 250, labelY: 375, align: 'middle' },
-  // Secondary strategic hub nodes
-  { id: 'enugu', name: 'Enugu', code: 'EN', zone: 'South-East', cx: 275, cy: 285, labelX: 305, labelY: 288, align: 'start' },
-  { id: 'edo', name: 'Edo', code: 'ED', zone: 'South-South', cx: 185, cy: 285, labelX: 185, labelY: 270, align: 'middle' },
-  { id: 'borno', name: 'Borno', code: 'BO', zone: 'North-East', cx: 450, cy: 105, labelX: 450, labelY: 88, align: 'middle' },
-];
 
 export default function NigeriaMap({
   projects,
   selectedState,
   onSelectState,
-  getStateColor
 }: NigeriaMapProps) {
   const [hoveredState, setHoveredState] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedZone, setSelectedZone] = useState<string>('All');
 
-  // Calculate statistics per state
-  const getStateStats = (stateName: string) => {
-    const stateProjs = projects.filter(p => p.state.toLowerCase() === stateName.toLowerCase());
+  // Compute stats for any given state
+  const getStateStats = (stateName: string, stateAliases?: string[]) => {
+    const checkNames = [
+      stateName.toLowerCase(), 
+      ...(stateAliases || []).map(a => a.toLowerCase())
+    ];
+
+    const stateProjs = projects.filter(p => {
+      const pState = (p.state || '').toLowerCase().trim();
+      return checkNames.includes(pState) || 
+        (stateName === 'FCT' && (pState === 'abuja' || pState === 'fct')) ||
+        (stateName === 'Abuja' && (pState === 'abuja' || pState === 'fct'));
+    });
+
     const totalHouses = stateProjs.reduce((sum, p) => sum + (p.houseCount || 0), 0);
     const avgProgress = stateProjs.length > 0 
       ? Math.round(stateProjs.reduce((sum, p) => sum + p.progress, 0) / stateProjs.length) 
@@ -64,327 +57,508 @@ export default function NigeriaMap({
       houses: totalHouses,
       progress: avgProgress,
       budget: totalBudget,
-      status
+      status,
+      projects: stateProjs
     };
   };
 
-  const activeHoverNode = hoveredState 
-    ? HOUSING_STATES.find(s => s.name.toLowerCase() === hoveredState.toLowerCase())
-    : null;
-  const activeHoverStats = activeHoverNode ? getStateStats(activeHoverNode.name) : null;
+  // Currently hovered node and stats
+  const activeHoverNode = useMemo(() => {
+    if (!hoveredState) return null;
+    return ALL_NIGERIAN_STATES.find(
+      s => s.name.toLowerCase() === hoveredState.toLowerCase() || 
+           s.id === hoveredState.toLowerCase() ||
+           (hoveredState.toLowerCase() === 'abuja' && s.id === 'fct')
+    ) || null;
+  }, [hoveredState]);
+
+  const activeHoverStats = useMemo(() => {
+    if (!activeHoverNode) return null;
+    return getStateStats(activeHoverNode.name, activeHoverNode.alias);
+  }, [activeHoverNode, projects]);
+
+  // Active states with projects
+  const activeStatesWithProjects = useMemo(() => {
+    return ALL_NIGERIAN_STATES.filter(s => getStateStats(s.name, s.alias).count > 0);
+  }, [projects]);
+
+  // Filtered states list for quick selector
+  const filteredStatesList = useMemo(() => {
+    return ALL_NIGERIAN_STATES.filter(s => {
+      const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (s.alias && s.alias.some(a => a.toLowerCase().includes(searchQuery.toLowerCase())));
+      const matchesZone = selectedZone === 'All' || s.zone === selectedZone;
+      return matchesSearch && matchesZone;
+    });
+  }, [searchQuery, selectedZone]);
+
+  const zones = ['All', 'North-West', 'North-East', 'North-Central', 'South-West', 'South-East', 'South-South'];
 
   return (
-    <div className="relative w-full h-[360px] bg-slate-50 dark:bg-[#050811] rounded-xl border border-slate-300 dark:border-slate-800 overflow-hidden flex items-center justify-center select-none shadow-sm dark:shadow-inner">
+    <div className="relative w-full bg-slate-50 dark:bg-[#070b14] rounded-2xl border-2 border-emerald-900/30 dark:border-emerald-500/40 overflow-hidden flex flex-col items-center justify-center select-none shadow-md transition-all">
       
-      {/* Background Cartographic Coordinate Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0000000a_1px,transparent_1px),linear-gradient(to_bottom,#0000000a_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
-      
-      {/* Lat/Long Coordinate Reticles */}
-      <div className="absolute top-2 left-3 text-[9px] font-mono text-slate-500 dark:text-slate-500 tracking-wider pointer-events-none">
-        NIGERIA // 09°04&apos;N 07°29&apos;E // WGS84
-      </div>
-      <div className="absolute top-2 right-3 text-[9px] font-mono text-amber-600 dark:text-amber-500/70 tracking-wider pointer-events-none flex items-center gap-1 font-semibold">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        FEDERAL CARTOGRAPHIC TELEMETRY
-      </div>
+      {/* Top Header Bar inside Map */}
+      <div className="w-full flex flex-wrap items-center justify-between px-3 sm:px-4 py-2.5 bg-white dark:bg-black/50 border-b border-slate-300 dark:border-white/10 z-20 gap-2">
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-mono">
+            Federal Republic of Nigeria — 36 States + FCT
+          </span>
+          <span className="hidden sm:inline text-[10px] text-slate-600 dark:text-slate-400 font-mono">
+            (Official Survey Grid)
+          </span>
+        </div>
 
-      {/* Main SVG Geographical Nigeria Map */}
-      <svg 
-        viewBox="0 0 520 410" 
-        className="w-full max-w-[490px] h-full z-10 transition-transform duration-300"
-      >
-        <defs>
-          {/* Light landmass gradient */}
-          <linearGradient id="nigeriaLandmassGradLight" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="50%" stopColor="#f8fafc" />
-            <stop offset="100%" stopColor="#e2e8f0" />
-          </linearGradient>
-
-          {/* Dark regional zone gradients */}
-          <linearGradient id="nigeriaLandmassGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0c1527" />
-            <stop offset="50%" stopColor="#0a101f" />
-            <stop offset="100%" stopColor="#060c18" />
-          </linearGradient>
-
-          <linearGradient id="riverGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#0284c7" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.9" />
-          </linearGradient>
-
-          <filter id="mapGlow" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="0" dy="1" stdDeviation="3" floodColor="#005082" floodOpacity="0.25" />
-          </filter>
-        </defs>
-
-        {/* 1. ACTUAL GEOGRAPHICAL NIGERIA BOUNDARY PATH */}
-        {/* Calibrated from true boundary control points (Atlantic coast, Cameroon, Chad, Niger, Benin) */}
-        <path
-          d="
-            M 65,320 
-            C 72,320 85,321 95,322
-            C 115,325 130,328 145,332
-            C 160,342 175,350 190,360
-            C 205,372 215,380 225,380
-            C 235,378 245,370 255,366
-            C 270,364 285,368 298,368
-            C 312,365 325,355 330,345
-            C 335,332 342,315 345,295
-            C 350,280 365,268 385,260
-            C 405,250 420,230 435,210
-            C 450,190 465,165 470,145
-            C 475,125 480,105 488,85
-            C 470,82 445,80 425,78
-            C 395,76 365,80 340,82
-            C 315,80 285,76 260,74
-            C 230,72 205,74 180,75
-            C 155,76 135,70 120,72
-            C 105,78 98,95 94,115
-            C 90,135 84,155 80,175
-            C 78,195 82,215 80,235
-            C 75,255 65,275 58,290
-            C 54,302 58,315 65,320
-            Z
-          "
-          className="fill-[url(#nigeriaLandmassGradLight)] dark:fill-[url(#nigeriaLandmassGradDark)] stroke-slate-400 dark:stroke-slate-700 transition-colors duration-300"
-          strokeWidth="2"
-          filter="url(#mapGlow)"
-        />
-
-        {/* 2. SUBTLE GEOPOLITICAL ZONE INTERNAL BOUNDARIES */}
-        {/* North-West / North-East separator */}
-        <path d="M 340,82 C 330,130 320,165 310,195" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
-        {/* Northern / Middle-Belt separator */}
-        <path d="M 80,175 C 150,180 230,185 310,195 C 370,198 420,210 435,210" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
-        {/* Middle-Belt / Southern separator */}
-        <path d="M 80,235 C 140,245 190,260 270,270 C 330,275 365,268 385,260" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
-        {/* South-West / South-South separator */}
-        <path d="M 145,332 C 160,300 175,275 190,260" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
-        {/* South-East / South-South separator */}
-        <path d="M 270,270 C 265,300 258,335 255,366" fill="none" className="stroke-slate-300 dark:stroke-slate-800" strokeWidth="1" strokeDasharray="3 3" />
-
-        {/* 3. FAMOUS RIVERS NIGER & BENUE (Y-SHAPED CONFLUENCE AT LOKOJA) */}
-        {/* River Niger entering from Kebbi/Niger state through Jebba to Lokoja */}
-        <path 
-          d="M 80,175 C 95,190 120,205 145,220 C 170,232 195,242 215,255" 
-          fill="none" 
-          stroke="url(#riverGlow)" 
-          strokeWidth="2.2" 
-          strokeLinecap="round"
-        />
-        {/* River Benue entering from Adamawa/Taraba to Lokoja */}
-        <path 
-          d="M 460,180 C 420,195 370,215 320,230 C 275,242 245,248 215,255" 
-          fill="none" 
-          stroke="url(#riverGlow)" 
-          strokeWidth="2.2" 
-          strokeLinecap="round"
-        />
-        {/* Lower Niger to Atlantic Delta */}
-        <path 
-          d="M 215,255 C 218,280 220,310 222,335 C 223,350 225,365 225,380" 
-          fill="none" 
-          stroke="url(#riverGlow)" 
-          strokeWidth="2.5" 
-          strokeLinecap="round"
-        />
-        {/* Delta tributaries */}
-        <path d="M 220,320 C 200,335 180,348 160,355" fill="none" stroke="#0284c7" strokeWidth="1.2" opacity="0.7" />
-        <path d="M 222,335 C 235,350 245,360 255,366" fill="none" stroke="#0284c7" strokeWidth="1.2" opacity="0.7" />
-
-        {/* Lokoja Confluence Marker */}
-        <circle cx="215" cy="255" r="3" fill="#0284c7" className="dark:fill-[#38bdf8]" />
-        <text x="215" y="247" textAnchor="middle" className="fill-sky-700 dark:fill-sky-400/80 text-[7.5px] font-mono pointer-events-none uppercase font-bold">
-          Lokoja Confluence
-        </text>
-
-        {/* 4. GEOPOLITICAL ZONE LABELS (Subtle Watermarks) */}
-        <text x="220" y="115" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[9px] uppercase tracking-widest pointer-events-none font-mono">North-West</text>
-        <text x="400" y="130" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[9px] uppercase tracking-widest pointer-events-none font-mono">North-East</text>
-        <text x="240" y="200" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[9px] uppercase tracking-widest pointer-events-none font-mono">North-Central</text>
-        <text x="115" y="275" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[8px] uppercase tracking-widest pointer-events-none font-mono">South-West</text>
-        <text x="305" y="295" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[8px] uppercase tracking-widest pointer-events-none font-mono">South-East</text>
-        <text x="205" y="325" textAnchor="middle" className="fill-slate-400 dark:fill-slate-700/60 font-bold text-[8px] uppercase tracking-widest pointer-events-none font-mono">South-South</text>
-
-        {/* 5. INTERACTIVE HOUSING STATE HUBS */}
-        {HOUSING_STATES.map((node) => {
-          const stats = getStateStats(node.name);
-          const isSelected = selectedState?.toLowerCase() === node.name.toLowerCase();
-          const isHovered = hoveredState?.toLowerCase() === node.name.toLowerCase();
-          const hasProjects = stats.count > 0;
-
-          // Determine status fill color
-          let statusCircleColor = 'fill-slate-400 stroke-slate-300 dark:fill-slate-700 dark:stroke-slate-500';
-          let pulseColor = 'stroke-slate-400/30 dark:stroke-slate-500/20';
-
-          if (hasProjects) {
-            if (stats.status === 'Delayed') {
-              statusCircleColor = 'fill-rose-500 stroke-rose-300';
-              pulseColor = 'stroke-rose-500/40';
-            } else if (stats.status === 'Needs Attention') {
-              statusCircleColor = 'fill-amber-500 stroke-amber-300';
-              pulseColor = 'stroke-amber-500/40';
-            } else if (stats.status === 'Completed') {
-              statusCircleColor = 'fill-sky-500 stroke-sky-300';
-              pulseColor = 'stroke-sky-500/40';
-            } else {
-              statusCircleColor = 'fill-emerald-600 dark:fill-emerald-500 stroke-emerald-300';
-              pulseColor = 'stroke-emerald-500/40';
-            }
-          }
-
-          return (
-            <g 
-              key={node.id}
-              className="cursor-pointer group"
-              onClick={() => onSelectState(isSelected ? null : node.name)}
-              onMouseEnter={() => setHoveredState(node.name)}
-              onMouseLeave={() => setHoveredState(null)}
-            >
-              {/* State Selection Halo */}
-              {isSelected && (
-                <circle 
-                  cx={node.cx} 
-                  cy={node.cy} 
-                  r="26" 
-                  className="fill-amber-500/20 stroke-amber-500 stroke-2 animate-pulse" 
-                />
-              )}
-
-              {/* Pulse Wave for Active Sites */}
-              {hasProjects && (
-                <circle 
-                  cx={node.cx} 
-                  cy={node.cy} 
-                  r={isSelected ? 24 : 18} 
-                  className={`fill-none stroke-2 ${pulseColor} animate-ping`} 
-                  style={{ animationDuration: '3s' }}
-                />
-              )}
-
-              {/* Interactive Target Circle */}
-              <circle 
-                cx={node.cx} 
-                cy={node.cy} 
-                r={node.id === 'abuja' ? 14 : 12} 
-                className={`${statusCircleColor} stroke-2 transition-all duration-300 drop-shadow-md group-hover:scale-125 group-hover:brightness-110`}
-                style={{ transformOrigin: `${node.cx}px ${node.cy}px` }}
-              />
-
-              {/* Center Core Dot */}
-              <circle 
-                cx={node.cx} 
-                cy={node.cy} 
-                r={node.id === 'abuja' ? 4.5 : 3.5} 
-                className="fill-white pointer-events-none" 
-              />
-
-              {/* State Label */}
-              <text 
-                x={node.labelX} 
-                y={node.labelY} 
-                textAnchor={node.align} 
-                className={`font-bold text-[10px] uppercase tracking-wider pointer-events-none transition-colors duration-200 ${
-                  isSelected 
-                    ? 'fill-amber-600 dark:fill-amber-400 font-extrabold text-[11px]' 
-                    : isHovered 
-                    ? 'fill-slate-900 dark:fill-white font-extrabold' 
-                    : hasProjects 
-                    ? 'fill-slate-900 dark:fill-slate-200 font-bold' 
-                    : 'fill-slate-500 dark:fill-slate-500'
-                }`}
+        {/* State Quick Search & Zone Filter */}
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Find state..."
+              className="w-28 sm:w-36 text-[11px] bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-md px-2 py-1 pl-6 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500"
+            />
+            <Search className="w-3 h-3 text-slate-400 absolute left-1.5 top-2 pointer-events-none" />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="absolute right-1.5 top-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white"
               >
-                {node.name} {node.id === 'abuja' && '(FCT)'}
-              </text>
-
-              {/* Projects Badge Count */}
-              {hasProjects && (
-                <text
-                  x={node.cx}
-                  y={node.cy + 3}
-                  textAnchor="middle"
-                  className="fill-white font-extrabold text-[8px] pointer-events-none font-mono"
-                >
-                  {stats.count}
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-
-      {/* Floating Hover Telemetry Card */}
-      {activeHoverNode && activeHoverStats && (
-        <div className="absolute top-4 left-4 bg-white/95 dark:bg-[#0a0f1d]/95 backdrop-blur-md border border-slate-300 dark:border-slate-700/80 p-3 rounded-xl shadow-xl z-30 pointer-events-none text-xs space-y-1.5 min-w-[200px] animate-in fade-in zoom-in-95 duration-150 text-slate-800 dark:text-slate-100">
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/50 pb-1.5">
-            <div className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-amber-500" />
-              <strong className="text-slate-900 dark:text-white text-sm font-serif">{activeHoverNode.name} {activeHoverNode.id === 'abuja' ? '(FCT)' : 'State'}</strong>
-            </div>
-            <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-mono font-bold border border-slate-200 dark:border-slate-700">
-              {activeHoverNode.zone}
-            </span>
+                <X className="w-2.5 h-2.5" />
+              </button>
+            )}
           </div>
 
-          {activeHoverStats.count > 0 ? (
-            <div className="space-y-1 text-[11px]">
-              <div className="flex justify-between text-slate-600 dark:text-slate-300">
-                <span>Active Schemes:</span>
-                <strong className="text-slate-900 dark:text-white font-bold">{activeHoverStats.count} Estates</strong>
-              </div>
-              <div className="flex justify-between text-slate-600 dark:text-slate-300">
-                <span>Total Houses:</span>
-                <strong className="text-slate-900 dark:text-white font-bold">{activeHoverStats.houses} Units</strong>
-              </div>
-              <div className="flex justify-between text-slate-600 dark:text-slate-300">
-                <span>Avg Delivery Pace:</span>
-                <strong className="text-amber-600 dark:text-amber-400 font-bold">{activeHoverStats.progress}%</strong>
-              </div>
-              <div className="flex justify-between text-slate-600 dark:text-slate-300">
-                <span>Delivery Status:</span>
-                <span className={`font-bold px-1.5 py-0.2 rounded text-[9px] uppercase ${
-                  activeHoverStats.status === 'Completed' ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-500/20' :
-                  activeHoverStats.status === 'Delayed' ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20' :
-                  activeHoverStats.status === 'Needs Attention' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20' :
-                  'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
-                }`}>
-                  {activeHoverStats.status}
-                </span>
-              </div>
-              <div className="pt-1 border-t border-slate-200 dark:border-slate-800 text-[9px] text-slate-500 dark:text-slate-400 italic">
-                Click state node to filter delivery schemes below
-              </div>
-            </div>
-          ) : (
-            <div className="text-[10px] text-slate-500 pt-1">
-              No active FHA schemes currently allocated in this state node.
-            </div>
-          )}
-        </div>
-      )}
+          <span className="text-[10px] text-emerald-800 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-1 rounded font-mono font-bold whitespace-nowrap">
+            {activeStatesWithProjects.length} Active States
+          </span>
 
-      {/* Map Legend Overlay */}
-      <div className="absolute bottom-3 left-3 bg-white/95 dark:bg-[#080d1a]/95 border border-slate-300 dark:border-slate-800/80 p-2.5 rounded-lg text-xs space-y-1 z-20 shadow-md backdrop-blur-sm pointer-events-auto">
-        <div className="font-semibold text-[9px] text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-          <Info className="w-3 h-3 text-amber-500" />
-          <span>National Delivery Status</span>
-        </div>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-500" /> <span className="text-slate-700 dark:text-slate-300 text-[10px]">Completed</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-500" /> <span className="text-slate-700 dark:text-slate-300 text-[10px]">On Schedule</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /> <span className="text-slate-700 dark:text-slate-300 text-[10px]">Needs Attention</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-rose-500" /> <span className="text-slate-700 dark:text-slate-300 text-[10px]">Delayed / Behind</span></div>
+          {selectedState && (
+            <button
+              onClick={() => onSelectState(null)}
+              className="text-[10px] bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-700/50 px-2 py-1 rounded font-bold cursor-pointer transition flex items-center gap-1"
+            >
+              Clear Filter ({selectedState})
+              <X className="w-3 h-3" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Rivers & Confluence Tag Overlay */}
-      <div className="absolute bottom-3 right-3 bg-white/90 dark:bg-[#080d1a]/90 border border-slate-300 dark:border-slate-800/80 px-2.5 py-1.5 rounded-lg text-[9px] text-slate-600 dark:text-slate-400 space-y-0.5 pointer-events-none hidden sm:block shadow-sm">
-        <div className="flex items-center gap-1.5 text-sky-700 dark:text-sky-400 font-mono font-bold">
-          <span className="w-2 h-0.5 bg-sky-500 inline-block"></span>
-          <span>River Niger & River Benue</span>
+      {/* Geopolitical Zone Quick Tabs */}
+      <div className="w-full flex items-center gap-1 px-3 py-1.5 bg-slate-100/70 dark:bg-black/30 border-b border-slate-200 dark:border-white/5 overflow-x-auto text-[10px] scrollbar-none z-10">
+        <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+          <Layers className="w-3 h-3 text-emerald-600" /> Zones:
+        </span>
+        {zones.map(z => (
+          <button
+            key={z}
+            onClick={() => setSelectedZone(z)}
+            className={`px-2 py-0.5 rounded-full transition whitespace-nowrap font-medium cursor-pointer ${
+              selectedZone === z 
+                ? 'bg-emerald-600 text-white font-bold shadow-xs' 
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10'
+            }`}
+          >
+            {z}
+          </button>
+        ))}
+      </div>
+
+      {/* Map Display Frame with Official Cartographic Border */}
+      <div className="relative w-full h-[430px] sm:h-[490px] md:h-[530px] flex items-center justify-center overflow-hidden p-2 sm:p-4">
+        {/* Subtle grid lines background (Graticule) */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+
+        {/* Cartographic Coordinate Border Line around the map canvas */}
+        <div className="absolute inset-2 sm:inset-3 border border-slate-300 dark:border-white/15 rounded-xl pointer-events-none z-10">
+          {/* Inner hairline neatline */}
+          <div className="absolute inset-1 border border-slate-300/70 dark:border-white/10 rounded-lg pointer-events-none" />
+          
+          {/* Coordinate Marks */}
+          <span className="absolute top-1 left-2 text-[9px] font-mono font-semibold text-slate-600 dark:text-slate-400 select-none">14°N / 3°E</span>
+          <span className="absolute top-1 right-2 text-[9px] font-mono font-semibold text-slate-600 dark:text-slate-400 select-none">14°N / 15°E</span>
+          <span className="absolute bottom-1 left-2 text-[9px] font-mono font-semibold text-slate-600 dark:text-slate-400 select-none">4°N / 3°E (Gulf of Guinea)</span>
+          <span className="absolute bottom-1 right-2 text-[9px] font-mono font-semibold text-slate-600 dark:text-slate-400 select-none">4°N / 15°E</span>
         </div>
-        <div className="text-[8px] text-slate-500">6 Geopolitical Zones Demarcation</div>
+
+        {/* Compass Rose (North Arrow) in Top Right */}
+        <div className="absolute top-5 right-5 sm:top-6 sm:right-6 flex flex-col items-center pointer-events-none z-20 opacity-80 dark:opacity-90">
+          <div className="w-8 h-8 rounded-full bg-white/90 dark:bg-black/80 border border-slate-300 dark:border-white/20 shadow-md flex items-center justify-center">
+            <Compass className="w-5 h-5 text-emerald-700 dark:text-emerald-400 animate-[spin_60s_linear_infinite]" />
+          </div>
+          <span className="text-[9px] font-mono font-black text-slate-700 dark:text-slate-300 mt-0.5 tracking-widest">N</span>
+        </div>
+
+        {/* Map Scale Indicator in Bottom Left */}
+        <div className="absolute bottom-5 left-5 sm:bottom-6 sm:left-6 hidden sm:flex flex-col gap-0.5 bg-white/90 dark:bg-black/80 px-2 py-1 rounded border border-slate-300 dark:border-white/20 shadow-xs pointer-events-none z-20">
+          <div className="flex justify-between text-[8px] font-mono text-slate-700 dark:text-slate-300">
+            <span>0</span>
+            <span>150</span>
+            <span>300 km</span>
+          </div>
+          <div className="w-24 h-1.5 flex border border-slate-600 dark:border-white/40">
+            <div className="w-1/2 h-full bg-slate-800 dark:bg-white" />
+            <div className="w-1/2 h-full bg-white dark:bg-slate-700" />
+          </div>
+          <span className="text-[7.5px] font-mono text-slate-600 dark:text-slate-400 text-center">Scale 1 : 4,000,000</span>
+        </div>
+
+        {/* SVG Map of Nigeria (36 States + FCT) with Distinct National Border and Internal State Borders */}
+        <svg 
+          viewBox={NIGERIA_VIEWBOX}
+          className="w-full h-full max-w-[850px] z-10 transition-transform duration-300"
+          style={{ maxHeight: '100%' }}
+        >
+          <defs>
+            {/* Delivery Status Gradients */}
+            <linearGradient id="onScheduleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#258f41" />
+              <stop offset="100%" stopColor="#1D7033" />
+            </linearGradient>
+            <linearGradient id="needsAttentionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#f59e0b" />
+              <stop offset="100%" stopColor="#d97706" />
+            </linearGradient>
+            <linearGradient id="delayedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#f43f5e" />
+              <stop offset="100%" stopColor="#e11d48" />
+            </linearGradient>
+            <linearGradient id="completedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#0284c7" />
+            </linearGradient>
+
+            {/* Inactive Neutral Landmass Gradients (Matching Official Atlas Topography) */}
+            <linearGradient id="inactiveStateGradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#e2e8f0" />
+              <stop offset="100%" stopColor="#cbd5e1" />
+            </linearGradient>
+            <linearGradient id="inactiveStateGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#1e293b" />
+              <stop offset="100%" stopColor="#151e2d" />
+            </linearGradient>
+
+            {/* Dimmed State Gradient for zone or search filters */}
+            <linearGradient id="dimmedStateGradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#f1f5f9" />
+              <stop offset="100%" stopColor="#e2e8f0" />
+            </linearGradient>
+            <linearGradient id="dimmedStateGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#0f172a" />
+              <stop offset="100%" stopColor="#0b1120" />
+            </linearGradient>
+
+            {/* National Border Glow and Drop Shadow */}
+            <filter id="nationalBorderShadow" x="-10%" y="-10%" width="120%" height="120%">
+              <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor="#042f1a" floodOpacity="0.35" />
+            </filter>
+
+            <filter id="stateSelectedGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#000000" floodOpacity="0.4" />
+            </filter>
+          </defs>
+
+          {/* ========================================================================= */}
+          {/* LAYER 1: NATIONAL BORDER UNDERLAY LINE (THE CONTINUOUS EXTERIOR BORDER)   */}
+          {/* ========================================================================= */}
+          {/* Outer perimeter glow/shadow */}
+          <path
+            d={ALL_STATES_COMBINED_PATH}
+            fill="none"
+            stroke="#042f1a"
+            strokeWidth="8"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            filter="url(#nationalBorderShadow)"
+            className="opacity-40 dark:opacity-80 dark:stroke-emerald-950"
+          />
+
+          {/* Official National Boundary Primary Line (Distinct Line Around the Border of Nigeria) */}
+          <path
+            d={ALL_STATES_COMBINED_PATH}
+            fill="none"
+            stroke="#064e3b"
+            strokeWidth="5.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            className="dark:stroke-emerald-400 dark:opacity-90"
+          />
+
+          {/* Fine Outer Boundary Line (Accents the exterior perimeter) */}
+          <path
+            d={ALL_STATES_COMBINED_PATH}
+            fill="none"
+            stroke="#0f172a"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            className="dark:stroke-white"
+          />
+
+          {/* ========================================================================= */}
+          {/* LAYER 2: ALL 36 STATES + FCT (INDIVIDUAL POLYGONS & INTERNAL BORDERS)     */}
+          {/* ========================================================================= */}
+          {ALL_NIGERIAN_STATES.map((state) => {
+            const stats = getStateStats(state.name, state.alias);
+            const isSelected = selectedState?.toLowerCase() === state.name.toLowerCase() ||
+              (selectedState?.toLowerCase() === 'abuja' && state.id === 'fct') ||
+              (selectedState?.toLowerCase() === 'fct' && state.id === 'fct');
+            const isHovered = hoveredState?.toLowerCase() === state.name.toLowerCase() || 
+                              hoveredState === state.id ||
+                              (hoveredState?.toLowerCase() === 'abuja' && state.id === 'fct');
+            const hasProjects = stats.count > 0;
+
+            // Check if matches active zone or search filter
+            const matchesSearch = !searchQuery || 
+              state.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (state.alias && state.alias.some(a => a.toLowerCase().includes(searchQuery.toLowerCase())));
+            const matchesZone = selectedZone === 'All' || state.zone === selectedZone;
+            const isDimmed = !matchesSearch || !matchesZone;
+
+            // Determine Fill Style
+            let fillClass = isDimmed
+              ? 'fill-[url(#dimmedStateGradLight)] dark:fill-[url(#dimmedStateGradDark)] opacity-40'
+              : 'fill-[url(#inactiveStateGradLight)] dark:fill-[url(#inactiveStateGradDark)]';
+            
+            // State Internal Border Styling (All borders showing cleanly)
+            let strokeColor = isDimmed ? '#94a3b8' : '#475569';
+            let strokeWidth = '1.2';
+            let strokeOpacity = isDimmed ? '0.3' : '0.9';
+
+            if (hasProjects) {
+              if (stats.status === 'Delayed') {
+                fillClass = 'fill-[url(#delayedGrad)]';
+                strokeColor = '#9f1239';
+                strokeWidth = '1.8';
+                strokeOpacity = '1';
+              } else if (stats.status === 'Needs Attention') {
+                fillClass = 'fill-[url(#needsAttentionGrad)]';
+                strokeColor = '#b45309';
+                strokeWidth = '1.8';
+                strokeOpacity = '1';
+              } else if (stats.status === 'Completed') {
+                fillClass = 'fill-[url(#completedGrad)]';
+                strokeColor = '#0369a1';
+                strokeWidth = '1.8';
+                strokeOpacity = '1';
+              } else {
+                // On Schedule -> FHA Emerald Green
+                fillClass = 'fill-[url(#onScheduleGrad)]';
+                strokeColor = '#064e3b';
+                strokeWidth = '1.8';
+                strokeOpacity = '1';
+              }
+            }
+
+            if (isSelected) {
+              strokeColor = '#ffffff';
+              strokeWidth = '3';
+              strokeOpacity = '1';
+            } else if (isHovered) {
+              strokeColor = hasProjects ? '#ffffff' : '#0f172a';
+              strokeWidth = '2.2';
+              strokeOpacity = '1';
+            }
+
+            return (
+              <g
+                key={state.id}
+                id={`state-${state.id}`}
+                className="cursor-pointer group transition-all duration-200"
+                onClick={() => onSelectState(isSelected ? null : state.name)}
+                onMouseEnter={() => setHoveredState(state.name)}
+                onMouseLeave={() => setHoveredState(null)}
+              >
+                {/* State Boundary Polygon */}
+                <path
+                  d={state.path}
+                  className={`${fillClass} transition-all duration-200 group-hover:brightness-110`}
+                  stroke={strokeColor}
+                  strokeWidth={strokeWidth}
+                  strokeOpacity={strokeOpacity}
+                  strokeLinejoin="round"
+                  filter={isSelected ? 'url(#stateSelectedGlow)' : undefined}
+                />
+
+                {/* Active Projects Indicator Rings & Halo Badges */}
+                {hasProjects && (
+                  <g>
+                    {/* Pulsing Target Halo */}
+                    <circle
+                      cx={state.x}
+                      cy={state.y}
+                      r={isSelected ? 18 : 13}
+                      className={`fill-none stroke-2 ${
+                        stats.status === 'Delayed' ? 'stroke-rose-400/80 animate-ping' :
+                        stats.status === 'Needs Attention' ? 'stroke-amber-400/80 animate-ping' :
+                        'stroke-emerald-300/80 animate-ping'
+                      }`}
+                      style={{ animationDuration: '3s' }}
+                    />
+
+                    {/* Outer Badge Ring */}
+                    <circle
+                      cx={state.x}
+                      cy={state.y}
+                      r={state.id === 'fct' ? 10 : 9}
+                      className="fill-white dark:fill-black stroke-slate-900 dark:stroke-white stroke-1.5 drop-shadow-md"
+                    />
+
+                    {/* Inner Metric Number (Number of schemes) */}
+                    <text
+                      x={state.x}
+                      y={state.y + 3}
+                      textAnchor="middle"
+                      className="fill-slate-900 dark:fill-white font-black text-[9px] font-mono pointer-events-none"
+                    >
+                      {stats.count}
+                    </text>
+                  </g>
+                )}
+
+                {/* State Name / Abbreviation Label */}
+                <text
+                  x={state.x}
+                  y={hasProjects ? state.y - 12 : state.y + 3}
+                  textAnchor="middle"
+                  className={`pointer-events-none tracking-tight font-sans transition-all duration-200 select-none ${
+                    hasProjects
+                      ? 'fill-white font-black text-[11px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]'
+                      : isHovered
+                      ? 'fill-slate-950 dark:fill-white font-extrabold text-[10px] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]'
+                      : isDimmed
+                      ? 'fill-slate-400 dark:fill-slate-600 font-medium text-[8px]'
+                      : 'fill-[#1e293b] dark:fill-[#e2e8f0] font-semibold text-[8.5px]'
+                  }`}
+                >
+                  {state.name}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Anambra Leader Line Callout (standard in official maps due to compact size) */}
+          <line
+            x1="268"
+            y1="478"
+            x2="310"
+            y2="465"
+            stroke="#475569"
+            strokeWidth="1"
+            strokeDasharray="2 2"
+            className="pointer-events-none opacity-60 dark:opacity-80"
+          />
+
+          {/* Lagos Coastline Indicator */}
+          <line
+            x1="54"
+            y1="465"
+            x2="54"
+            y2="480"
+            stroke="#0284c7"
+            strokeWidth="1"
+            strokeDasharray="2 1"
+            className="pointer-events-none opacity-60"
+          />
+          <text
+            x="54"
+            y="492"
+            textAnchor="middle"
+            className="fill-sky-800 dark:fill-sky-400 text-[8px] font-sans font-bold pointer-events-none"
+          >
+            Bight of Benin
+          </text>
+        </svg>
+
+        {/* Floating Telemetry Tooltip when hovering over any state */}
+        {activeHoverNode && activeHoverStats && (
+          <div className="absolute top-4 left-4 bg-white/95 dark:bg-[#070b14]/95 backdrop-blur-md border border-slate-300 dark:border-white/15 p-3 rounded-xl shadow-2xl z-30 pointer-events-none text-xs space-y-2 min-w-[210px] max-w-[270px] animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-1.5">
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <strong className="text-slate-900 dark:text-white text-xs font-serif">
+                  {activeHoverNode.name} {activeHoverNode.id === 'fct' ? '(Federal Capital Territory)' : 'State'}
+                </strong>
+              </div>
+              <span className="text-[8.5px] bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-mono font-bold">
+                {activeHoverNode.zone}
+              </span>
+            </div>
+
+            {activeHoverStats.count > 0 ? (
+              <div className="space-y-1 text-[10.5px]">
+                <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                  <span>Active FHA Schemes:</span>
+                  <strong className="text-slate-900 dark:text-white font-bold">{activeHoverStats.count} Estates</strong>
+                </div>
+                <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                  <span>Total Housing Units:</span>
+                  <strong className="text-slate-900 dark:text-white font-bold">{activeHoverStats.houses} Units</strong>
+                </div>
+                <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                  <span>Physical Completion:</span>
+                  <strong className="text-emerald-700 dark:text-emerald-400 font-bold">{activeHoverStats.progress}%</strong>
+                </div>
+                <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                  <span>Delivery Status:</span>
+                  <span className={`font-bold px-1.5 py-0.5 rounded text-[8.5px] uppercase ${
+                    activeHoverStats.status === 'Completed' ? 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30' :
+                    activeHoverStats.status === 'Delayed' ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30' :
+                    activeHoverStats.status === 'Needs Attention' ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30' :
+                    'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
+                  }`}>
+                    {activeHoverStats.status}
+                  </span>
+                </div>
+                <div className="pt-1 border-t border-slate-200 dark:border-white/10 text-[9.5px] text-emerald-700 dark:text-emerald-400 font-medium">
+                  👉 Click to filter schemes below
+                </div>
+              </div>
+            ) : (
+              <div className="text-[9.5px] text-slate-500 dark:text-slate-400 py-0.5 leading-relaxed">
+                No active FHA schemes currently allocated in this state node. All administrative borders active.
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Legend & National Delivery Telemetry Bar */}
+      <div className="w-full bg-slate-100/90 dark:bg-black/50 border-t border-slate-200 dark:border-white/10 px-3 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+        {/* Color Indicators */}
+        <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-xs bg-[#1D7033] border border-emerald-700 shadow-xs" />
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-300">On Schedule</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-xs bg-[#d97706] border border-amber-600 shadow-xs" />
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-300">Needs Attention</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-xs bg-[#e11d48] border border-rose-600 shadow-xs" />
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-300">Delayed</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-xs bg-[#0284c7] border border-sky-600 shadow-xs" />
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-300">Completed</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-xs bg-[#cbd5e1] dark:bg-[#1e293b] border border-[#475569] shadow-xs" />
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-400">All 36 States + FCT</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-5 h-1 rounded-full bg-[#064e3b] dark:bg-emerald-400 border border-slate-900 dark:border-white shadow-xs" />
+            <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-800 dark:text-emerald-400">National Border</span>
+          </div>
+        </div>
+
+        {/* Quick Instructions */}
+        <div className="text-[9.5px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+          Click any state to filter estate cards &bull; Official National Boundary
+        </div>
       </div>
     </div>
   );
