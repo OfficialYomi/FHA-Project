@@ -35,17 +35,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Dependencies
         run: |
-          if [ -f package-lock.json ]; then
-            echo "package-lock.json found. Running npm ci..."
-            npm ci
-          else
-            echo "package-lock.json not found. Falling back to npm install..."
-            npm install
-          fi
+          npm ci || npm install
 
       - name: Run Linter (TypeScript Verification)
         run: npm run lint
@@ -54,6 +48,7 @@ jobs:
         run: |
           npm run build
           cp dist/index.html dist/404.html
+          touch dist/.nojekyll
 
       - name: Upload Artifact
         if: github.event_name == 'push'
